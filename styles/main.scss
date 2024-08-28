@@ -1,0 +1,226 @@
+@import 'utilities';
+@import 'layout';
+@import 'icons';
+@import 'variables';
+
+/* In this file you can add custom styling for your Streamlit app.
+* Either use the general style placeholders such as `%sal-button` or
+* create new style blocks using the selector utilities.
+*/
+
+%justify-end {
+  justify-content: flex-end;
+}
+
+%flex-row {
+  flex-direction: row;
+
+  div {
+    // Most streamlit components add width values as inline style. Make it fit the content.
+    width: fit-content !important;
+  }
+}
+
+%no-flex-grow {
+  flex-grow: 0;
+}
+
+%sal-chat-message {
+  background-color: $chat-message-background-color;
+  padding: 0.75rem 1rem 0.75rem 0.75rem;
+}
+
+%sal-chat-message-content{
+  padding-top: 0.2rem;
+}
+
+%chat-message-footer {
+  border-top: $chat-message-footer-border;
+  padding-top: 0.5rem;
+}
+
+%streamlit-app-view-block {
+  padding-top: 4rem;
+}
+
+%share-button {
+  padding: 0.5rem 1rem;
+  line-height: 1rem;
+  min-height: initial;
+  p::before {
+    @include svg-icon($share-icon, $icon-light, 0.75rem);
+    margin-right: 0.5rem;
+  }
+  &:hover, &:focus {
+    p::before {
+      @include svg-icon($share-icon, $icon-primary, 0.75rem);
+    }
+  }
+}
+
+%dialog-button {
+  display: grid;
+  justify-content: flex-end;
+  div {
+    // Most streamlit components add width values as inline style. Make it fit the content.
+    width: fit-content !important;
+  }
+}
+
+%citation-button {
+  background-color: $citation-button-background-color;
+}
+
+%citation-block {
+  border-left: $citation-block-left-border;
+  padding-left: 0.75rem;
+}
+
+%citation-text {
+  * {
+    white-space: normal;
+  }
+}
+
+%citation-source {
+  p::before {
+    @include svg-icon($file-icon, $icon-light, 0.75rem);
+    margin-right: 0.5rem;
+  }
+}
+
+%citation-key-text {
+  // From DR citation dialog
+  color: $citation-key-text-color;
+  text-transform: uppercase;
+  font-size: .75rem;
+  font-weight: 400;
+  letter-spacing: .08125rem;
+  line-height: 1.6rem;
+}
+
+%feedback-button {
+  padding: 0.75rem 0;
+  margin: 0;
+  line-height: 1rem;
+  min-height: initial;
+  border: none;
+  background: none;
+}
+
+%feedback-up-icon {
+  @include thumb-icon-before-p($feedback-icon-up, $icon-light)
+}
+
+%feedback-up-icon-active {
+  @include thumb-icon-before-p($feedback-icon-up, $icon-primary)
+}
+
+%feedback-down-icon {
+  @include thumb-icon-before-p($feedback-icon-down, $icon-light)
+}
+
+%feedback-down-icon-active {
+  @include thumb-icon-before-p($feedback-icon-down, $icon-primary)
+}
+
+%empty-chat {
+  flex-grow: 1;
+  display: grid;
+  align-content: center;
+
+  > div > div[data-testid="stVerticalBlock"] {
+    align-items: center;
+  }
+
+  button {
+    // Do not display the fullscreen toggle button
+    display: none;
+  }
+
+  div[data-testid="stVerticalBlock"] {
+    div {
+      gap: 0;
+      // Most streamlit components add width values as inline style. Make it fit the content.
+      width: fit-content !important;
+    }
+  }
+
+  // Every child element (image and text) should
+  div.element-container {
+    align-self: center;
+  }
+}
+
+%empty-chat-header {
+  margin-top: 0.75rem;
+
+  div {
+    @include default-font;
+    font-weight: bold;
+    font-size: 1.2rem;
+  }
+}
+
+%empty-chat-text {
+  div {
+    @include default-font;
+    font-size: 1rem;
+  }
+}
+
+%streamlit-app-view-block {
+  // This style block uses the available height for the empty message image in combination with %empty-chat
+  &:not(:has(div.stChatMessage)) {
+    display: flex;
+    // Use 90% to leave the rest 10% for the footer with chat prompt input
+    height: 90%;
+
+    > div {
+      display: flex;
+      width: 100%;
+    }
+  }
+}
+
+%app-header {
+  padding-top: 0;
+}
+
+// Styles for custom 'render_info_section' html component
+%no-margin {
+  margin: 0;
+}
+
+.info-section {
+  display: flex;
+  flex-wrap: wrap;
+  column-gap: 10px;
+}
+
+.key-value-item {
+  box-sizing: border-box;
+  line-height: 1.5rem;
+}
+
+/* Add new custom classes under the respective `sal-` component name key here.
+*  They will be compiled into the final stylesheet.
+*  Utility classes that are intended for multiple types of components need to be
+*  added to every component they can apply to.
+ */
+$custom-classes: (
+  sal-column: (justify-end, flex-row),
+  sal-columns: (chat-message-footer, no-flex-grow),
+  sal-button: (share-button, citation-button, feedback-button, feedback-up-icon, feedback-down-icon, feedback-up-icon-active, feedback-down-icon-active),
+  sal-button-container: (dialog-button),
+  sal-subheader: (app-header),
+  sal-container: (citation-block),
+  sal-container-container: (empty-chat),
+  sal-write: (citation-key-text),
+  sal-text: (citation-text, empty-chat-header, empty-chat-text),
+  sal-caption: (citation-source),
+  sal-markdown: (no-margin)
+);
+
+// Do not modify or move this final import!
+@import 'style-builder';

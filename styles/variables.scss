@@ -1,0 +1,16 @@
+$chat-message-background-color: var(--st-secondary-background-color);
+$chat-message-footer-border: 1px solid rgba(250, 250, 250, 0.2);
+
+$citation-button-background-color: var(--st-secondary-background-color);
+$citation-block-left-border: 2px solid #e8ebed;
+$citation-key-text-color: #8f97a1;
+
+$icon-light: #ffffff;
+$icon-dark: #000000;
+$icon-primary: var(--st-primary-color);
+
+@mixin default-font {
+  font-family: "Source Sans Pro", sans-serif;
+  margin: 0;
+  white-space: normal;
+}

@@ -1,0 +1,69 @@
+resultText_PREDICTION,DEPLOYMENT_APPROVAL_STATUS,CITATION_PAGE_0_OUTPUT,CITATION_CONTENT_8_OUTPUT,datarobot_confidence_score_OUTPUT,Rouge 1_reported_resultText_OUTPUT,Prompt Tokens_reported_promptText_OUTPUT,CITATION_CONTENT_0_OUTPUT,CITATION_PAGE_5_OUTPUT,CITATION_PAGE_6_OUTPUT,action_promptText_OUTPUT,CITATION_SOURCE_8_OUTPUT,Rouge 1_latency_OUTPUT,Responses_token_count_OUTPUT,CITATION_CONTENT_2_OUTPUT,action_resultText_OUTPUT,CITATION_SOURCE_1_OUTPUT,CITATION_CONTENT_4_OUTPUT,CITATION_SOURCE_5_OUTPUT,CITATION_CONTENT_3_OUTPUT,CITATION_PAGE_3_OUTPUT,CITATION_CONTENT_1_OUTPUT,CITATION_PAGE_8_OUTPUT,CITATION_PAGE_1_OUTPUT,CITATION_SOURCE_9_OUTPUT,CITATION_SOURCE_4_OUTPUT,CITATION_CONTENT_7_OUTPUT,Responses_rouge_1_OUTPUT,CITATION_PAGE_2_OUTPUT,reported_resultText_OUTPUT,Response Tokens_latency_OUTPUT,Response Tokens_reported_resultText_OUTPUT,Prompts_token_count_OUTPUT,datarobot_latency_OUTPUT,CITATION_SOURCE_6_OUTPUT,CITATION_CONTENT_9_OUTPUT,reported_promptText_OUTPUT,CITATION_PAGE_7_OUTPUT,LLM_BLUEPRINT_ID_OUTPUT,Prompt Tokens_latency_OUTPUT,CITATION_SOURCE_0_OUTPUT,CITATION_PAGE_4_OUTPUT,blocked_promptText_OUTPUT,CITATION_SOURCE_7_OUTPUT,datarobot_token_count_OUTPUT,CITATION_CONTENT_6_OUTPUT,blocked_resultText_OUTPUT,CITATION_SOURCE_2_OUTPUT,CITATION_SOURCE_3_OUTPUT,CITATION_PAGE_9_OUTPUT,CITATION_CONTENT_5_OUTPUT,a_id
+Hello! How can I assist you today?,APPROVED,0,"---
+title: Anti-Money Laundering (AML) Alert Scoring
+description: Build a model that uses historical data, including customer and transactional information, to identify which alerts resulted in a Suspicious Activity Report (SAR).
+---
+
+# Anti-Money Laundering (AML) Alert Scoring {: #anti-money-laundering-aml-alert-scoring }",0.2857142857,False,False,"---
+title: Need help signing in?
+description: This article addresses common questions related to signing up or signing in to the DataRobot AI Platform or the DataRobot Community.
+
+---
+
+# Need help signing in?
+
+This article addresses common questions related to signing up or signing in to the DataRobot AI Platform or the DataRobot Community.
+
+## Are you signing in to the correct AI Platform?
+
+Make sure that you are logging in to the appropriate region of the DataRobot AI Platform. You must log in to the application based on the region selected when registering your account—either [app.datarobot.com](https://app.datarobot.com){ target=_blank } or [app.eu.datarobot.com](https://app.eu.datarobot.com){ target=_blank }.
+
+## Do you have the right password?
+
+If you are not sure if you are entering the right password, try a password reset. Note:",0,0,,datarobot_english_documentation/datarobot_docs|en|more-info|biz-accelerators|money-launder.txt,0.0227906704,9,"#### Prompt {: #prompt data-category=gen-ai }
+The input entered during chatting used to generate the LLM response.
+
+#### Prompt template {: #prompt-template data-category=gen-ai }
+See [system prompt](#system-prompt).",,datarobot_english_documentation/datarobot_docs|en|gen-ai|playground.txt,"**Prompt:** My PrintPro 9001 is making strange noises and not functioning properly. Can you please help me with this?
+
+Save the draft as an LLM blueprint to register it and put it into production.
+
+![](images/few-shot-3.png)
+
+See the [MIT Prompt Engineering Guide](https://www.promptingguide.ai/techniques/fewshot){ target=_blank } for more detailed information.",datarobot_english_documentation/datarobot_docs|en|mlops|deployment|registry|reg-action.txt,"OPENAI_API_VERSION       | Enter the Azure OpenAI API version to use for this operation, following the YYYY-MM-DD or YYYY-MM-DD-preview format (for example, 2023-05-15). For more information on the supported versions, see the [Azure OpenAI API reference documentation](https://learn.microsoft.com/en-us/azure/ai-services/openai/reference){ target=_blank }.
+        PROMPT_COLUMN_NAME       | Enter the prompt column name from the input .csv file. The default column name is promptText.",0,"Chatting is the activity of sending prompts and receiving a response from the LLM. Once you have set the configuration for your LLM, send it prompts (from the entry box in the lower center panel) to determine whether further refinements are needed before saving your draft as an LLM blueprint.
+
+![](images/playground-16.png)
+
+Chatting within the playground is a ""conversation""&mdash;you can ask follow up questions with subsequent prompts. Following is an example of asking the LLM to provide Python code for running DataRobot Autopilot:
+
+![](images/playground-9.png)
+
+You could then ask it to make a change to ""that code"" and the LLM responds knowing the code being referenced because it is ""aware"" of the previous conversation history:
+
+![](images/playground-10.png)
+
+Use the playground to test and tune prompts until you are satisfied with the system prompt and settings. Then, click **Save as LLM blueprint** in the bottom of the right-hand panel.",0,0,datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt,datarobot_english_documentation/datarobot_docs|en|gen-ai|playground.txt,"| Field | Description |
+    |-------|-------------|
+    | Registered model name / Registered model | Do one of the following:<ul><li>**Registered model name:** _When registering a new model_, enter a unique and descriptive name for the new registered model. If you choose a name that exists anywhere within your organization, a warning appears.</li><li>**Registered model:** _When saving as a version of an existing model_, select the existing registered model you want to add a new version to.</li></ul> |
+    | Registered version name  | Automatically populated with the model name, date, and time. Change or modify the name as necessary.
+    | Registered model version | Assigned automatically. This displays the expected version number of the version (e.g., V1, V2, V3) you create. This is always **V1** when you select **Register as a new model**. |",0.2857142857,0,False,0.0007052422,False,1,0.5185520649,datarobot_english_documentation/datarobot_docs|en|api|accelerators|gen-ai-accel|med-research.txt,"Imagine you want to receive an answer to the question ""Do aliens exist?"" Your best plan to get an answer to this question is to interview a particular stranger by asking ""Did you see anything strange last night?"" If they say ""Yes"", you conclude aliens exist. If say ""No"", you conclude aliens don't exist. What's nice is that you have a friend in the army who has access to radar technology so they can determine whether an alien did or did not show up. However, you won't see your friend until next week, so for now conducting the interview experiment is your best option.",False,0,66829c71b36e64fd853e0d3f,0.0007612705,datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|signin-help.txt,0,False,datarobot_english_documentation/datarobot_docs|en|workbench|nxt-registry|nxt-register-dr-models.txt,9,"---
+title: Build a healthcare conversation agent using medical research
+description: Use Retrieval Augmented Generation to build a conversational agent for Healthcare professionals.
+
+---
+
+# Build a healthcare conversation agent using medical research {: #build-a-health-care-conversation-agent-using-medical-research }
+
+[Access this AI accelerator on GitHub <span style=""vertical-align: sub"">:material-arrow-right-circle:{.lg }</span>](https://github.com/datarobot-community/ai-accelerators/blob/main/generative_ai/Medical%20Research%20Agent/Medical%20Research%20Conversational%20Agent.ipynb){ .md-button }",False,datarobot_english_documentation/datarobot_docs|en|includes|genai|prompt-include.txt,datarobot_english_documentation/datarobot_docs|en|gen-ai|deploy-llm.txt,0,"To open the registered model version, do either of the following:
+
+![](images/reg-model-open-version.png)
+
+* To open the version in the current tab, click the row for the version you want to access.
+
+* To open the version in a new tab, click the open icon (![](images/icon-open.png)) next to the **Type** column for the version you want to access.
+
+![](images/reg-model-ver-info.png)
+
+!!! tip
+    You can click **Switch** next to the name in the version header to select another version to view.",29b34f90-6823-4124-8950-74cc87d5bfc2
