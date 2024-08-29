@@ -1,7 +1,6 @@
 streamlit==1.36.0
 datarobot==3.4.0
 datarobot-predict==1.9.0
-responses==0.22.0
 requests>=2.28.1
 pandas==2.2.2
 streamlit-sal==0.1.5

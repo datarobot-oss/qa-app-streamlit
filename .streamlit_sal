@@ -1,0 +1,5 @@
+[settings]
+sass_source_path = styles
+css_stylesheet_file_path = styles
+css_stylesheet_file_name = sal-stylesheet.css
+

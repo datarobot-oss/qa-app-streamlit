@@ -35,11 +35,9 @@ def initiate_session_state():
     if 'endpoint' not in st.session_state:
         st.session_state.endpoint = os.getenv("endpoint")
     if 'custom_metric_id' not in st.session_state:
-        st.session_state.custom_metric_id = os.getenv("custom_metric_id") or os.getenv(
-            "mlops_runtime_param_custom_metric_id") or None
+        st.session_state.custom_metric_id = os.getenv("custom_metric_id") or None
     if 'deployment_id' not in st.session_state:
-        st.session_state.deployment_id = os.getenv("deployment_id") or os.getenv(
-            "mlops_runtime_param_deployment_id") or None
+        st.session_state.deployment_id = os.getenv("deployment_id") or None
     if 'app_id' not in st.session_state:
         app_base_url_path = os.getenv("app_base_url_path", None)
         st.session_state.app_id = app_base_url_path.split('/')[-1].strip() if app_base_url_path else None
