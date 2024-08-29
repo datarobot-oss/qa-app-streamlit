@@ -14,13 +14,15 @@ You can run the app in DataRobot via Custom Applications or run the Streamlit ap
 Custom Applications can be created either via the registry workshop or
 using [DRApps](https://github.com/datarobot/dr-apps/blob/main/README.md)
 
-Make sure to define the variables for the app to talk to DataRobot: 
-###
+Make sure to define the variables for the app to talk to DataRobot. If you run the app from local or another environment
+than DataRobots custom applications you'll need to set the env variables. When this app is run via
+custom applications workshop they should be set automatically and via runtime parameters set in the app source.
+
 ```shell
 export token="$DATAROBOT_API_TOKEN"  # Your API token from DR developer tools page
 export endpoint="$DATAROBOT_ENDPOINT"  # Example: https://app.datarobot.com/api/v2/
-export deployment_id="$DEPLOYMENT_ID"  # ID of the deploy
-export custom_metric_id="$CUSTOM_METRIC_ID"  # Optional: Response feedback metric id 
+export deployment_id="$DEPLOYMENT_ID"  # ID of the deployment
+export custom_metric_id="$CUSTOM_METRIC_ID"  # Optional: Response feedback custom metric id 
 ```
 
 ```sh
