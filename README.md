@@ -1,6 +1,6 @@
 # Q&A Custom Application Template
 
-![app_example.png](assets/qa_app_demo.gif)
+![App Demo gif](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/qa_app_demo.gif)
 
 ## What's in this repository?
 In this repository you will find the Q &amp; A Streamlit application code template that is used within DataRobot.
@@ -28,14 +28,22 @@ export custom_metric_id="$CUSTOM_METRIC_ID"  # Optional: Response feedback custo
 ```sh
 pip install --no-cache-dir -r requirements.txt
 
+cd src/
 streamlit-sal compile
 streamlit run --server.port=8080 qa_chat_bot.py
 ```
 
-or simply run the `start-app.sh` directly from the project root:
+or simply run the `start-app.sh` directly from the app src:
 
 ```sh
+cd src/
 ./start-app.sh
+```
+
+To run the tests use the shell script in the project root:
+```sh
+pip install -r requirements-dev.txt
+./run_tests.sh
 ```
 
 ## How do I modify it?
@@ -59,4 +67,4 @@ The app is split into multiple files to make it easy to modify:
 Feedback buttons on LLM responses will only appear if the CUSTOM_METRIC_ID env variable has been set/
 Here is an example of a metric for thumbs up and down, you can add it under your Console -> Deployment -> Monitoring ->
 Custom metrics
-![Custom Metric Example](assets/custom_metric_example.png)
+![Custom Metric Example](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/custom_metric_example.png)

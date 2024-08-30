@@ -1,5 +1,5 @@
 # Include the app dependencies
--r requirements.txt
+-r src/requirements.txt
 
 # Dev dependencies
 pytest
