@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-# Change to the src directory
+# Change to the src directory (SAL is looking for a root dir that has .streamlit_sal config
 cd "$(dirname "$0")/src"
 
-# Continue with the script execution
-pytest ../tests/  # or whatever command you need to run
+# Start the tests without changing current active dir
+pytest ../tests/
