@@ -16,33 +16,34 @@ jobs:
           PR_URL="${{ github.event.pull_request.html_url }}"
           PR_AUTHOR="${{ github.event.pull_request.user.login }}"
           SLACK_WEBHOOK_URL="${{ secrets.SLACK_WEBHOOK_URL }}"
-          
-          echo "Webhook URL starts with: ${SLACK_WEBHOOK_URL::5}" 
+
+          echo "Webhook URL starts with: ${SLACK_WEBHOOK_URL::5}" # For debugging, ensure the URL is correct
+
           curl -X POST -H 'Content-type: application/json' \
-          --data '{
-            "text": "*Pull Request Ready for Review!*",
-            "blocks": [
+          --data "{
+            \"text\": \"*Pull Request Ready for Review!*\", 
+            \"blocks\": [
               {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": ":rocket: *PR Title*: '"\"${PR_TITLE}\""'"
+                \"type\": \"section\",
+                \"text\": {
+                  \"type\": \"mrkdwn\",
+                  \"text\": \":rocket: *PR Title*: ${PR_TITLE}\"
                 }
               },
               {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "*Author*: '"\"${PR_AUTHOR}\""'"
+                \"type\": \"section\",
+                \"text\": {
+                  \"type\": \"mrkdwn\",
+                  \"text\": \"*Author*: ${PR_AUTHOR}\"
                 }
               },
               {
-                "type": "section",
-                "text": {
-                  "type": "mrkdwn",
-                  "text": "*PR Link*: <'"\"${PR_URL}\"'|Click here to review>"
+                \"type\": \"section\",
+                \"text\": {
+                  \"type\": \"mrkdwn\",
+                  \"text\": \"*PR Link*: <${PR_URL}|Click here to review>\"
                 }
               }
             ]
-          }' \
+          }" \
           $SLACK_WEBHOOK_URL
