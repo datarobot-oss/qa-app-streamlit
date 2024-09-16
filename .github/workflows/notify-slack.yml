@@ -13,7 +13,7 @@ jobs:
       - name: Send notification to Slack
         run: |
           SLACK_WEBHOOK_URL="${{ secrets.SLACK_WEBHOOK_URL }}"
-          PR_ID="${{ github.event.pull_request.id }}"
+          PR_NR="${{ github.event.pull_request.number }}"
           PR_URL="${{ github.event.pull_request.html_url }}"
           PR_TITLE="${{ github.event.pull_request.title }}"
           PR_AUTHOR="${{ github.event.pull_request.user.login }}"
@@ -29,7 +29,7 @@ jobs:
                 \"type\": \"section\",
                 \"text\": {
                   \"type\": \"mrkdwn\",
-                  \"text\": \":rocket: PR by ${PR_AUTHOR} needs a review: +${PR_ADDITIONS} -${PR_DELETIONS}  ${REPO_NAME}#${PR_ID}: ${PR_TITLE}\"
+                  \"text\": \":rocket: PR by ${PR_AUTHOR} needs a review: \`+${PR_ADDITIONS} -${PR_DELETIONS}\` <${PR_URL}|${REPO_NAME}#${PR_NR}: ${PR_TITLE}>\"
                 }
               },
               {
