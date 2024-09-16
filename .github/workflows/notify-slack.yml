@@ -10,6 +10,9 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
+      - name: Test Secret Access
+        run:
+          echo "Webhook URL starts with: ${SLACK_WEBHOOK_URL::5}"
       - name: Send notification to Slack
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
