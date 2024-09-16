@@ -10,9 +10,6 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Test Secret Access
-        run:
-
       - name: Send notification to Slack
         run: |
           PR_TITLE="${{ github.event.pull_request.title }}"
