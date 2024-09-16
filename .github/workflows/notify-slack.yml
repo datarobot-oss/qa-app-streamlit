@@ -31,13 +31,6 @@ jobs:
                   \"type\": \"mrkdwn\",
                   \"text\": \":rocket: PR by ${PR_AUTHOR} needs a review: \`+${PR_ADDITIONS} -${PR_DELETIONS}\` <${PR_URL}|${REPO_NAME}#${PR_NR}: ${PR_TITLE}>\"
                 }
-              },
-              {
-                \"type\": \"section\",
-                \"text\": {
-                  \"type\": \"mrkdwn\",
-                  \"text\": \"*PR Link*: <${PR_URL}|Click here to review>\"
-                }
               }
             ]
           }" \

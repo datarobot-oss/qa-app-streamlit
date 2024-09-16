@@ -2,7 +2,7 @@ name: Periodic PR Reminders
 
 on:
   schedule:
-    - cron: '*/2 * * * *'  # Every 2 minutes
+    - cron: '0 */3 * * *' # Runs every 3 hours
 
 jobs:
   reminder:
@@ -31,34 +31,30 @@ jobs:
             _jq() {
               echo ${row} | base64 --decode | jq -r ${1}
             }
+            PR_NR=$(_jq '.number')
             PR_TITLE=$(_jq '.title')
             PR_URL=$(_jq '.html_url')
             PR_AUTHOR=$(_jq '.user.login')
+            PR_ADDITIONS=$(_jq '.additions')
+            PR_DELETIONS=$(_jq '.deletions')
 
             # Send Slack notification
             curl -X POST -H 'Content-type: application/json' \
             --data "{
-              \"text\": \"*Reminder:* Pull Request '${PR_TITLE}' is still in review. Please take action!\",
+              \"text\": \"*Reminder:* Pull Request '${PR_TITLE}' is still in review, please take a look!\",
               \"blocks\": [
                 {
                   \"type\": \"section\",
                   \"text\": {
                     \"type\": \"mrkdwn\",
-                    \"text\": \":warning: *PR Title*: ${PR_TITLE}\"
+                    \"text\": \":warning: *Reminder:* Pull Request <${PR_URL}|#${PR_NR}> is still in review, please take a look!\"
                   }
                 },
                 {
                   \"type\": \"section\",
                   \"text\": {
                     \"type\": \"mrkdwn\",
-                    \"text\": \"*Author*: ${PR_AUTHOR}\"
-                  }
-                },
-                {
-                  \"type\": \"section\",
-                  \"text\": {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \"*PR Link*: <${PR_URL}|Click here to review>\"
+                    \"text\": \":rocket: PR by ${PR_AUTHOR} needs a review: \`+${PR_ADDITIONS} -${PR_DELETIONS}\` <${PR_URL}|${REPO_NAME}#${PR_NR}: ${PR_TITLE}>\"
                   }
                 }
               ]
