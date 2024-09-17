@@ -32,5 +32,5 @@ jobs:
               echo ${row} | base64 --decode | jq -r ${1}
             }
             echo "Decoded PR Data:"
-            echo "${decoded_row}" | jq .
+            echo "${row}" | jq .
           done
