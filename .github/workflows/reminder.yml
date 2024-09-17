@@ -18,7 +18,7 @@ jobs:
           
           # Fetch PRs with "Ready for review" label
           PRS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?labels=Ready%20for%20review&state=open&per_page=100")
+            "https://api.github.com/repos/${{ github.repository }}/issues?labels=TestLabel&state=open&per_page=100")
           PR_COUNT=$(echo $PRS | jq '. | length')
           
           if [ "$PR_COUNT" -eq 0 ]; then
