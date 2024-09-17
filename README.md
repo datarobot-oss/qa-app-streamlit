@@ -5,7 +5,7 @@
 ## What's in this repository?
 In this repository you will find the Q &amp; A Streamlit application code template that is used within DataRobot.
 
-The application uses a styling library for Streamlit called `streamlit-sal`, read more
+The application uses a styling library for Streamlit called `streamlit-sal`, see more
 on https://github.com/datarobot-oss/streamlit-sal
 
 ## How do I set it up?
