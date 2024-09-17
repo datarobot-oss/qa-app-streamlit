@@ -42,7 +42,7 @@ jobs:
             PR_DELETIONS=$(echo $PR_DETAILS | jq '.deletions')
 
             echo "PR #$PR_NUMBER: $PR_TITLE"
-            echo "Additions: $ADDITIONS, Deletions: $DELETIONS"
+            echo "Additions: $PR_ADDITIONS, Deletions: $PR_DELETIONS"
             echo "$PR_DETAILS" | jq .
 
             
