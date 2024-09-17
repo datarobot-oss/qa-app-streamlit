@@ -31,6 +31,16 @@ jobs:
             _jq() {
               echo ${row} | base64 --decode | jq -r ${1}
             }
+            PR_NR=$(_jq '.number')
+            PR_TITLE=$(_jq '.title')
+            PR_URL=$(_jq '.html_url')
+            PR_AUTHOR=$(_jq '.user.login')
+            PR_ADDITIONS=$(_jq '.additions')
+            PR_DELETIONS=$(_jq '.deletions')
+            # Decode the base64 string and pipe it to jq
+            decoded_row=$(echo "${row}" | base64 --decode)
+            
+            # Pretty print the decoded JSON
             echo "Decoded PR Data:"
-            echo "${row}" | jq .
+            echo "${decoded_row}" | jq .
           done
