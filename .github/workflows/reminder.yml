@@ -1,8 +1,8 @@
 name: Periodic PR Reminders
 
 on:
-  pull_request:
-    types: [labeled]
+  schedule:
+    - cron: '0 */3 * * *' # Runs every 3 hours
 
 jobs:
   reminder:
@@ -18,7 +18,7 @@ jobs:
           
           # Fetch PRs with "Ready for review" label
           PRS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
-            "https://api.github.com/repos/${{ github.repository }}/issues?labels=TestLabel&state=open&per_page=100")
+            "https://api.github.com/repos/${{ github.repository }}/issues?labels=Ready%20for%20review&state=open&per_page=100")
           PR_COUNT=$(echo $PRS | jq '. | length')
           
           if [ "$PR_COUNT" -eq 0 ]; then
@@ -41,5 +41,27 @@ jobs:
             PR_ADDITIONS=$(echo $PR_DETAILS | jq '.additions')
             PR_DELETIONS=$(echo $PR_DETAILS | jq '.deletions')
             REPO_NAME=$(echo $PR_DETAILS | jq '.base.repo.full_name')
-            echo "PR #$PR_NUMBER in Repository: $REPO_NAME"
+
+            # Send Slack notification
+            curl -X POST -H 'Content-type: application/json' \
+            --data "{
+              \"text\": \"*Reminder:* Pull Request '${PR_TITLE}' is still in review, please take a look!\",
+              \"blocks\": [
+                {
+                  \"type\": \"section\",
+                  \"text\": {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \":warning: *Reminder:* Pull Request <${PR_URL}|#${PR_NUMBER}> still needs a reviewer, please take a look!\"
+                  }
+                },
+                {
+                  \"type\": \"section\",
+                  \"text\": {
+                    \"type\": \"mrkdwn\",
+                    \"text\": \":rocket: PR by ${PR_AUTHOR} needs a review: \`+${PR_ADDITIONS} -${PR_DELETIONS}\` <${PR_URL}|${REPO_NAME}#${PR_NUMBER}: ${PR_TITLE}>\"
+                  }
+                }
+              ]
+            }" \
+            $SLACK_WEBHOOK_URL
           done
