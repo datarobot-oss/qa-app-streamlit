@@ -1,8 +1,8 @@
 name: Periodic PR Reminders
 
 on:
-  schedule:
-    - cron: '0 */3 * * *' # Runs every 3 hours
+  pull_request:
+    types: [labeled]
 
 jobs:
   reminder:
@@ -30,7 +30,10 @@ jobs:
           for row in $(echo "${PRS}" | jq -r '.[] | @base64'); do
             _jq() {
               echo ${row} | base64 --decode | jq -r ${1}
-            }
+            
+            echo "Decoded PR Data:"
+            echo "${decoded_row}" | jq .
+
             PR_NR=$(_jq '.number')
             PR_TITLE=$(_jq '.title')
             PR_URL=$(_jq '.html_url')
