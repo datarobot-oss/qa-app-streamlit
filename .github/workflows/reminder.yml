@@ -41,34 +41,9 @@ jobs:
             PR_ADDITIONS=$(echo $PR_DETAILS | jq '.additions')
             PR_DELETIONS=$(echo $PR_DETAILS | jq '.deletions')
 
+            echo "PR #$PR_NUMBER: $PR_TITLE"
+            echo "Additions: $ADDITIONS, Deletions: $DELETIONS"
+            echo "$PR_DETAILS" | jq .
 
-            # Send Slack notification
-            curl -X POST -H 'Content-type: application/json' \
-            --data "{
-              \"text\": \"*Reminder:* Pull Request '${PR_TITLE}' is still in review, please take a look!\",
-              \"blocks\": [
-                {
-                  \"type\": \"section\",
-                  \"text\": {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \":construction: TESTING OSS BOT :male-construction-worker:\"
-                  }
-                },
-                {
-                  \"type\": \"section\",
-                  \"text\": {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \":warning: *Reminder:* Pull Request <${PR_URL}|#${PR_NR}> still needs a reviewer, please take a look!\"
-                  }
-                },
-                {
-                  \"type\": \"section\",
-                  \"text\": {
-                    \"type\": \"mrkdwn\",
-                    \"text\": \":rocket: PR by ${PR_AUTHOR} needs a review: \`+${PR_ADDITIONS} -${PR_DELETIONS}\` <${PR_URL}|${REPO_NAME}#${PR_NR}: ${PR_TITLE}>\"
-                  }
-                }
-              ]
-            }" \
-            $SLACK_WEBHOOK_URL
+            
           done
