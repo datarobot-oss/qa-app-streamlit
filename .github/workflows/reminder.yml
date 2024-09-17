@@ -35,12 +35,9 @@ jobs:
             PR_TITLE=$(_jq '.title')
             PR_URL=$(_jq '.html_url')
             PR_AUTHOR=$(_jq '.user.login')
-            PR_ADDITIONS=$(_jq '.additions')
-            PR_DELETIONS=$(_jq '.deletions')
 
             PR_DETAILS=$(curl -s -H "Authorization: token ${{ secrets.GITHUB_TOKEN }}" \
               "https://api.github.com/repos/${{ github.repository }}/pulls/${PR_NUMBER}")
-          
             PR_ADDITIONS=$(echo $PR_DETAILS | jq '.additions')
             PR_DELETIONS=$(echo $PR_DETAILS | jq '.deletions')
 
