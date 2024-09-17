@@ -31,7 +31,7 @@ jobs:
             _jq() {
               echo ${row} | base64 --decode | jq -r ${1}
             }
-            $PR_NUMBER=$(_jq '.number')
+            PR_NUMBER=$(_jq '.number')
             PR_TITLE=$(_jq '.title')
             PR_URL=$(_jq '.html_url')
             PR_AUTHOR=$(_jq '.user.login')
