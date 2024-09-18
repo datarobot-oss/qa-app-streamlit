@@ -15,5 +15,5 @@
    },
    "templateType":"customApplicationTemplate",
    "templateSubType":"customApplicationTemplate",
-   "executionEnvironmentName":"[Experimental] Python 3.9 Streamlit"
+   "executionEnvironmentName":"[DataRobot] Python 3.12 Streamlit"
 }
