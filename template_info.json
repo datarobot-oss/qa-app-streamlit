@@ -1,0 +1,19 @@
+{
+   "name":"Q&A Chat Generation App",
+   "description":"Q&A Chat Generation App",
+   "templateMetadata": {
+      "tags": [
+         "Streamlit",
+         "ChatGPT",
+         "GenerativeAI"
+      ],
+      "source": {
+         "repositoryUrl": "https://github.com/datarobot-oss/qa-app-streamlit",
+         "releaseTag": "10.2"
+      },
+      "previewImage": "qa-app-preview.png"
+   },
+   "templateType":"customApplicationTemplate",
+   "templateSubType":"customApplicationTemplate",
+   "executionEnvironmentName":"[DataRobot] Python 3.12 Streamlit"
+}
