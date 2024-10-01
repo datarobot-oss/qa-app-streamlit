@@ -111,11 +111,13 @@ def response_info_footer(message):
     custom_metric_id = st.session_state.custom_metric_id
 
     info_section_data = get_info_section_data(message)
-    if len(info_section_data) > 0:
+    has_info_data = len(info_section_data) > 0
+    if has_info_data or citations is not None:
         with sal.columns('chat-message-footer'):
             col0, col1 = st.columns([0.7, 0.3], vertical_alignment="center")
 
-            render_info_section(info_section_data, col0)
+            if has_info_data:
+                render_info_section(info_section_data, col0)
 
             with sal.column('justify-end', 'flex-row', container=col1):
                 if custom_metric_id is not None:
