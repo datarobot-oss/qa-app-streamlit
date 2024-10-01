@@ -61,6 +61,6 @@ The app is split into multiple files to make it easy to modify:
 
 ## Feedback custom metric
 
-Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` environment variable has been set. Below is an example of a metric for thumbs up and down, you can add it by naviagting to **Console -> Deployment -> Monitoring ->Custom metrics** .
+Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` environment variable has been set. Below is an example of a metric for thumbs up and down, you can add it by navigating to **Console -> Deployment -> Monitoring ->Custom metrics** .
 
 ![Custom Metric Example](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/custom_metric_example.png)
