@@ -59,6 +59,29 @@ The app is split into multiple files to make it easy to modify:
 - `.streamlit/config.toml`: This is the Streamlit configuration file. Under `[theme]` you can define your own app
   colors. Please note that a full app restart is necessary for the values to take effect.
 
+## How to add and use runtime parameters?
+
+Variables can be added in the metadata.yaml file in your application source folder. Here is an example of an API_TOKEN
+which will create an environment variable called `MLOPS_RUNTIME_PARAM_API_TOKEN`:
+```yaml
+runtimeParameterDefinitions:
+- fieldName: API_TOKEN
+  type: credential
+```
+
+Once this file is part of your Application source in DataRobot, it will display the new runtime parameter(s) as part of
+the app configuration.
+
+To use the parameters we recommend to add them via `start-app.sh`, add this conditional export before the
+`streamlit-sal` and `streamlit` commands:
+```shell
+if [ -n "$MLOPS_RUNTIME_PARAM_API_TOKEN" ]; then
+  export api_token="$MLOPS_RUNTIME_PARAM_API_TOKEN"
+fi
+```
+
+Now you can use `os.getenv("api_token")` within your application code.
+
 ## Feedback custom metric
 
 Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` environment variable has been set. Below is an example of a metric for thumbs up and down, you can add it by navigating to **Console -> Deployment -> Monitoring ->Custom metrics** .

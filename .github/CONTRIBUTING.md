@@ -16,10 +16,10 @@ Guidelines for developing and contributing to this project.
 ## Did you find a bug?
 
 - Do not open up a GitHub issue if the bug is a security
-vulnerability, instead email the maintainers directly or email
-oss-community-management@datarobot.com if they do not respond within
-seven days
-- Ensure the bug was not already reported in the projects Issues section
+vulnerability, instead email the maintainers directly and cc
+oss-community-management@datarobot.com
+We will review the message within the business day. 
+- Ensure the bug was not already reported in the project's Issues section
 - Open an issue as described above
 
 ## Responding to issues and pull requests
@@ -27,5 +27,5 @@ seven days
 This project's maintainers will make every effort to respond to any
 open issues as soon as possible.
 
-If you don't get a response within sevent days of creating your issue or
+If you don't get a response within seven days of creating your issue or
 pull request, please send us an email at oss-community-management@datarobot.com
