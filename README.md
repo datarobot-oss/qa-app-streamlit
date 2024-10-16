@@ -66,7 +66,7 @@ which will create an environment variable called `MLOPS_RUNTIME_PARAM_API_TOKEN`
 ```yaml
 runtimeParameterDefinitions:
 - fieldName: API_TOKEN
-  type: credential
+  type: string
 ```
 
 Once this file is part of your Application source in DataRobot, it will display the new runtime parameter(s) as part of
@@ -81,6 +81,8 @@ fi
 ```
 
 Now you can use `os.getenv("api_token")` within your application code.
+If you'd like to know more about runtime parameters, you can read more in
+our [DataRobot Docs](https://docs.datarobot.com/en/docs/workbench/nxt-registry/nxt-apps-workshop/nxt-manage-custom-app.html#runtime-parameters)
 
 ## Feedback custom metric
 
