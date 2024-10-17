@@ -6,9 +6,9 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        I18N_FORMAT_CONFIDENCE, I18N_RESPONSE_CONFIDENCE, I18N_FORMAT_CURRENCY, I18N_RESPONSE_COST,
                        I18N_DIALOG_CLOSE_BUTTON, I18N_SHARE_BUTTON, I18N_APP_NAME, I18N_SHARE_DIALOG_TITLE,
                        I18N_CITATION_BUTTON, I18N_CITATION_DIALOG_TITLE, I18N_CITATION_KEY_ANSWER,
-                       I18N_CITATION_KEY_PROMPT, I18N_CITATION_KEY_CITATION, I18N_SPLASH_TITLE, I18N_SPLASH_TEXT,
-                       I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM, STATUS_ERROR, STATUS_INITIATE,
-                       I18N_ACCESSIBILITY_LABEL_YOU)
+                       I18N_CITATION_KEY_PROMPT, I18N_CITATION_KEY_CITATION, I18N_CITATION_SOURCE_PAGE,
+                       I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
+                       STATUS_ERROR, STATUS_INITIATE, I18N_ACCESSIBILITY_LABEL_YOU)
 from dr_requests import submit_metric, make_prediction, get_application_info
 
 
@@ -71,7 +71,11 @@ def show_citations_dialog(prompt, answer, citations):
             with sal.container('citation-block'):
                 citation_block = st.container()
                 with sal.caption('citation-source', container=citation_block):
-                    citation_block.caption(citation.get("source"))
+                    source_text = I18N_CITATION_SOURCE_PAGE.format(
+                        citation.get("source"),
+                        citation.get("page")
+                    ) if citation.get("page") else citation.get("source")
+                    citation_block.caption(source_text)
                 with sal.text('citation-text', container=citation_block):
                     citation_block.text(citation.get("text"))
 
