@@ -87,7 +87,9 @@ def make_prediction(init_message):
                 if prediction and not prediction_error:
                     message['result'] = prediction['resultText']
                     message['execution_status'] = STATUS_COMPLETED
-                    message["citations"] = [{'text': doc['page_content'], 'source': doc['metadata']['source']} for doc
+                    message["citations"] = [{'text': doc['page_content'],
+                                             'source': doc['metadata']['source'],
+                                             'page': doc['metadata']['page']} for doc
                                             in processed_citations] if processed_citations else None
 
                     # Extra model output

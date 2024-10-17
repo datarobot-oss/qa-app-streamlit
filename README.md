@@ -88,4 +88,12 @@ our [DataRobot Docs](https://docs.datarobot.com/en/docs/workbench/nxt-registry/n
 
 Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` environment variable has been set. Below is an example of a metric for thumbs up and down, you can add it by navigating to **Console -> Deployment -> Monitoring ->Custom metrics** .
 
-![Custom Metric Example](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/custom_metric_example.png)
+- Name: Feedback
+- Metric ID: -- Copy this for the runtime parameter --
+- Description: Feedback on LLM response
+- Y-axis: +1/-1
+- Baseline: 0
+- Aggregation type: Average
+- Higher is better
+ 
+![Custom Metric Example](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/custom_metric_example.png) 
