@@ -62,10 +62,10 @@ The app is split into multiple files to make it easy to modify:
 ## How to add and use runtime parameters?
 
 Variables can be added in the metadata.yaml file in your application source folder. Here is an example of an API_TOKEN
-which will create an environment variable called `MLOPS_RUNTIME_PARAM_API_TOKEN`:
+which will create an environment variable called `MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE`:
 ```yaml
 runtimeParameterDefinitions:
-- fieldName: API_TOKEN
+- fieldName: EXAMPLE_VALUE
   type: string
 ```
 
@@ -75,12 +75,12 @@ the app configuration.
 To use the parameters we recommend to add them via `start-app.sh`, add this conditional export before the
 `streamlit-sal` and `streamlit` commands:
 ```shell
-if [ -n "$MLOPS_RUNTIME_PARAM_API_TOKEN" ]; then
-  export api_token="$MLOPS_RUNTIME_PARAM_API_TOKEN"
+if [ -n "$MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE" ]; then
+  export example_value="$MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE"
 fi
 ```
 
-Now you can use `os.getenv("api_token")` within your application code.
+Now you can use `os.getenv("example_value")` within your application code.
 If you'd like to know more about runtime parameters, you can read more in
 our [DataRobot Docs](https://docs.datarobot.com/en/docs/workbench/nxt-registry/nxt-apps-workshop/nxt-manage-custom-app.html#runtime-parameters)
 
