@@ -1,6 +1,6 @@
 {
-   "name":"Q&A Chat Generation App",
-   "description":"Q&A Chat Generation App",
+   "name": "Q&A Chat Generation App",
+   "description": "The Q&A app offers an intuitive and responsive way to prototype, explore, and share the results of LLM models you've built. The Q&A app powers generative AI conversations backed by citations and allows you to provide feedback on responses. Additionally, you can easily share the app with non-DataRobot users to expand its usability.",
    "templateMetadata": {
       "tags": [
          "Streamlit",
@@ -9,11 +9,11 @@
       ],
       "source": {
          "repositoryUrl": "https://github.com/datarobot-oss/qa-app-streamlit",
-         "releaseTag": "10.2"
+         "releaseTag": "10.2.2"
       },
       "previewImage": "qa-app-preview.png"
    },
-   "templateType":"customApplicationTemplate",
-   "templateSubType":"customApplicationTemplate",
-   "executionEnvironmentName":"[DataRobot] Python 3.12"
+   "templateType": "customApplicationTemplate",
+   "templateSubType": "customApplicationTemplate",
+   "executionEnvironmentName": "[DataRobot] Python 3.12"
 }
