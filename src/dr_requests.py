@@ -63,6 +63,7 @@ def make_prediction(init_message):
     deployment_association_id_settings = deployment.get_association_id_settings()
     association_id_names = deployment_association_id_settings.get("column_names")
     prompt_column_name = deployment.model.get('prompt', "promptText")
+    result_column_name = deployment.model.get('target_name', "resultText")
 
     data_tuples = [
         (prompt_column_name, prompt),
@@ -97,7 +98,7 @@ def make_prediction(init_message):
         for message in st.session_state.messages:
             if message['id'] == prompt_id:
                 if prediction and not prediction_error:
-                    message['result'] = prediction['resultText']
+                    message['result'] = prediction[result_column_name]
                     message['execution_status'] = STATUS_COMPLETED
                     message["citations"] = [{'text': doc['page_content'],
                                              'source': doc['metadata']['source'],
