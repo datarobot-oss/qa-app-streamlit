@@ -56,6 +56,8 @@ I18N_SHARE_DIALOG_TITLE = "Share Application"
 I18N_DIALOG_CLOSE_BUTTON = "Close"
 I18N_ACCESSIBILITY_LABEL_YOU = 'you'  # Name is not shown in the UI but is only set as an accessibility label
 I18N_ACCESSIBILITY_LABEL_LLM = 'ai'  # Name is not shown in the UI but is only set as an accessibility label
+I18N_NO_DEPLOYMENT_ID = "Required environment variable `DEPLOYMENT_ID` is not defined. Set the variable and rebuild the application"
+I18N_NO_DEPLOYMENT_FOUND = "Could not find deployment with given id: {}"
 
 STATUS_INITIATE = 'INITIATE'
 STATUS_ERROR = 'ERROR'
