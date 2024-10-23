@@ -26,7 +26,7 @@ def render_app_header():
         col0, col1 = st.columns([0.8, 0.2], vertical_alignment="center")
         with col0:
             with sal.subheader("app-header", container=col0):
-                col0.subheader(app_name)
+                col0.subheader(app_name, anchor=False)
             if app_description:
                 col0.caption(app_description)
 
