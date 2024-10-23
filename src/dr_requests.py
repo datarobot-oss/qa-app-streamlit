@@ -46,7 +46,8 @@ def submit_metric(message, value):
 # TODO: Split non request code to util 'prepare request data'
 def make_prediction(init_message):
     deployment = get_deployment()
-    prompt = init_message['prompt']
+    # Force prompt to be string using quotes, simply setting the type will get re-cast in transit
+    prompt = f"'{init_message['prompt']}'"
     prompt_id = init_message['id']
     deployment_association_id_settings = deployment.get_association_id_settings()
     association_id_names = deployment_association_id_settings.get("column_names")
