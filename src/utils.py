@@ -1,10 +1,11 @@
+import logging
 import os
 import uuid
 from typing import Any
 
 import requests
 import streamlit as st
-from datarobot import Deployment
+from datarobot import Deployment, AppPlatformError
 
 from constants import USER_ID, USER_AVATAR, USER_DISPLAY_NAME, LLM_DISPLAY_NAME, LLM_AVATAR, STATUS_INITIATE
 
@@ -25,7 +26,11 @@ def raise_datarobot_error_for_status(response):
 
 @st.cache_data(show_spinner=False)
 def get_deployment():
-    return Deployment.get(st.session_state.deployment_id)
+    try:
+        return Deployment.get(st.session_state.deployment_id)
+    except AppPlatformError:
+        logging.error('Failed to get deployment')
+        return None
 
 
 def initiate_session_state():
