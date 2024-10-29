@@ -1,7 +1,9 @@
+import os
 import json
 import logging
 import sys
 from datetime import datetime
+from typing import Optional
 
 import pandas as pd
 import requests
@@ -13,6 +15,16 @@ from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT
     STATUS_COMPLETED
 from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns
 
+
+def prediction_server_override_url() -> Optional[str]:
+    """
+    Because of the way internal networking is set up for on-prem and ST SAAS networks,
+    we need to use the service URL instead of the external URL.
+    """
+    if os.environ.get("DATAROBOT_ENDPOINT") == 'http://datarobot-nginx/api/v2/':
+        return 'http://datarobot-prediction-server:80/predApi/v1.0/'
+    else:
+        return None
 
 def submit_metric(message, value):
     deployment = get_deployment()
@@ -73,7 +85,7 @@ def make_prediction(init_message):
     processed_citations = None
 
     try:
-        result_df, response_headers = predict(deployment, input_df)
+        result_df, response_headers = predict(deployment, input_df, prediction_endpoint=prediction_server_override_url())
         processed_df = rename_dataframe_columns(result_df)
         prediction = processed_df.to_dict(orient="records")[0]
         processed_citations = process_citations(prediction)
