@@ -62,10 +62,10 @@ The app is split into multiple files to make it easy to modify:
 ## How to add and use runtime parameters?
 
 Variables can be added in the metadata.yaml file in your application source folder. Here is an example of an API_TOKEN
-which will create an environment variable called `MLOPS_RUNTIME_PARAM_API_TOKEN`:
+which will create an environment variable called `MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE`:
 ```yaml
 runtimeParameterDefinitions:
-- fieldName: API_TOKEN
+- fieldName: EXAMPLE_VALUE
   type: string
 ```
 
@@ -75,18 +75,23 @@ the app configuration.
 To use the parameters we recommend to add them via `start-app.sh`, add this conditional export before the
 `streamlit-sal` and `streamlit` commands:
 ```shell
-if [ -n "$MLOPS_RUNTIME_PARAM_API_TOKEN" ]; then
-  export api_token="$MLOPS_RUNTIME_PARAM_API_TOKEN"
+if [ -n "$MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE" ]; then
+  export example_value="$MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE"
 fi
 ```
 
-Now you can use `os.getenv("api_token")` within your application code.
+Now you can use `os.getenv("example_value")` within your application code.
 If you'd like to know more about runtime parameters, you can read more in
 our [DataRobot Docs](https://docs.datarobot.com/en/docs/workbench/nxt-registry/nxt-apps-workshop/nxt-manage-custom-app.html#runtime-parameters)
 
 ## Feedback custom metric
 
-Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` environment variable has been set. Below is an example of a metric for thumbs up and down, you can add it by navigating to **Console -> Deployment -> Monitoring ->Custom metrics** .
+The application uses the association ID from the deployment to match the LLM response with the given feedback. Navigate
+to **Console -> Deployment -> Settings -> Custom metrics** and set the `Association ID` to `message_id`. 
+
+Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` environment variable has been set.
+Below is an example of a metric for thumbs up and down, you can add it by navigating to **Console -> Deployment ->
+Monitoring ->Custom metrics** .
 
 - Name: Feedback
 - Metric ID: -- Copy this for the runtime parameter --
@@ -95,5 +100,11 @@ Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` env
 - Baseline: 0
 - Aggregation type: Average
 - Higher is better
- 
-![Custom Metric Example](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/custom_metric_example.png) 
+
+![Custom Metric Example](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/custom_metric_example.png)
+
+## Troubleshooting
+
+| Error                                                              | Solution                                                                                                                              |
+|:-------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------|
+| `Could not find root directory. Did you run 'streamlit-sal init'?` | Make sure that all application src files have been uploaded, including dotfiles: `.streamlit-sal` (file) and `.streamlit` (directory) |

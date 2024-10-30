@@ -8,8 +8,10 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        I18N_CITATION_BUTTON, I18N_CITATION_DIALOG_TITLE, I18N_CITATION_KEY_ANSWER,
                        I18N_CITATION_KEY_PROMPT, I18N_CITATION_KEY_CITATION, I18N_CITATION_SOURCE_PAGE,
                        I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
-                       STATUS_ERROR, STATUS_INITIATE, I18N_ACCESSIBILITY_LABEL_YOU)
+                       STATUS_ERROR, STATUS_INITIATE, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
+                       I18N_NO_DEPLOYMENT_ID)
 from dr_requests import submit_metric, make_prediction, get_application_info
+from utils import get_deployment, escape_result_text
 
 
 def render_app_header():
@@ -26,7 +28,7 @@ def render_app_header():
         col0, col1 = st.columns([0.8, 0.2], vertical_alignment="center")
         with col0:
             with sal.subheader("app-header", container=col0):
-                col0.subheader(app_name)
+                col0.subheader(app_name, anchor=False)
             if app_description:
                 col0.caption(app_description)
 
@@ -184,16 +186,25 @@ def render_response_message(message):
             elif message['execution_status'] == STATUS_ERROR:
                 st.error(message['error_message'], icon="🚨")
             else:
-                st.write(message['result'])
+                escaped_text = escape_result_text(message['result'])
+                st.write(escaped_text)
                 response_info_footer(message)
 
 
 @st.experimental_fragment
 def render_empty_chat():
     empty_chat = st.container()
-    empty_chat.image(APP_EMPTY_CHAT_IMAGE, width=APP_EMPTY_CHAT_IMAGE_WIDTH)
-    with sal.text('empty-chat-header', container=empty_chat):
-        empty_chat.text(I18N_SPLASH_TITLE)
-    if I18N_SPLASH_TEXT:
+    deployment = get_deployment()
+
+    if st.session_state.deployment_id and deployment:
+        empty_chat.image(APP_EMPTY_CHAT_IMAGE, width=APP_EMPTY_CHAT_IMAGE_WIDTH)
+        with sal.text('empty-chat-header', container=empty_chat):
+            empty_chat.text(I18N_SPLASH_TITLE)
+        if I18N_SPLASH_TEXT:
+            with sal.text('empty-chat-text', container=empty_chat):
+                empty_chat.text(I18N_SPLASH_TEXT)
+    else:
+        error_text = I18N_NO_DEPLOYMENT_FOUND.format(
+            st.session_state.deployment_id) if st.session_state.deployment_id and not deployment else I18N_NO_DEPLOYMENT_ID
         with sal.text('empty-chat-text', container=empty_chat):
-            empty_chat.text(I18N_SPLASH_TEXT)
+            empty_chat.error(error_text)

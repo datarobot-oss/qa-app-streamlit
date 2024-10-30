@@ -1,10 +1,11 @@
+import logging
 import os
 import uuid
-from typing import Any
+from typing import cast, Dict, Any
 
 import requests
 import streamlit as st
-from datarobot import Deployment
+from datarobot import Deployment, AppPlatformError
 
 from constants import USER_ID, USER_AVATAR, USER_DISPLAY_NAME, LLM_DISPLAY_NAME, LLM_AVATAR, STATUS_INITIATE
 
@@ -25,7 +26,21 @@ def raise_datarobot_error_for_status(response):
 
 @st.cache_data(show_spinner=False)
 def get_deployment():
-    return Deployment.get(st.session_state.deployment_id)
+    try:
+        return Deployment.get(st.session_state.deployment_id)
+    except AppPlatformError:
+        logging.error('Failed to get deployment')
+        return None
+
+
+@st.cache_data(show_spinner=False)
+def get_association_id_column_name():
+    deployment = get_deployment()
+
+    # The library typing sets the return value as <string>, but it actually returns a <dict>. Cast it here
+    deployment_association_id_settings = cast(Dict[str, Any], deployment.get_association_id_settings())
+    association_id_names = deployment_association_id_settings.get("column_names")
+    return association_id_names[0]
 
 
 def initiate_session_state():
@@ -97,3 +112,8 @@ def rename_dataframe_columns(df):
     # Apply the function to all column names
     df.columns = [clean_column_name(col) for col in df.columns]
     return df
+
+
+def escape_result_text(text):
+    # Avoids unexpected LaTex formatting on LLM response ($...$)
+    return text.replace("$", r"\$")
