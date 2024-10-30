@@ -12,8 +12,9 @@ from datarobot.models.deployment import CustomMetric
 from datarobot_predict.deployment import predict
 
 from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
-    STATUS_COMPLETED
-from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns
+    STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME
+from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns, \
+    get_association_id_column_name
 
 
 def prediction_server_override_url() -> Optional[str]:
@@ -61,15 +62,13 @@ def make_prediction(init_message):
     # Force prompt to be string using quotes, simply setting the type will get re-cast in transit
     prompt = f"'{init_message['prompt']}'"
     prompt_id = init_message['id']
-    deployment_association_id_settings = deployment.get_association_id_settings()
-    association_id_names = deployment_association_id_settings.get("column_names")
-    prompt_column_name = deployment.model.get('prompt', "promptText")
-    result_column_name = deployment.model.get('target_name', "resultText")
+    association_id_column_name = get_association_id_column_name()
+    prompt_column_name = deployment.model.get('prompt', DEFAULT_PROMPT_COLUMN_NAME)
+    result_column_name = deployment.model.get('target_name', DEFAULT_RESULT_COLUMN_NAME)
 
     data_tuples = [
+        (association_id_column_name, prompt_id) if association_id_column_name is not None else None,
         (prompt_column_name, prompt),
-        (association_id_names[0], prompt_id) if association_id_names is not None else None,
-        ('response', '') if association_id_names is not None else None,
     ]
     data = dict(filter(lambda item: item is not None, data_tuples))
     data_size = sys.getsizeof(data)
