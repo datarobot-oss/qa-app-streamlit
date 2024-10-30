@@ -3,6 +3,9 @@ API_URL = '{base_url}/predApi/v1.0/deployments/{deployment_id}/predictions'  # n
 # Don't change this. It is enforced server-side too.
 MAX_PREDICTION_INPUT_SIZE_BYTES = 52428800  # 50 MB
 
+DEFAULT_PROMPT_COLUMN_NAME = 'promptText'
+DEFAULT_RESULT_COLUMN_NAME = 'resultText'
+
 # Timeouts
 CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS = 60
 PREDICTIONS_TIMEOUT_SECONDS = 60

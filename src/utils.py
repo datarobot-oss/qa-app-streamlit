@@ -1,7 +1,7 @@
 import logging
 import os
 import uuid
-from typing import Any
+from typing import cast, Dict, Any
 
 import requests
 import streamlit as st
@@ -31,6 +31,16 @@ def get_deployment():
     except AppPlatformError:
         logging.error('Failed to get deployment')
         return None
+
+
+@st.cache_data(show_spinner=False)
+def get_association_id_column_name():
+    deployment = get_deployment()
+
+    # The library typing sets the return value as <string>, but it actually returns a <dict>. Cast it here
+    deployment_association_id_settings = cast(Dict[str, Any], deployment.get_association_id_settings())
+    association_id_names = deployment_association_id_settings.get("column_names")
+    return association_id_names[0]
 
 
 def initiate_session_state():
