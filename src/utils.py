@@ -112,3 +112,8 @@ def rename_dataframe_columns(df):
     # Apply the function to all column names
     df.columns = [clean_column_name(col) for col in df.columns]
     return df
+
+
+def escape_result_text(text):
+    # Avoids unexpected LaTex formatting on LLM response ($...$)
+    return text.replace("$", r"\$")
