@@ -11,7 +11,7 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        STATUS_ERROR, STATUS_INITIATE, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
                        I18N_NO_DEPLOYMENT_ID)
 from dr_requests import submit_metric, make_prediction, get_application_info
-from utils import get_deployment
+from utils import get_deployment, escape_result_text
 
 
 def render_app_header():
@@ -186,7 +186,8 @@ def render_response_message(message):
             elif message['execution_status'] == STATUS_ERROR:
                 st.error(message['error_message'], icon="🚨")
             else:
-                st.write(message['result'])
+                escaped_text = escape_result_text(message['result'])
+                st.write(escaped_text)
                 response_info_footer(message)
 
 
