@@ -86,7 +86,12 @@ our [DataRobot Docs](https://docs.datarobot.com/en/docs/workbench/nxt-registry/n
 
 ## Feedback custom metric
 
-Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` environment variable has been set. Below is an example of a metric for thumbs up and down, you can add it by navigating to **Console -> Deployment -> Monitoring ->Custom metrics** .
+The application uses the association ID from the deployment to match the LLM response with the given feedback. Navigate
+to **Console -> Deployment -> Settings -> Custom metrics** and set the `Association ID` to `message_id`. 
+
+Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` environment variable has been set.
+Below is an example of a metric for thumbs up and down, you can add it by navigating to **Console -> Deployment ->
+Monitoring ->Custom metrics** .
 
 - Name: Feedback
 - Metric ID: -- Copy this for the runtime parameter --
@@ -95,5 +100,11 @@ Feedback buttons on LLM responses will only appear if the `CUSTOM_METRIC_ID` env
 - Baseline: 0
 - Aggregation type: Average
 - Higher is better
- 
-![Custom Metric Example](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/custom_metric_example.png) 
+
+![Custom Metric Example](https://github.com/datarobot-oss/qa-app-streamlit/blob/main/assets/custom_metric_example.png)
+
+## Troubleshooting
+
+| Error                                                              | Solution                                                                                                                              |
+|:-------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------|
+| `Could not find root directory. Did you run 'streamlit-sal init'?` | Make sure that all application src files have been uploaded, including dotfiles: `.streamlit-sal` (file) and `.streamlit` (directory) |
