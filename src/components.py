@@ -11,7 +11,7 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        STATUS_ERROR, STATUS_INITIATE, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
                        I18N_NO_DEPLOYMENT_ID)
 from dr_requests import submit_metric, make_prediction, get_application_info
-from utils import get_deployment, escape_result_text
+from utils import get_deployment, escape_result_text, get_association_id_column_name
 
 
 def render_app_header():
@@ -115,6 +115,7 @@ def response_info_footer(message):
     feedback = message['feedback_value']
     citations = message.get('citations', None)
     custom_metric_id = st.session_state.custom_metric_id
+    association_id = get_association_id_column_name()
 
     info_section_data = get_info_section_data(message)
     has_info_data = len(info_section_data) > 0
@@ -126,7 +127,7 @@ def response_info_footer(message):
                 render_info_section(info_section_data, col0)
 
             with sal.column('justify-end', 'flex-row', container=col1):
-                if custom_metric_id is not None:
+                if custom_metric_id is not None and association_id is not None:
                     btn_up_icon_class = 'feedback-up-icon-active' if feedback == 1 else 'feedback-up-icon'
                     with sal.button('feedback-button', btn_up_icon_class, container=col1):
                         # Uses thin blank “ ” (U+2009) to be visible
