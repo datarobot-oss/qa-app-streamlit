@@ -40,7 +40,7 @@ def get_association_id_column_name():
     # The library typing sets the return value as <string>, but it actually returns a <dict>. Cast it here
     deployment_association_id_settings = cast(Dict[str, Any], deployment.get_association_id_settings())
     association_id_names = deployment_association_id_settings.get("column_names")
-    return association_id_names[0]
+    return association_id_names[0] if association_id_names else None
 
 
 def initiate_session_state():
