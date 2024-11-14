@@ -1,6 +1,6 @@
-import os
 import json
 import logging
+import os
 import sys
 from datetime import datetime
 from typing import Optional
@@ -12,9 +12,35 @@ from datarobot.models.deployment import CustomMetric
 from datarobot_predict.deployment import predict
 
 from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
-    STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME
+    STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, API_URL, CAPABILITIES_TIMEOUT_SECONDS, \
+    CHAT_CAPABILITIES_KEY, FORCE_DISABLE_CHAT_API
 from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns, \
     get_association_id_column_name
+
+
+@st.cache_data(show_spinner=False)
+def get_has_chat_api_support():
+    if FORCE_DISABLE_CHAT_API:
+        return False
+
+    deployment_id = os.getenv("deployment_id")
+    endpoint = os.getenv("endpoint")
+    token = os.getenv("token")
+    url = f"{endpoint}/deployments/{deployment_id}/capabilities/"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Token {}".format(token),
+    }
+
+    has_chat_api_support = False
+    try:
+        response = requests.get(url, headers=headers, timeout=CAPABILITIES_TIMEOUT_SECONDS).json()
+        chat_capabilities = next((item for item in response['data'] if item['name'] == CHAT_CAPABILITIES_KEY), {})
+        has_chat_api_support = chat_capabilities.get('supported', False)
+    except Exception as exc:
+        logging.error(exc)
+
+    return has_chat_api_support
 
 
 def prediction_server_override_url() -> Optional[str]:
@@ -29,7 +55,7 @@ def prediction_server_override_url() -> Optional[str]:
 
 def submit_metric(message, value):
     deployment = get_deployment()
-    prompt_id = message.get("id")
+    association_id = message.get('association_id')
     endpoint = st.session_state.endpoint
     custom_metric_id = st.session_state.custom_metric_id
     custom_metric = CustomMetric.get(deployment_id=deployment.id, custom_metric_id=custom_metric_id)
@@ -42,7 +68,7 @@ def submit_metric(message, value):
     url = f"{endpoint}/deployments/{deployment.id}/customMetrics/{custom_metric_id}/fromJSON/"
 
     ts = datetime.utcnow()
-    rows = [{"timestamp": ts.isoformat(), "value": value, "associationId": prompt_id}]
+    rows = [{"timestamp": ts.isoformat(), "value": value, "associationId": association_id}]
     data = {
         "buckets": rows,
     }
@@ -56,49 +82,87 @@ def submit_metric(message, value):
     requests.post(url, data=serialised_data, headers=headers, timeout=CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS)
 
 
+def send_chat_request(messages):
+    endpoint = st.session_state.endpoint
+    deployment_id = st.session_state.deployment_id
+    deployment = get_deployment()
+    url = f"{endpoint}/deployments/{deployment_id}/directAccess/chat/completions"
+    headers = {
+        "Authorization": "Token {}".format(st.session_state.token),
+        "Content-Type": "application/json",
+    }
+    chat_completions_request = {
+        "model": deployment.model.get("type"),
+        "messages": messages,
+    }
+    return requests.post(url, data=json.dumps(chat_completions_request), headers=headers)
+
+
+
+
 # TODO: Split non request code to util 'prepare request data'
 def make_prediction(init_message):
     deployment = get_deployment()
     # Force prompt to be string using quotes, simply setting the type will get re-cast in transit
     prompt = f"'{init_message['prompt']}'"
     prompt_id = init_message['id']
+    association_id = init_message['association_id']  # Default to initial prompt id first
+
+    response = None
+    prediction_error = None
+    processed_citations = None
     association_id_column_name = get_association_id_column_name()
     prompt_column_name = deployment.model.get('prompt', DEFAULT_PROMPT_COLUMN_NAME)
     result_column_name = deployment.model.get('target_name', DEFAULT_RESULT_COLUMN_NAME)
 
-    data_tuples = [
-        (association_id_column_name, prompt_id) if association_id_column_name is not None else None,
-        (prompt_column_name, prompt),
-    ]
-    data = dict(filter(lambda item: item is not None, data_tuples))
-    data_size = sys.getsizeof(data)
+    if st.session_state.is_chat_api_enabled:
+        message_request = {'role': 'user', 'content': init_message['prompt']}
+        st.session_state.context_messages.append(message_request)
 
-    if data_size >= MAX_PREDICTION_INPUT_SIZE_BYTES:
-        st.write(
-            ('Prompt input is too large: {} bytes. ' 'Max allowed size is: {} bytes.').format(
-                data_size, MAX_PREDICTION_INPUT_SIZE_BYTES
+        try:
+            completion = send_chat_request(st.session_state.context_messages).json()
+
+            response = completion.get('datarobot_moderations', None)
+            first_choice = completion.get('choices', [])[0]
+            response[result_column_name] = first_choice.get('message').get('content')
+            processed_citations = process_citations(completion)
+            st.session_state.context_messages.append(first_choice.get('message'))
+        except Exception as exc:
+            logging.error(exc)
+            prediction_error = str(exc)
+    else:
+        data_tuples = [
+            (association_id_column_name, association_id) if association_id_column_name is not None else None,
+            (prompt_column_name, prompt),
+        ]
+        data = dict(filter(lambda item: item is not None, data_tuples))
+        data_size = sys.getsizeof(data)
+
+        if data_size >= MAX_PREDICTION_INPUT_SIZE_BYTES:
+            st.write(
+                ('Prompt input is too large: {} bytes. ' 'Max allowed size is: {} bytes.').format(
+                    data_size, MAX_PREDICTION_INPUT_SIZE_BYTES
+                )
             )
-        )
 
-    input_df = pd.DataFrame(data, index=[0])
-    prediction = None
-    prediction_error = None
-    processed_citations = None
+        input_df = pd.DataFrame(data, index=[0])
+        try:
+            result_df, response_headers = predict(deployment, input_df,
+                                                  prediction_endpoint=prediction_server_override_url())
+            processed_df = rename_dataframe_columns(result_df)
+            response = processed_df.to_dict(orient="records")[0]
+            processed_citations = process_citations(response)
+        except Exception as exc:
+            logging.error(exc)
+            prediction_error = str(exc)
 
-    try:
-        result_df, response_headers = predict(deployment, input_df, prediction_endpoint=prediction_server_override_url())
-        processed_df = rename_dataframe_columns(result_df)
-        prediction = processed_df.to_dict(orient="records")[0]
-        processed_citations = process_citations(prediction)
-    except Exception as exc:
-        logging.error(exc)
-        prediction_error = str(exc)
-
-    if prediction or prediction_error:
+    if response or prediction_error:
         for message in st.session_state.messages:
             if message['id'] == prompt_id:
-                if prediction and not prediction_error:
-                    message['result'] = prediction[result_column_name]
+                if response and not prediction_error:
+                    message['result'] = response[result_column_name]
+                    message['association_id'] = response[association_id_column_name] if association_id_column_name else \
+                    message['id']
                     message['execution_status'] = STATUS_COMPLETED
                     message["citations"] = [{'text': doc['page_content'],
                                              'source': doc['metadata']['source'],
@@ -106,12 +170,12 @@ def make_prediction(init_message):
                                             in processed_citations] if processed_citations else None
 
                     # Extra model output
-                    if prediction.get('datarobot_latency'):
-                        message['datarobot_latency'] = prediction['datarobot_latency']
-                    if prediction.get('datarobot_token_count'):
-                        message['datarobot_token_count'] = prediction['datarobot_token_count']
-                    if prediction.get('datarobot_confidence_score'):
-                        message['datarobot_confidence_score'] = prediction['datarobot_confidence_score']
+                    if response.get('datarobot_latency'):
+                        message['datarobot_latency'] = response['datarobot_latency']
+                    if response.get('datarobot_token_count'):
+                        message['datarobot_token_count'] = response['datarobot_token_count']
+                    if response.get('datarobot_confidence_score'):
+                        message['datarobot_confidence_score'] = response['datarobot_confidence_score']
 
                 elif prediction_error:
                     message['execution_status'] = STATUS_ERROR

@@ -1,4 +1,4 @@
-API_URL = '{base_url}/predApi/v1.0/deployments/{deployment_id}/predictions'  # noqa
+API_URL = '{base_url}/deployments/{deployment_id}/'
 
 # Don't change this. It is enforced server-side too.
 MAX_PREDICTION_INPUT_SIZE_BYTES = 52428800  # 50 MB
@@ -6,9 +6,17 @@ MAX_PREDICTION_INPUT_SIZE_BYTES = 52428800  # 50 MB
 DEFAULT_PROMPT_COLUMN_NAME = 'promptText'
 DEFAULT_RESULT_COLUMN_NAME = 'resultText'
 
+# Chat API
+CHAT_CAPABILITIES_KEY = 'supports_chat_api'
+# To disable chat api even when deployment supports it
+FORCE_DISABLE_CHAT_API = False
+# System prompt that guides the style of the LLM response. It is a "universal" prompt, prepended to all individual prompts.
+CHAT_API_SYSTEM_PROMPT = None
+
 # Timeouts
 CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS = 60
 PREDICTIONS_TIMEOUT_SECONDS = 60
+CAPABILITIES_TIMEOUT_SECONDS = 10
 
 # Set asset path or remote url
 APP_LOGO = './assets/dr-logo-for-dark-bg.svg'
@@ -17,7 +25,6 @@ APP_FAVICON = './assets/datarobot_favicon.png'
 APP_LAYOUT = 'centered'
 APP_EMPTY_CHAT_IMAGE = 'assets/empty_chat.svg'
 APP_EMPTY_CHAT_IMAGE_WIDTH = 150
-
 
 # If you have additional information to show in a sidebar, you can enable it here
 SHOW_SIDEBAR = False

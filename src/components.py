@@ -10,8 +10,8 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
                        STATUS_ERROR, STATUS_INITIATE, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
                        I18N_NO_DEPLOYMENT_ID)
-from dr_requests import submit_metric, make_prediction, get_application_info
-from utils import get_deployment, escape_result_text, get_association_id_column_name
+from dr_requests import submit_metric, make_prediction, get_application_info, get_association_id_column_name
+from utils import get_deployment, escape_result_text
 
 
 def render_app_header():
@@ -179,6 +179,7 @@ def render_response_message(message):
     with sal.chat_message():
         with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=message['deployment_avatar']):
             st.markdown(f"__{message['deployment_name']}:__")
+
 
             if message['execution_status'] == STATUS_INITIATE:
                 with st.spinner(I18N_LOADING_MESSAGE):

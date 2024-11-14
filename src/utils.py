@@ -43,7 +43,7 @@ def get_association_id_column_name():
     return association_id_names[0] if association_id_names else None
 
 
-def initiate_session_state():
+def initiate_session_state(is_chat_api_enabled, system_prompt):
     # Env variables
     if 'token' not in st.session_state:
         st.session_state.token = os.getenv("token")
@@ -56,10 +56,19 @@ def initiate_session_state():
     if 'app_id' not in st.session_state:
         app_base_url_path = os.getenv("app_base_url_path", None)
         st.session_state.app_id = app_base_url_path.split('/')[-1].strip() if app_base_url_path else None
+    if 'is_chat_api_enabled' not in st.session_state:
+        st.session_state.is_chat_api_enabled = is_chat_api_enabled
 
     # Create a message storage on first render
     if "messages" not in st.session_state:
         st.session_state.messages = []
+
+    # Create a context storage on first render
+    if "context_messages" not in st.session_state:
+        st.session_state.context_messages = []
+
+        if system_prompt:
+            st.session_state.context_messages.append({'role': 'system', 'content': system_prompt})
 
 
 def add_new_prompt_message(prompt):
@@ -68,6 +77,7 @@ def add_new_prompt_message(prompt):
     st.session_state.messages.append(
         {
             "id": new_prompt_id,
+            "association_id": new_prompt_id,  # Default to uuid first, use generated association id once result returns it
             "prompt": prompt,
             "result": None,
             "execution_status": STATUS_INITIATE,
@@ -95,8 +105,8 @@ def process_citations(input_dict: dict[str: Any]) -> list[dict[str: Any]]:
         citation_dict = {
             "page_content": input_dict[citation_content_key],
             "metadata": {
-                "source": input_dict[citation_source_key],
-                "page": input_dict[citation_page_key]
+                "source": input_dict.get(citation_source_key, None),
+                "page": input_dict.get(citation_page_key, None)
             },
             "type": "Document"
         }
@@ -115,5 +125,8 @@ def rename_dataframe_columns(df):
 
 
 def escape_result_text(text):
-    # Avoids unexpected LaTex formatting on LLM response ($...$)
-    return text.replace("$", r"\$")
+    if isinstance(text, str):
+        # Avoids unexpected LaTex formatting on LLM response ($...$)
+        return text.replace("$", r"\$")
+    else:
+        return text
