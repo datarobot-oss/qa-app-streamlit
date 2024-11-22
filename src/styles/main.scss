@@ -28,6 +28,10 @@
 %sal-chat-message {
   background-color: $chat-message-background-color;
   padding: 0.75rem 1rem 0.75rem 0.75rem;
+
+  p {
+    color: $chat-message-text-color;
+  }
 }
 
 %sal-chat-message-content{
@@ -152,6 +156,21 @@
   }
 }
 
+%centered-image {
+  > div {
+    display: grid;
+    justify-content: center;  // Centers the image
+
+    > button {
+      display: none;  // Hides the 'show fullscreen' button of the image
+    }
+  }
+
+  div:has(> div[data-testid="stImage"]) {
+    width: fit-content !important;  // Image containers in Streamlit take the full width, limit it to the content width
+  }
+}
+
 %empty-chat-header {
   margin-top: 0.75rem;
 
@@ -201,6 +220,16 @@
 .key-value-item {
   box-sizing: border-box;
   line-height: 1.5rem;
+
+  p {
+    margin-block-start: 0px;
+    margin-block-end: 0px;
+  }
+}
+
+
+div[data-testid="stModal"] > div > div {
+  background-color: red;  // If the modals should have a different background color, set it here
 }
 
 /* Add new custom classes under the respective `sal-` component name key here.
@@ -213,6 +242,7 @@ $custom-classes: (
   sal-columns: (chat-message-footer, no-flex-grow),
   sal-button: (share-button, citation-button, feedback-button, feedback-up-icon, feedback-down-icon, feedback-up-icon-active, feedback-down-icon-active),
   sal-button-container: (dialog-button),
+  sal-image-container: (centered-image),
   sal-subheader: (app-header),
   sal-container: (citation-block),
   sal-container-container: (empty-chat),

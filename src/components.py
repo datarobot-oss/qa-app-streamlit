@@ -4,7 +4,7 @@ import streamlit_sal as sal
 from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDTH, I18N_APP_DESCRIPTION,
                        I18N_FORMAT_LATENCY, I18N_RESPONSE_LATENCY, I18N_RESPONSE_TOKENS,
                        I18N_FORMAT_CONFIDENCE, I18N_RESPONSE_CONFIDENCE, I18N_FORMAT_CURRENCY, I18N_RESPONSE_COST,
-                       I18N_DIALOG_CLOSE_BUTTON, I18N_SHARE_BUTTON, I18N_APP_NAME, I18N_SHARE_DIALOG_TITLE,
+                       I18N_DIALOG_CLOSE_BUTTON, I18N_APP_NAME, I18N_SHARE_DIALOG_TITLE,
                        I18N_CITATION_BUTTON, I18N_CITATION_DIALOG_TITLE, I18N_CITATION_KEY_ANSWER,
                        I18N_CITATION_KEY_PROMPT, I18N_CITATION_KEY_CITATION, I18N_CITATION_SOURCE_PAGE,
                        I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
@@ -15,29 +15,10 @@ from utils import get_deployment, escape_result_text, get_association_id_column_
 
 
 def render_app_header():
-    app_info = get_application_info()
-    app_name = I18N_APP_NAME
-    app_description = I18N_APP_DESCRIPTION
-    external_access_enabled = app_info.get('externalAccessEnabled', False)
-    app_url = app_info.get('applicationUrl', None)
-
     st.logo(APP_LOGO)
 
-    # Remove flex grow so header does not take half the app height
-    with sal.columns('no-flex-grow'):
-        col0, col1 = st.columns([0.8, 0.2], vertical_alignment="center")
-        with col0:
-            with sal.subheader("app-header", container=col0):
-                col0.subheader(app_name, anchor=False)
-            if app_description:
-                col0.caption(app_description)
-
-        # Style this column to move the button to the right side
-        with sal.column('justify-end', 'flex-row', container=col1):
-            if external_access_enabled and app_url:
-                with sal.button('share-button', container=col1):
-                    if col1.button(I18N_SHARE_BUTTON, key='share-button'):
-                        show_share_dialog(app_url)
+    with sal.image('centered-image'):
+        st.image(APP_LOGO)  # Set path of the company image to show centered
 
 
 @st.experimental_dialog(I18N_SHARE_DIALOG_TITLE, width="small")
@@ -152,7 +133,7 @@ def render_info_section(data_list, container=None):
             # Can not use multiline here, Streamlit will treat it as code and wraps it with <pre>
             # Use single line concat instead
             html += '<div class="key-value-item">'
-            html += f'<strong class="key">{key}:</strong> {value}'
+            html += f'<p><strong class="key">{key}:</strong> {value}</p>'
             html += '</div>'
     html += '</div>'
 
