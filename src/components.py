@@ -18,7 +18,7 @@ def render_app_header():
     st.logo(APP_LOGO)
 
     with sal.image('centered-image'):
-        st.image(APP_LOGO)  # Set path of the company image to show centered
+        st.image(APP_LOGO)  # Set path of the company image to show centered above the chat messages
 
 
 @st.experimental_dialog(I18N_SHARE_DIALOG_TITLE, width="small")
