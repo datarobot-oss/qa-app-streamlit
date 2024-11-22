@@ -86,7 +86,7 @@ def send_chat_request(messages):
     endpoint = st.session_state.endpoint
     deployment_id = st.session_state.deployment_id
     deployment = get_deployment()
-    url = f"{endpoint}/deployments/{deployment_id}/directAccess/chat/completions"
+    url = f"{endpoint}/deployments/{deployment_id}/chat/completions"
     headers = {
         "Authorization": "Token {}".format(st.session_state.token),
         "Content-Type": "application/json",
