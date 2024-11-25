@@ -3,6 +3,7 @@ gatherUsageStats = false
 
 [theme]
 base="dark"
+textColor="#ffffff" # Set general text color (which appears outside of chat messages in dialogs etc)
 primaryColor="#297ab4"
 backgroundColor="#0e1117"
 secondaryBackgroundColor="#22272b"
