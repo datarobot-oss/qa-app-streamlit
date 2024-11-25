@@ -6,6 +6,7 @@ from streamlit_sal import sal_stylesheet
 
 from components import render_prompt_message, render_response_message, render_empty_chat, render_app_header
 from constants import *
+from dr_requests import get_has_chat_api_support
 from utils import add_new_prompt_message, initiate_session_state, get_deployment
 
 # Basic application page configuration, modify values in `constants.py`
@@ -14,7 +15,8 @@ st.set_page_config(page_title=I18N_APP_NAME, page_icon=APP_FAVICON, layout=APP_L
 
 
 def start_streamlit():
-    initiate_session_state()
+    is_chat_api_enabled = get_has_chat_api_support()
+    initiate_session_state(is_chat_api_enabled=is_chat_api_enabled, system_prompt=CHAT_API_SYSTEM_PROMPT)
 
     # Setup DR client
     set_client(Client(token=st.session_state.token, endpoint=st.session_state.endpoint))
