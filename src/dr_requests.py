@@ -94,6 +94,7 @@ def send_chat_request(messages):
     chat_completions_request = {
         "model": deployment.model.get("type"),
         "messages": messages,
+        "stream": True,
     }
     return requests.post(url, data=json.dumps(chat_completions_request), headers=headers)
 

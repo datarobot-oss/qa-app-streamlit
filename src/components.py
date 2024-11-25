@@ -1,5 +1,10 @@
+import json
+import requests
+import time
+import logging
 import streamlit as st
 import streamlit_sal as sal
+from pprint import pprint
 
 from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDTH, I18N_APP_DESCRIPTION,
                        I18N_FORMAT_LATENCY, I18N_RESPONSE_LATENCY, I18N_RESPONSE_TOKENS,
@@ -9,9 +14,9 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        I18N_CITATION_KEY_PROMPT, I18N_CITATION_KEY_CITATION, I18N_CITATION_SOURCE_PAGE,
                        I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
                        STATUS_ERROR, STATUS_INITIATE, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
-                       I18N_NO_DEPLOYMENT_ID)
-from dr_requests import submit_metric, make_prediction, get_application_info, get_association_id_column_name
-from utils import get_deployment, escape_result_text
+                       I18N_NO_DEPLOYMENT_ID, DEFAULT_RESULT_COLUMN_NAME, STATUS_COMPLETED)
+from dr_requests import submit_metric, make_prediction, get_application_info, send_chat_request, get_association_id_column_name
+from utils import get_deployment, escape_result_text, process_citations
 
 
 def render_app_header():
@@ -173,6 +178,92 @@ def render_prompt_message(message):
             st.markdown(message["prompt"])
 
 
+# Generator to yield parsed JSON content
+@st.experimental_fragment
+def stream_openai_response(prompt_id, messages):
+    endpoint = st.session_state.endpoint
+    deployment_id = st.session_state.deployment_id
+    deployment = get_deployment()
+    url = f"{endpoint}/deployments/{deployment_id}/chat/completions"
+    headers = {
+        "Authorization": "Token {}".format(st.session_state.token),
+        "Content-Type": "application/json",
+    }
+    chat_completions_request = {
+        "model": deployment.model.get("type"),
+        "messages": messages,
+        "stream": True,
+    }
+
+    response = requests.post(url, json=chat_completions_request, headers=headers, stream=True)
+    result_column_name = deployment.model.get('target_name', DEFAULT_RESULT_COLUMN_NAME)
+    association_id_column_name = get_association_id_column_name()
+    result = None
+    prediction_error = None
+    processed_citations = None
+    message_content = ""
+    # if response.status_code == 200:
+    for chunk in response.iter_lines():
+        if chunk:
+            try:
+                # Strip "data: " and parse JSON content
+                data_str = chunk.decode('utf-8').lstrip("data: ")
+                data_json = json.loads(data_str)
+
+                # Extract content, e.g., choices[0].delta.content
+                content = data_json['choices'][0]['delta'].get('content', "")
+                if content:
+                    message_content += content
+                    for word in content.split(" "):
+                        yield word + " "
+                        time.sleep(0.01)
+
+
+                # Check if this is the last chunk
+                if data_json['choices'][0].get('finish_reason') == 'stop':
+                    print('now process final chunk!')
+                    print(data_json['choices'][0])
+                    try:
+                        result = data_json.get('datarobot_moderations', None)
+                        result[result_column_name] = message_content
+                        processed_citations = process_citations(data_json)
+                    except Exception as exc:
+                        logging.error(exc)
+                        prediction_error = str(exc)
+
+                    if result or prediction_error:
+                        for message in st.session_state.messages:
+                            if message['id'] == prompt_id:
+                                if result and not prediction_error:
+                                    message['result'] = result[result_column_name]
+                                    message['association_id'] = result[
+                                        association_id_column_name] if association_id_column_name else message['id']
+                                    message['execution_status'] = STATUS_COMPLETED
+                                    message["citations"] = [{'text': doc['page_content'],
+                                                             'source': doc['metadata']['source'],
+                                                             'page': doc['metadata']['page']} for doc
+                                                            in processed_citations] if processed_citations else None
+
+                                    # Extra model output
+                                    if result.get('datarobot_latency'):
+                                        message['datarobot_latency'] = result['datarobot_latency']
+                                    if result.get('datarobot_token_count'):
+                                        message['datarobot_token_count'] = result['datarobot_token_count']
+                                    if result.get('datarobot_confidence_score'):
+                                        message['datarobot_confidence_score'] = result[
+                                            'datarobot_confidence_score']
+
+                                elif prediction_error:
+                                    message['execution_status'] = STATUS_ERROR
+                                    message['error_message'] = prediction_error
+                    break
+
+            except json.JSONDecodeError:
+                continue  # Skip lines that aren’t valid JSON
+    # else:
+    #     st.error(f"Request failed with status code: {response.status_code}")
+
+
 @st.experimental_fragment
 def render_response_message(message):
     # Render the message within a fragment, that way st.rerun() will only affect this container and not the whole app
@@ -182,9 +273,13 @@ def render_response_message(message):
 
 
             if message['execution_status'] == STATUS_INITIATE:
-                with st.spinner(I18N_LOADING_MESSAGE):
-                    make_prediction(message)
-                    st.rerun()
+                message_request = {'role': 'user', 'content': message['prompt']}
+                prompt_id = message['id']
+                st.session_state.context_messages.append(message_request)
+
+                st.write_stream(stream_openai_response(prompt_id, st.session_state.context_messages))
+                st.rerun()
+
             elif message['execution_status'] == STATUS_ERROR:
                 st.error(message['error_message'], icon="🚨")
             else:
