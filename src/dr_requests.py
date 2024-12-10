@@ -8,7 +8,6 @@ from typing import Optional
 import pandas as pd
 import requests
 import streamlit as st
-from datarobot import AppPlatformError
 from datarobot.models.deployment import CustomMetric
 from datarobot_predict.deployment import predict
 
