@@ -10,7 +10,7 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
                        ROLE_USER, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
                        I18N_NO_DEPLOYMENT_ID, LLM_AVATAR, LLM_DISPLAY_NAME, USER_AVATAR, USER_DISPLAY_NAME,
-                       ROLE_ASSISTANT)
+                       ROLE_ASSISTANT, STATUS_ERROR)
 from dr_requests import submit_metric, send_predict_request, get_application_info
 from utils import get_deployment, escape_result_text, get_association_id_column_name, get_message_by_role
 
@@ -177,6 +177,7 @@ def render_message(message):
     msg_acc_name = I18N_ACCESSIBILITY_LABEL_YOU if role == ROLE_USER else I18N_ACCESSIBILITY_LABEL_LLM
     msg_name = USER_DISPLAY_NAME if role == ROLE_USER else LLM_DISPLAY_NAME
     msg_avatar = USER_AVATAR if role == ROLE_USER else LLM_AVATAR
+    meta_data = st.session_state.messages_meta[msg_id]
 
     # Render the message within a fragment, that way st.rerun() will only affect this container and not the whole app
     with sal.chat_message():
@@ -186,9 +187,12 @@ def render_message(message):
             if role == ROLE_USER:
                 st.markdown(content)
             else:
-                escaped_text = escape_result_text(message['content'])
-                st.write(escaped_text)
-                response_info_footer(msg_id)
+                if 'status' in meta_data and meta_data['status'] == STATUS_ERROR:
+                    st.error(meta_data['error_message'], icon="🚨")
+                else:
+                    escaped_text = escape_result_text(message['content'])
+                    st.write(escaped_text)
+                    response_info_footer(msg_id)
 
 
 @st.experimental_fragment
