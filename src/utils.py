@@ -62,6 +62,11 @@ def initiate_session_state():
         st.session_state.messages = []
 
 
+def set_chat_api_session_state(is_chat_api_enabled):
+    if 'is_chat_api_enabled' not in st.session_state or st.session_state.is_chat_api_enabled != is_chat_api_enabled:
+        st.session_state.is_chat_api_enabled = is_chat_api_enabled
+
+
 def add_new_prompt_message(prompt):
     deployment = get_deployment()
     new_prompt_id = str(uuid.uuid4())
