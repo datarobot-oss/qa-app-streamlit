@@ -12,9 +12,29 @@ from datarobot.models.deployment import CustomMetric
 from datarobot_predict.deployment import predict
 
 from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
-    STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME
+    STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
+    CHAT_CAPABILITIES_KEY
 from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns, \
     get_association_id_column_name
+
+
+@st.cache_data(show_spinner=False)
+def get_has_chat_api_support(deployment_id, token, endpoint):
+    url = f"{endpoint}/deployments/{deployment_id}/capabilities/"
+    headers = {
+        "Content-Type": "application/json",
+        "Authorization": "Token {}".format(token),
+    }
+
+    has_chat_api_support = False
+    try:
+        response = requests.get(url, headers=headers, timeout=CAPABILITIES_TIMEOUT_SECONDS).json()
+        chat_capabilities = next((item for item in response['data'] if item['name'] == CHAT_CAPABILITIES_KEY), {})
+        has_chat_api_support = chat_capabilities.get('supported', False)
+    except Exception as exc:
+        logging.error(exc)
+
+    return has_chat_api_support
 
 
 def prediction_server_override_url() -> Optional[str]:

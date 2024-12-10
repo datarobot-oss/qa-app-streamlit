@@ -6,9 +6,15 @@ MAX_PREDICTION_INPUT_SIZE_BYTES = 52428800  # 50 MB
 DEFAULT_PROMPT_COLUMN_NAME = 'promptText'
 DEFAULT_RESULT_COLUMN_NAME = 'resultText'
 
+# Chat API
+CHAT_CAPABILITIES_KEY = 'supports_chat_api'
+# To disable chat api even when deployment supports it
+FORCE_DISABLE_CHAT_API = False
+
 # Timeouts
 CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS = 60
 PREDICTIONS_TIMEOUT_SECONDS = 60
+CAPABILITIES_TIMEOUT_SECONDS = 20
 
 # Set asset path or remote url
 APP_LOGO = './assets/dr-logo-for-dark-bg.svg'

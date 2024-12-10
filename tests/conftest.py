@@ -168,6 +168,16 @@ def mock_deployment_api(
         },
     )
 
+    responses.get(
+        f"{datarobot_endpoint}/deployments/{deployment_id}/capabilities/",
+        json={'data': [{'messages': ['Retraining is not supported.'],
+                        'name': 'supports_retraining',
+                        'supported': False},
+                       {'messages': [],
+                        'name': 'supports_chat_api',
+                        'supported': True}]},
+    )
+
     responses.post(
         feedback_endpoint,
         json=None,

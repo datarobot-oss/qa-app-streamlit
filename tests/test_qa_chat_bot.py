@@ -1,6 +1,6 @@
 import json
-import sys
 import os
+import sys
 from collections import namedtuple
 from unittest.mock import patch
 
@@ -21,6 +21,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
     "mock_set_env",
     "mock_app_info_api",
     "mock_version_api",
+    "mock_deployment_api",
     "app_id"
 )
 @patch('constants.I18N_APP_NAME', 'Application Test')
@@ -45,6 +46,7 @@ def test_empty_chat_app():
         assert at.text[0].value == 'What would you like to know?'
         assert at.text[1].value == 'Ask me anything!'
         assert at.chat_input[0].placeholder == 'Send your question'
+        assert at.session_state.is_chat_api_enabled == True
 
 
 @responses.activate
