@@ -8,8 +8,8 @@ DEFAULT_RESULT_COLUMN_NAME = 'resultText'
 
 # Chat API
 CHAT_CAPABILITIES_KEY = 'supports_chat_api'
-# To disable chat api even when deployment supports it
-FORCE_DISABLE_CHAT_API = False
+# To disable chat api even when deployment supports it. Default set to True until there is full support
+FORCE_DISABLE_CHAT_API = True
 
 # Timeouts
 CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS = 60
@@ -36,8 +36,7 @@ USER_DISPLAY_NAME = "You"
 # Material icons codes: https://fonts.google.com/icons?icon.set=Material+Symbols&icon.style=Outlined
 USER_AVATAR = ":material/person:"
 LLM_AVATAR = ":material/smart_toy:"
-# App uses deployment model type as name unless this constant is set
-LLM_DISPLAY_NAME = None
+LLM_DISPLAY_NAME = "LLM Deployment"
 
 # Translations
 I18N_APP_NAME = "Q&A Chat Application"
@@ -68,6 +67,10 @@ I18N_ACCESSIBILITY_LABEL_LLM = 'ai'  # Name is not shown in the UI but is only s
 I18N_NO_DEPLOYMENT_ID = "Required environment variable `DEPLOYMENT_ID` is not defined. Set the variable and rebuild the application"
 I18N_NO_DEPLOYMENT_FOUND = "Could not find deployment with given id: {}"
 
-STATUS_INITIATE = 'INITIATE'
+STATUS_PENDING = 'PENDING'
 STATUS_ERROR = 'ERROR'
 STATUS_COMPLETED = 'COMPLETED'
+
+ROLE_SYSTEM = 'system'
+ROLE_USER = 'user'
+ROLE_ASSISTANT = 'assistant'

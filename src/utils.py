@@ -7,7 +7,7 @@ import requests
 import streamlit as st
 from datarobot import Deployment, AppPlatformError
 
-from constants import USER_ID, USER_AVATAR, USER_DISPLAY_NAME, LLM_DISPLAY_NAME, LLM_AVATAR, STATUS_INITIATE
+from constants import STATUS_PENDING
 
 
 class DataRobotPredictionError(Exception):
@@ -57,9 +57,15 @@ def initiate_session_state():
         app_base_url_path = os.getenv("app_base_url_path", None)
         st.session_state.app_id = app_base_url_path.split('/')[-1].strip() if app_base_url_path else None
 
-    # Create a message storage on first render
+    # Create messages storage on first render
     if "messages" not in st.session_state:
         st.session_state.messages = []
+
+    if "messages_meta" not in st.session_state:
+        st.session_state.messages_meta = {}
+
+    if "pending_message_id" not in st.session_state:
+        st.session_state.pending_message_id = None
 
 
 def set_chat_api_session_state(is_chat_api_enabled):
@@ -67,24 +73,17 @@ def set_chat_api_session_state(is_chat_api_enabled):
         st.session_state.is_chat_api_enabled = is_chat_api_enabled
 
 
-def add_new_prompt_message(prompt):
-    deployment = get_deployment()
+def add_new_prompt(prompt):
     new_prompt_id = str(uuid.uuid4())
-    st.session_state.messages.append(
-        {
-            "id": new_prompt_id,
-            "prompt": prompt,
-            "result": None,
-            "execution_status": STATUS_INITIATE,
-            "user_id": USER_ID,
-            "user_name": USER_DISPLAY_NAME,
-            "user_avatar": USER_AVATAR,
-            "deployment_name": LLM_DISPLAY_NAME if LLM_DISPLAY_NAME else deployment.model.get("type"),
-            "deployment_avatar": LLM_AVATAR,
-            "error_message": "",
-            "feedback_value": None,
-        }
-    )
+    new_prompt = {"role": "user", "content": prompt, "meta_id": new_prompt_id}
+
+    st.session_state.messages.append(new_prompt)
+    st.session_state.messages_meta[new_prompt_id] = {
+        'status': STATUS_PENDING,
+        'error_message': None,
+        'feedback_value': None,
+    }
+    st.session_state.pending_message_id = new_prompt_id
 
 
 def process_citations(input_dict: dict[str: Any]) -> list[dict[str: Any]]:
@@ -122,3 +121,8 @@ def rename_dataframe_columns(df):
 def escape_result_text(text):
     # Avoids unexpected LaTex formatting on LLM response ($...$)
     return text.replace("$", r"\$")
+
+
+def get_message_by_role(role, meta_id):
+    return next(
+        (msg for msg in st.session_state.messages if msg["meta_id"] == meta_id and msg["role"] == role), None)
