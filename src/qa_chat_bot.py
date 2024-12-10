@@ -17,10 +17,9 @@ st.set_page_config(page_title=I18N_APP_NAME, page_icon=APP_FAVICON, layout=APP_L
 
 def start_streamlit():
     initiate_session_state()
-    # is_chat_api_enabled = get_has_chat_api_support(deployment_id=st.session_state.deployment_id,
-    #                                    token=st.session_state.token,
-    #                                    endpoint=st.session_state.endpoint) if FORCE_DISABLE_CHAT_API == False else False
-    is_chat_api_enabled = True
+    is_chat_api_enabled = get_has_chat_api_support(deployment_id=st.session_state.deployment_id,
+                                       token=st.session_state.token,
+                                       endpoint=st.session_state.endpoint) if FORCE_DISABLE_CHAT_API == False else False
     set_chat_api_session_state(is_chat_api_enabled)
 
     # Setup DR client
