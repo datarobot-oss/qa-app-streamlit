@@ -8,10 +8,11 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        I18N_CITATION_BUTTON, I18N_CITATION_DIALOG_TITLE, I18N_CITATION_KEY_ANSWER,
                        I18N_CITATION_KEY_PROMPT, I18N_CITATION_KEY_CITATION, I18N_CITATION_SOURCE_PAGE,
                        I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
-                       STATUS_ERROR, STATUS_INITIATE, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
-                       I18N_NO_DEPLOYMENT_ID)
-from dr_requests import submit_metric, make_prediction, get_application_info
-from utils import get_deployment, escape_result_text, get_association_id_column_name
+                       ROLE_USER, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
+                       I18N_NO_DEPLOYMENT_ID, LLM_AVATAR, LLM_DISPLAY_NAME, USER_AVATAR, USER_DISPLAY_NAME,
+                       ROLE_ASSISTANT)
+from dr_requests import submit_metric, send_predict_request, get_application_info
+from utils import get_deployment, escape_result_text, get_association_id_column_name, get_message_by_role
 
 
 def render_app_header():
@@ -87,37 +88,40 @@ def show_citations_dialog(prompt, answer, citations):
 
 
 # If your LLM response contains more meta data, you can add them here to `info_items`
-def get_info_section_data(message):
+def get_info_section_data(message_meta):
     info_items = []
-    if message.get("datarobot_latency"):
-        formatted_value = I18N_FORMAT_LATENCY.format(f'{message["datarobot_latency"]:.2f}')
+    if message_meta.get("datarobot_latency"):
+        formatted_value = I18N_FORMAT_LATENCY.format(f'{message_meta["datarobot_latency"]:.2f}')
         info_items.append({I18N_RESPONSE_LATENCY: formatted_value})
 
-    if message.get("datarobot_token_count"):
-        info_items.append({I18N_RESPONSE_TOKENS: message["datarobot_token_count"]})
+    if message_meta.get("datarobot_token_count"):
+        info_items.append({I18N_RESPONSE_TOKENS: message_meta["datarobot_token_count"]})
 
-    if message.get("datarobot_confidence_score"):
+    if message_meta.get("datarobot_confidence_score"):
         formatted_value = I18N_FORMAT_CONFIDENCE.format(
-            f'{(100 * message["datarobot_confidence_score"]):.2f}')
+            f'{(100 * message_meta["datarobot_confidence_score"]):.2f}')
         info_items.append({I18N_RESPONSE_CONFIDENCE: formatted_value})
 
-    if message.get("cost"):
-        formatted_value = I18N_FORMAT_CURRENCY.format(message.get("cost"))
+    if message_meta.get("cost"):
+        formatted_value = I18N_FORMAT_CURRENCY.format(message_meta.get("cost"))
         info_items.append({I18N_RESPONSE_COST: formatted_value})
 
     return info_items
 
 
-def response_info_footer(message):
-    msg_id = message['id']
-    prompt = message['prompt']
-    answer = message['result']
-    feedback = message['feedback_value']
-    citations = message.get('citations', None)
+def response_info_footer(meta_id):
+    prompt_message = get_message_by_role(ROLE_USER, meta_id)
+    result_message = get_message_by_role(ROLE_ASSISTANT, meta_id)
+    message_meta = st.session_state.messages_meta.get(meta_id, None)
+
+    prompt = prompt_message['content']
+    answer = result_message['content']
+    feedback = message_meta['feedback_value']
+    citations = message_meta.get('citations', None)
     custom_metric_id = st.session_state.custom_metric_id
     association_id = get_association_id_column_name()
 
-    info_section_data = get_info_section_data(message)
+    info_section_data = get_info_section_data(message_meta)
     has_info_data = len(info_section_data) > 0
     if has_info_data or citations is not None:
         with sal.columns('chat-message-footer'):
@@ -131,17 +135,17 @@ def response_info_footer(message):
                     btn_up_icon_class = 'feedback-up-icon-active' if feedback == 1 else 'feedback-up-icon'
                     with sal.button('feedback-button', btn_up_icon_class, container=col1):
                         # Uses thin blank “ ” (U+2009) to be visible
-                        col1.button(' ', on_click=submit_metric, args=(message, 1),
-                                    key=f"feedback-up-{msg_id}")
+                        col1.button(' ', on_click=submit_metric, args=(meta_id, message_meta, 1),
+                                    key=f"feedback-up-{meta_id}")
 
                     btn_down_icon_class = 'feedback-down-icon-active' if feedback == 0 else 'feedback-down-icon'
                     with sal.button('feedback-button', btn_down_icon_class, container=col1):
                         # Uses thin blank “ ” (U+2009) to be visible
-                        col1.button(' ', on_click=submit_metric, args=(message, 0),
-                                    key=f"feedback-down-{msg_id}")
+                        col1.button(' ', on_click=submit_metric, args=(meta_id, message_meta, 0),
+                                    key=f"feedback-down-{meta_id}")
                 if citations:
                     with sal.button('citation-button', container=col1):
-                        col1.button(I18N_CITATION_BUTTON, key=f"citation-{msg_id}", on_click=show_citations_dialog,
+                        col1.button(I18N_CITATION_BUTTON, key=f"citation-{meta_id}", on_click=show_citations_dialog,
                                     args=(prompt, answer, citations))
 
 
@@ -165,31 +169,42 @@ def render_info_section(data_list, container=None):
 
 
 @st.experimental_fragment
-def render_prompt_message(message):
+def render_message(message):
+    role = message['role']
+    content = message['content']
+    msg_id = message['meta_id']
+
+    msg_acc_name = I18N_ACCESSIBILITY_LABEL_YOU if role == ROLE_USER else I18N_ACCESSIBILITY_LABEL_LLM
+    msg_name = USER_DISPLAY_NAME if role == ROLE_USER else LLM_DISPLAY_NAME
+    msg_avatar = USER_AVATAR if role == ROLE_USER else LLM_AVATAR
+
     # Render the message within a fragment, that way st.rerun() will only affect this container and not the whole app
     with sal.chat_message():
-        with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_YOU, avatar=message['user_avatar']):
-            st.markdown(f"__{message['user_name']}:__")
-            st.markdown(message["prompt"])
+        with st.chat_message(name=msg_acc_name, avatar=msg_avatar):
+            st.markdown(f"__{msg_name}:__")
+
+            if role == ROLE_USER:
+                st.markdown(content)
+            else:
+                escaped_text = escape_result_text(message['content'])
+                st.write(escaped_text)
+                response_info_footer(msg_id)
 
 
 @st.experimental_fragment
-def render_response_message(message):
+def render_pending_message(message):
     # Render the message within a fragment, that way st.rerun() will only affect this container and not the whole app
     with sal.chat_message():
-        with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=message['deployment_avatar']):
-            st.markdown(f"__{message['deployment_name']}:__")
-
-            if message['execution_status'] == STATUS_INITIATE:
-                with st.spinner(I18N_LOADING_MESSAGE):
-                    make_prediction(message)
-                    st.rerun()
-            elif message['execution_status'] == STATUS_ERROR:
-                st.error(message['error_message'], icon="🚨")
+        with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=LLM_AVATAR):
+            st.markdown(f"__{LLM_DISPLAY_NAME}:__")
+            if st.session_state.is_chat_api_enabled:
+                # Streaming implementation goes here:
+                # st.write_stream(mock_stream_response(message))
+                st.error('Streaming Chat API is not yet fully supported')
             else:
-                escaped_text = escape_result_text(message['result'])
-                st.write(escaped_text)
-                response_info_footer(message)
+                with st.spinner(I18N_LOADING_MESSAGE):
+                    send_predict_request(message)
+                    st.rerun()
 
 
 @st.experimental_fragment

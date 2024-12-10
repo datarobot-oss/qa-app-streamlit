@@ -1,7 +1,8 @@
-import os
 import json
 import logging
+import os
 import sys
+import time
 from datetime import datetime
 from typing import Optional
 
@@ -13,7 +14,7 @@ from datarobot_predict.deployment import predict
 
 from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
     STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
-    CHAT_CAPABILITIES_KEY
+    CHAT_CAPABILITIES_KEY, ROLE_ASSISTANT
 from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns, \
     get_association_id_column_name
 
@@ -47,22 +48,22 @@ def prediction_server_override_url() -> Optional[str]:
     else:
         return None
 
-def submit_metric(message, value):
+
+def submit_metric(meta_id, message_meta, value):
     deployment = get_deployment()
-    prompt_id = message.get("id")
     endpoint = st.session_state.endpoint
     custom_metric_id = st.session_state.custom_metric_id
     custom_metric = CustomMetric.get(deployment_id=deployment.id, custom_metric_id=custom_metric_id)
 
     # Return early if the same feedback was submitted already
-    if message.get("feedback_value") == value:
+    if message_meta.get("feedback_value") == value:
         return
 
-    message['feedback_value'] = value
+    message_meta['feedback_value'] = value
     url = f"{endpoint}/deployments/{deployment.id}/customMetrics/{custom_metric_id}/fromJSON/"
 
     ts = datetime.utcnow()
-    rows = [{"timestamp": ts.isoformat(), "value": value, "associationId": prompt_id}]
+    rows = [{"timestamp": ts.isoformat(), "value": value, "associationId": meta_id}]
     data = {
         "buckets": rows,
     }
@@ -76,18 +77,17 @@ def submit_metric(message, value):
     requests.post(url, data=serialised_data, headers=headers, timeout=CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS)
 
 
-# TODO: Split non request code to util 'prepare request data'
-def make_prediction(init_message):
+def send_predict_request(message):
     deployment = get_deployment()
     # Force prompt to be string using quotes, simply setting the type will get re-cast in transit
-    prompt = f"'{init_message['prompt']}'"
-    prompt_id = init_message['id']
+    prompt = f"'{message['content']}'"
+    meta_id = message['meta_id']
     association_id_column_name = get_association_id_column_name()
     prompt_column_name = deployment.model.get('prompt', DEFAULT_PROMPT_COLUMN_NAME)
     result_column_name = deployment.model.get('target_name', DEFAULT_RESULT_COLUMN_NAME)
 
     data_tuples = [
-        (association_id_column_name, prompt_id) if association_id_column_name is not None else None,
+        (association_id_column_name, meta_id) if association_id_column_name is not None else None,
         (prompt_column_name, prompt),
     ]
     data = dict(filter(lambda item: item is not None, data_tuples))
@@ -114,28 +114,36 @@ def make_prediction(init_message):
         logging.error(exc)
         prediction_error = str(exc)
 
-    if prediction or prediction_error:
-        for message in st.session_state.messages:
-            if message['id'] == prompt_id:
-                if prediction and not prediction_error:
-                    message['result'] = prediction[result_column_name]
-                    message['execution_status'] = STATUS_COMPLETED
-                    message["citations"] = [{'text': doc['page_content'],
+    if prediction:
+        st.session_state.messages.append({
+            'role': ROLE_ASSISTANT,
+            'content': prediction[result_column_name],
+            'meta_id': meta_id
+        })
+        st.session_state.messages_meta[meta_id]['status'] = STATUS_COMPLETED
+        st.session_state.messages_meta[meta_id]['citations'] = [{'text': doc['page_content'],
                                              'source': doc['metadata']['source'],
                                              'page': doc['metadata']['page']} for doc
                                             in processed_citations] if processed_citations else None
+        # Extra model output
+        if prediction.get('datarobot_latency'):
+            st.session_state.messages_meta[meta_id]['datarobot_latency'] = prediction['datarobot_latency']
+        if prediction.get('datarobot_token_count'):
+            st.session_state.messages_meta[meta_id]['datarobot_token_count'] = prediction['datarobot_token_count']
+        if prediction.get('datarobot_confidence_score'):
+            st.session_state.messages_meta[meta_id]['datarobot_confidence_score'] = prediction[
+                'datarobot_confidence_score']
 
-                    # Extra model output
-                    if prediction.get('datarobot_latency'):
-                        message['datarobot_latency'] = prediction['datarobot_latency']
-                    if prediction.get('datarobot_token_count'):
-                        message['datarobot_token_count'] = prediction['datarobot_token_count']
-                    if prediction.get('datarobot_confidence_score'):
-                        message['datarobot_confidence_score'] = prediction['datarobot_confidence_score']
+    elif prediction_error:
+        st.session_state.messages.append({
+            'role': ROLE_ASSISTANT,
+            'content': None,
+            'meta_id': meta_id
+        })
+        st.session_state.messages_meta[meta_id]['status'] = STATUS_ERROR
+        st.session_state.messages_meta[meta_id]['error_message'] = prediction_error
 
-                elif prediction_error:
-                    message['execution_status'] = STATUS_ERROR
-                    message['error_message'] = prediction_error
+    st.session_state.pending_message_id = None
 
 
 @st.cache_data(show_spinner=False)
