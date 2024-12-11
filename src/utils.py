@@ -7,7 +7,7 @@ import requests
 import streamlit as st
 from datarobot import Deployment, AppPlatformError
 
-from constants import STATUS_PENDING
+from constants import STATUS_PENDING, ROLE_ASSISTANT
 
 
 class DataRobotPredictionError(Exception):
@@ -106,7 +106,12 @@ def process_citations(input_dict: dict[str: Any]) -> list[dict[str: Any]]:
         }
 
         output_list.append(citation_dict)
-    return output_list
+
+    return [{'text': doc['page_content'],
+             'source': doc['metadata']['source'],
+             'page': doc['metadata']['page']} for doc
+            in
+            output_list]
 
 
 def rename_dataframe_columns(df):
@@ -126,3 +131,45 @@ def escape_result_text(text):
 def get_message_by_role(role, meta_id):
     return next(
         (msg for msg in st.session_state.messages if msg["meta_id"] == meta_id and msg["role"] == role), None)
+
+
+def strip_metadata_from_messages(messages):
+    """Strips meta_id field from the messages, otherwise OpenAI will fail due to schema mismatch"""
+    return [
+        {key: message[key] for key in message if key in {"role", "content"}}
+        for message in messages
+    ]
+
+
+def set_result_message_state(meta_id, content, status, citations=None, extra_model_output=None, error=None):
+    st.session_state.messages.append({
+        'role': ROLE_ASSISTANT,
+        'content': content,
+        'meta_id': meta_id
+    })
+    set_result_message_meta_state(meta_id, status, citations, extra_model_output, error)
+    st.session_state.pending_message_id = None
+
+
+def set_result_message_meta_state(meta_id, status, citations=None, extra_model_output=None, error=None):
+    st.session_state.messages_meta[meta_id]['status'] = status
+
+    if citations:
+        st.session_state.messages_meta[meta_id]['citations'] = citations
+
+    if error:
+        st.session_state.messages_meta[meta_id]['error_message'] = error
+
+    if extra_model_output:
+        association_id_column_name = get_association_id_column_name()
+        if extra_model_output.get('datarobot_latency'):
+            st.session_state.messages_meta[meta_id]['datarobot_latency'] = extra_model_output['datarobot_latency']
+        if extra_model_output.get('datarobot_token_count'):
+            st.session_state.messages_meta[meta_id]['datarobot_token_count'] = extra_model_output[
+                'datarobot_token_count']
+        if extra_model_output.get('datarobot_confidence_score'):
+            st.session_state.messages_meta[meta_id]['datarobot_confidence_score'] = extra_model_output[
+                'datarobot_confidence_score']
+        if extra_model_output.get('association_id'):
+            st.session_state.messages_meta[meta_id]['association_id'] = extra_model_output[
+                association_id_column_name] if association_id_column_name else meta_id

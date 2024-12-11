@@ -13,9 +13,9 @@ from datarobot_predict.deployment import predict
 
 from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
     STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
-    CHAT_CAPABILITIES_KEY, ROLE_ASSISTANT
+    CHAT_CAPABILITIES_KEY
 from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns, \
-    get_association_id_column_name
+    get_association_id_column_name, strip_metadata_from_messages, set_result_message_state
 
 
 @st.cache_data(show_spinner=False)
@@ -113,36 +113,62 @@ def send_predict_request(message):
         logging.error(exc)
         prediction_error = str(exc)
 
-    if prediction:
-        st.session_state.messages.append({
-            'role': ROLE_ASSISTANT,
-            'content': prediction[result_column_name],
-            'meta_id': meta_id
-        })
-        st.session_state.messages_meta[meta_id]['status'] = STATUS_COMPLETED
-        st.session_state.messages_meta[meta_id]['citations'] = [{'text': doc['page_content'],
-                                             'source': doc['metadata']['source'],
-                                             'page': doc['metadata']['page']} for doc
-                                            in processed_citations] if processed_citations else None
-        # Extra model output
-        if prediction.get('datarobot_latency'):
-            st.session_state.messages_meta[meta_id]['datarobot_latency'] = prediction['datarobot_latency']
-        if prediction.get('datarobot_token_count'):
-            st.session_state.messages_meta[meta_id]['datarobot_token_count'] = prediction['datarobot_token_count']
-        if prediction.get('datarobot_confidence_score'):
-            st.session_state.messages_meta[meta_id]['datarobot_confidence_score'] = prediction[
-                'datarobot_confidence_score']
+    message_content = prediction[result_column_name] if not prediction_error else None
+    status = STATUS_COMPLETED if not prediction_error else STATUS_ERROR
+    set_result_message_state(meta_id, message_content, status, citations=processed_citations,
+                             extra_model_output=prediction, error=prediction_error)
 
-    elif prediction_error:
-        st.session_state.messages.append({
-            'role': ROLE_ASSISTANT,
-            'content': None,
-            'meta_id': meta_id
-        })
-        st.session_state.messages_meta[meta_id]['status'] = STATUS_ERROR
-        st.session_state.messages_meta[meta_id]['error_message'] = prediction_error
 
-    st.session_state.pending_message_id = None
+def send_stream_request(message):
+    meta_id = message['meta_id']
+    endpoint = st.session_state.endpoint
+    deployment_id = st.session_state.deployment_id
+    deployment = get_deployment()
+    url = f"{endpoint}/deployments/{deployment_id}/chat/completions"
+    headers = {
+        "Authorization": "Token {}".format(st.session_state.token),
+        "Content-Type": "application/json",
+    }
+
+    chat_completions_request = {
+        "model": deployment.model.get("type"),
+        "messages": strip_metadata_from_messages(st.session_state.messages),
+        "stream": True,
+    }
+
+    result = None
+    prediction_error = None
+    processed_citations = None
+    message_content = ""
+    chat_completion = requests.post(url, json=chat_completions_request, headers=headers, stream=True)
+    for chunk in chat_completion.iter_lines():
+        try:
+            # Strip "data: " and parse JSON content
+            data_str = chunk.decode('utf-8').lstrip("data: ")
+            data_json = json.loads(data_str)
+
+            # Get completion content, e.g., choices[0].delta.content
+            content = data_json['choices'][0]['delta'].get('content')
+            if content:
+                message_content += content
+                yield content
+
+            # Check if this is the last chunk
+            if data_json['choices'][0].get('finish_reason') == 'stop':
+                try:
+                    result = data_json.get('datarobot_moderations', None)
+                    processed_citations = process_citations(result)
+                except Exception as exc:
+                    logging.error(exc)
+                    prediction_error = str(exc)
+
+                message_content = message_content if not prediction_error else None
+                status = STATUS_COMPLETED if not prediction_error else STATUS_ERROR
+                set_result_message_state(meta_id, message_content, status, citations=processed_citations,
+                                         extra_model_output=result, error=prediction_error)
+
+        except json.JSONDecodeError:
+            continue  # Skip chunks that aren’t valid JSON,. Not sure if necessary as it does not send true partial chunks
 
 
 @st.cache_data(show_spinner=False)

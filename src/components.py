@@ -11,7 +11,7 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        ROLE_USER, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
                        I18N_NO_DEPLOYMENT_ID, LLM_AVATAR, LLM_DISPLAY_NAME, USER_AVATAR, USER_DISPLAY_NAME,
                        ROLE_ASSISTANT, STATUS_ERROR)
-from dr_requests import submit_metric, send_predict_request, get_application_info
+from dr_requests import submit_metric, send_predict_request, send_stream_request, get_application_info
 from utils import get_deployment, escape_result_text, get_association_id_column_name, get_message_by_role
 
 
@@ -202,12 +202,13 @@ def render_pending_message(message):
         with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=LLM_AVATAR):
             st.markdown(f"__{LLM_DISPLAY_NAME}:__")
             if st.session_state.is_chat_api_enabled:
-                # Streaming implementation goes here:
-                # st.write_stream(mock_stream_response(message))
-                st.error('Streaming Chat API is not yet fully supported')
+                st.write_stream(send_stream_request(message))
+                # Trigger manual rerun so the footer gets populated with extra model output
+                st.rerun()
             else:
                 with st.spinner(I18N_LOADING_MESSAGE):
                     send_predict_request(message)
+                    # Trigger manual rerun to render the response including its footer
                     st.rerun()
 
 
