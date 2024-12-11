@@ -46,7 +46,23 @@ def test_empty_chat_app():
         assert at.text[0].value == 'What would you like to know?'
         assert at.text[1].value == 'Ask me anything!'
         assert at.chat_input[0].placeholder == 'Send your question'
-        assert at.session_state.is_chat_api_enabled == True
+        # Forced Chat API to be disabled
+        assert at.session_state.is_chat_api_enabled == False
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_app_info_api",
+    "mock_version_api",
+    "mock_deployment_api",
+    "app_id"
+)
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
+def test_chat_api_supported_app():
+    """The app loads and uses deployment capabilities to check for Chat API support"""
+    at = AppTest.from_file("qa_chat_bot.py").run()
+    assert at.session_state.is_chat_api_enabled == True
 
 
 @responses.activate
@@ -67,7 +83,7 @@ def test_chat_prompt_request():
     assert at.chat_message[0].markdown[1].value == 'Hello'
 
     # Check the LLM response message
-    assert at.chat_message[1].markdown[0].value == '__LLM Q&A App:__'
+    assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
     assert at.chat_message[1].markdown[1].value == 'Hello! How can I assist you today?'
 
     meta_element_value = at.chat_message[1].markdown[4].value
@@ -78,7 +94,7 @@ def test_chat_prompt_request():
     for substring in expected_substrings:
         assert substring in meta_element_value, f"Expected '{substring}' to be in '{meta_element_value}'"
 
-    msg_id = at.session_state.messages[0].get('id')
+    msg_id = at.session_state.messages[0].get('meta_id')
     citation_button = at.button(key=f"citation-{msg_id}")
     assert citation_button.label == 'Citation'
     citation_button.click().run()
@@ -116,10 +132,10 @@ def test_chat_feedback_request(feedback_endpoint, model_id, is_model_specific):
     at.chat_input[0].set_value('Hello').run()
 
     # Check the LLM response message
-    assert at.chat_message[1].markdown[0].value == '__LLM Q&A App:__'
+    assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
     assert at.chat_message[1].markdown[1].value == 'Hello! How can I assist you today?'
 
-    msg_id = at.session_state.messages[0].get('id')
+    msg_id = at.session_state.messages[0].get('meta_id')
     feedback_up_button = at.button(key=f"feedback-up-{msg_id}")
     # '\u2009' matches the thin whitespace for a feedback button
     assert feedback_up_button.label == '\u2009'
