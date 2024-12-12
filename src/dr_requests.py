@@ -13,7 +13,7 @@ from datarobot_predict.deployment import predict
 
 from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
     STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
-    CHAT_CAPABILITIES_KEY
+    CHAT_CAPABILITIES_KEY, ENABLE_CHAT_API_STREAMING
 from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns, \
     get_association_id_column_name, strip_metadata_from_messages, set_result_message_state
 
@@ -133,7 +133,7 @@ def send_stream_request(message):
     chat_completions_request = {
         "model": deployment.model.get("type"),
         "messages": strip_metadata_from_messages(st.session_state.messages),
-        "stream": True,
+        "stream": ENABLE_CHAT_API_STREAMING,
     }
 
     result = None
@@ -148,14 +148,17 @@ def send_stream_request(message):
             data_json = json.loads(data_str)
 
             # Get completion content, e.g., choices[0].delta.content
-            content = data_json['choices'][0]['delta'].get('content')
-            if content:
-                message_content += content
-                yield content
+            delta_content = data_json['choices'][0]['delta'].get('content') if ENABLE_CHAT_API_STREAMING else None
+            if delta_content:
+                message_content += delta_content
+                yield delta_content
 
             # Check if this is the last chunk
             if data_json['choices'][0].get('finish_reason') == 'stop':
                 try:
+                    if not ENABLE_CHAT_API_STREAMING:
+                        message = data_json['choices'][0].get('message')
+                        message_content = message.get('content')
                     result = data_json.get('datarobot_moderations', None)
                     processed_citations = process_citations(result)
                 except Exception as exc:
@@ -168,7 +171,7 @@ def send_stream_request(message):
                                          extra_model_output=result, error=prediction_error)
 
         except json.JSONDecodeError:
-            continue  # Skip chunks that aren’t valid JSON,. Not sure if necessary as it does not send true partial chunks
+            continue  # Skip chunks that aren’t valid JSON. Not sure if necessary as it does not yet send true partial chunks
 
 
 @st.cache_data(show_spinner=False)
