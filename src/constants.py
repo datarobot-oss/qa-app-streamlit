@@ -10,6 +10,7 @@ DEFAULT_RESULT_COLUMN_NAME = 'resultText'
 CHAT_CAPABILITIES_KEY = 'supports_chat_api'
 # To disable chat api even when deployment supports it. Default set to True until there is full support
 FORCE_DISABLE_CHAT_API = True
+ENABLE_CHAT_API_STREAMING = False
 
 # Timeouts
 CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS = 60
