@@ -170,6 +170,6 @@ def set_result_message_meta_state(meta_id, status, citations=None, extra_model_o
         if extra_model_output.get('datarobot_confidence_score'):
             st.session_state.messages_meta[meta_id]['datarobot_confidence_score'] = extra_model_output[
                 'datarobot_confidence_score']
-        if extra_model_output.get('association_id'):
+        if extra_model_output.get(association_id_column_name):
             st.session_state.messages_meta[meta_id]['association_id'] = extra_model_output[
                 association_id_column_name] if association_id_column_name else meta_id

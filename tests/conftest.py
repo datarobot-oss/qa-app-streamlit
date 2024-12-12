@@ -1,3 +1,4 @@
+import json
 import os
 from unittest.mock import patch
 
@@ -120,6 +121,53 @@ def mock_version_api(datarobot_endpoint):
 @pytest.fixture
 def is_model_specific():
     return True
+
+
+@pytest.fixture
+def mock_deployment_chat_api_stream(
+        datarobot_endpoint,
+        model_id,
+        deployment_id,
+):
+    def mock_stream():
+        current_dir = os.path.dirname(__file__)
+        delta_file_path = os.path.join(current_dir, 'mocks/mock_delta_chunk.json')
+        with open(delta_file_path, "r") as delta_file:
+            file_content = json.load(delta_file)
+            yield "data: {}\n\n".format(
+                json.dumps(file_content)
+            ).encode("utf-8")
+
+        final_file_path = os.path.join(current_dir, 'mocks/mock_final_chunk.json')
+        with open(final_file_path, "r") as final_file:
+            file_content = json.load(final_file)
+            yield "data: {}\n\n".format(
+                json.dumps(file_content)
+            ).encode("utf-8")
+
+    responses.post(
+        f"{datarobot_endpoint}/deployments/{deployment_id}/chat/completions",
+        body=b"".join(mock_stream()),
+        content_type="text/event-stream",
+    )
+
+
+@pytest.fixture
+def mock_deployment_chat_api(
+        datarobot_endpoint,
+        model_id,
+        deployment_id,
+):
+    current_dir = os.path.dirname(__file__)
+    mock_no_stream_file_path = os.path.join(current_dir, 'mocks/mock_chat_api_no_stream.json')
+    with open(mock_no_stream_file_path, "r") as no_stream_file:
+        file_content = json.load(no_stream_file)
+
+        responses.post(
+            f"{datarobot_endpoint}/deployments/{deployment_id}/chat/completions",
+            body=json.dumps(file_content).encode("utf-8")
+        )
+
 
 
 @pytest.fixture
