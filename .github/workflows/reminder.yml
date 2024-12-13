@@ -22,6 +22,8 @@ jobs:
             "https://api.github.com/repos/${{ github.repository }}/issues?labels=Ready%20for%20review&state=open&per_page=100")
           PR_COUNT=$(echo $PRS | jq '. | length')
           
+          echo "PR_COUNT: $PR_COUNT" 
+          
           if [ "$PR_COUNT" -eq 0 ]; then
             echo "No PRs with 'Ready for review' label found."
             exit 0
@@ -43,6 +45,7 @@ jobs:
             PR_DELETIONS=$(echo $PR_DETAILS | jq '.deletions')
             REPO_NAME=$(echo $PR_DETAILS | jq '.base.repo.full_name')
 
+            echo "PR_NUMBER: $PR_NUMBER, PR_TITLE: $PR_TITLE, PR_URL: $PR_URL, PR_AUTHOR: $PR_AUTHOR, PR_ADDITIONS: $PR_ADDITIONS, PR_DELETIONS: $PR_DELETIONS, REPO_NAME: $REPO_NAME"
             # Send Slack notification
             curl -X POST -H 'Content-type: application/json' \
             --data "{
