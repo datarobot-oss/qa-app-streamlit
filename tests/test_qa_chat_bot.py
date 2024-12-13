@@ -70,9 +70,114 @@ def test_chat_api_supported_app():
     "mock_set_env",
     "mock_app_info_api",
     "mock_deployment_api",
+    "mock_deployment_chat_api_stream",
     "mock_version_api",
 )
-def test_chat_prompt_request():
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
+def test_chat_send_chat_api_stream_request():
+    """The app receives chat response after sending a prompt"""
+    app = AppTest.from_file("qa_chat_bot.py")
+    at = app.run()
+    at.chat_input[0].set_value('Tell me a joke').run()
+
+    # Check the user prompt message
+    assert at.chat_message[0].markdown[0].value == '__You:__'
+    assert at.chat_message[0].markdown[1].value == 'Tell me a joke'
+
+    # Check the LLM response message
+    assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
+    assert at.chat_message[1].markdown[1].value == 'Why did the bicycle fall over? Because it was two-tired!'
+
+    meta_element_value = at.chat_message[1].markdown[4].value
+    # The markdown value contains html elements, so we need to check by substrings
+    expected_substrings = ['Latency:', '0.03s', 'Tokens:', '17', 'Confidence:', '46.15%']
+
+    # Loop over each expected substring and assert in the meta element value
+    for substring in expected_substrings:
+        assert substring in meta_element_value, f"Expected '{substring}' to be in '{meta_element_value}'"
+
+    msg_id = at.session_state.messages[0].get('meta_id')
+    citation_button = at.button(key=f"citation-{msg_id}")
+    assert citation_button.label == 'Citation'
+    citation_button.click().run()
+
+    # Check citation source
+    assert at.caption[
+               1].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt'
+    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt'
+
+    # Check citation text
+    expected_citation_text_1 = 'Troubleshooting the Worker Queue'
+    assert expected_citation_text_1 in at.text[2].value, \
+        f"Expected '{expected_citation_text_1}' to be in '{at.text[2].value}'"
+
+    expected_citation_text_2 = 'One consideration for choosing an error metric is the expected amount of noise in the data.'
+    assert expected_citation_text_2 in at.text[3].value, \
+        f"Expected '{expected_citation_text_2}' to be in '{at.text[3].value}'"
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_app_info_api",
+    "mock_deployment_api",
+    "mock_deployment_chat_api",
+    "mock_version_api",
+)
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
+@patch('dr_requests.ENABLE_CHAT_API_STREAMING', False)
+def test_chat_send_chat_api_without_stream_request():
+    """The app receives chat response after sending a prompt"""
+    app = AppTest.from_file("qa_chat_bot.py")
+    at = app.run()
+    at.chat_input[0].set_value('Tell me an interesting animal fact').run()
+
+    # Check the user prompt message
+    assert at.chat_message[0].markdown[0].value == '__You:__'
+    assert at.chat_message[0].markdown[1].value == 'Tell me an interesting animal fact'
+
+    # Check the LLM response message
+    assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
+    assert at.chat_message[1].markdown[
+               1].value == 'The heart of a blue whale, the largest animal on earth, is so big that a human could swim through its arteries!'
+
+    meta_element_value = at.chat_message[1].markdown[4].value
+    # The markdown value contains html elements, so we need to check by substrings
+    expected_substrings = ['Latency:', '0.64s', 'Tokens:', '28', 'Confidence:', '41.67%']
+
+    # Loop over each expected substring and assert in the meta element value
+    for substring in expected_substrings:
+        assert substring in meta_element_value, f"Expected '{substring}' to be in '{meta_element_value}'"
+
+    msg_id = at.session_state.messages[0].get('meta_id')
+    citation_button = at.button(key=f"citation-{msg_id}")
+    assert citation_button.label == 'Citation'
+    citation_button.click().run()
+
+    # Check citation source
+    assert at.caption[
+               1].value == 'datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt'
+    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt'
+
+    # Check citation text
+    expected_citation_text_1 = 'What are summarized categorical features?'
+    assert expected_citation_text_1 in at.text[2].value, \
+        f"Expected '{expected_citation_text_1}' to be in '{at.text[2].value}'"
+
+    expected_citation_text_2 = 'The **Illustration** tab shows how summarized categorical data is represented as a feature'
+    assert expected_citation_text_2 in at.text[3].value, \
+        f"Expected '{expected_citation_text_2}' to be in '{at.text[3].value}'"
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_app_info_api",
+    "mock_deployment_api",
+    "mock_deployment_api",
+    "mock_version_api",
+)
+def test_chat_send_predict_request():
     """The app receives chat response after sending a prompt"""
     app = AppTest.from_file("qa_chat_bot.py")
     at = app.run()

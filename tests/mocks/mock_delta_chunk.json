@@ -1,0 +1,16 @@
+{
+  "id": "07a30ab3-1234-4bdf-5678-f9e3a6f2721b",
+  "choices": [
+    {
+      "delta": {
+        "content": "Why did the bicycle fall over? Because it was two-tired!",
+        "role": null
+      },
+      "finish_reason": null,
+      "index": 0
+    }
+  ],
+  "created": 1734014565,
+  "model": "DataRobot Moderation",
+  "object": "chat.completion.chunk"
+}

@@ -119,7 +119,7 @@ def send_predict_request(message):
                              extra_model_output=prediction, error=prediction_error)
 
 
-def send_stream_request(message):
+def send_chat_api_request(message):
     meta_id = message['meta_id']
     endpoint = st.session_state.endpoint
     deployment_id = st.session_state.deployment_id
