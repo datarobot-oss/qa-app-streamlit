@@ -23,4 +23,4 @@ jobs:
           pip install -r requirements-dev.txt
 
       - name: Run pytest
-        run: cd src && pytest ../tests/ --maxfail=1 --disable-warnings --verbose
+        run: cd src && streamlit-sal compile && pytest ../tests/ --maxfail=1 --disable-warnings --verbose
