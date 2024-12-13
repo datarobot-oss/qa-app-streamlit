@@ -1,9 +1,6 @@
 name: Run Tests on PR
 
 on:
-  push:
-    branches:
-      - main
   pull_request:
     branches:
       - main # Or the branch where you want to trigger tests
