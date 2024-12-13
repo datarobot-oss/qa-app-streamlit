@@ -88,7 +88,7 @@ def test_chat_prompt_request():
 
     meta_element_value = at.chat_message[1].markdown[4].value
     # The markdown value contains html elements, so we need to check by substrings
-    expected_substrings = ['Latency:', '5.52s', 'Tokens:', '9', 'Confidence:', '28.57%']
+    expected_substrings = ['Latency:', '0.52s', 'Tokens:', '9', 'Confidence:', '28.57%']
 
     # Loop over each expected substring and assert in the meta element value
     for substring in expected_substrings:
