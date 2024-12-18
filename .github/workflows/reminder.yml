@@ -3,6 +3,7 @@ name: Periodic PR Reminders
 on:
   schedule:
     - cron: '0 */3 * * *' # Runs every 3 hours
+  workflow_dispatch: # Allows manual triggering
 
 jobs:
   reminder:
