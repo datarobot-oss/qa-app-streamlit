@@ -41,7 +41,7 @@ def render_app_header():
                         show_share_dialog(app_url)
 
 
-@st.experimental_dialog(I18N_SHARE_DIALOG_TITLE, width="small")
+@st.dialog(I18N_SHARE_DIALOG_TITLE, width="small")
 def show_share_dialog(url):
     st.code(url, language="markdown")
     with sal.button('dialog-button'):
@@ -49,38 +49,40 @@ def show_share_dialog(url):
             st.rerun()
 
 
-@st.experimental_dialog(I18N_CITATION_DIALOG_TITLE, width="large")
+@st.dialog(I18N_CITATION_DIALOG_TITLE, width="large")
 def show_citations_dialog(prompt, answer, citations):
-    col_prompt_key, col_prompt_value = st.columns([0.2, 0.8])
-    with col_prompt_key:
-        with sal.write('citation-key-text'):
-            st.write(I18N_CITATION_KEY_PROMPT)
-    with col_prompt_value:
-        st.write(prompt)
+    with sal.container('citation-dialog-content'):
+        col_prompt_key, col_prompt_value = st.columns([0.2, 0.8])
+        with col_prompt_key:
+            with sal.write('citation-key-text'):
+                st.write(I18N_CITATION_KEY_PROMPT)
+        with col_prompt_value:
+            st.write(prompt)
 
-    col_answer_key, col_answer_value = st.columns([0.2, 0.8])
-    with col_answer_key:
-        with sal.write('citation-key-text'):
-            st.write(I18N_CITATION_KEY_ANSWER)
-    with col_answer_value:
-        st.write(answer)
+        col_answer_key, col_answer_value = st.columns([0.2, 0.8])
+        with col_answer_key:
+            with sal.write('citation-key-text'):
+                st.write(I18N_CITATION_KEY_ANSWER)
+        with col_answer_value:
+            st.write(answer)
 
-    col_citation_key, col_citation_value = st.columns([0.2, 0.8])
-    with col_citation_key:
-        with sal.write('citation-key-text'):
-            st.write(I18N_CITATION_KEY_CITATION)
-    with col_citation_value:
-        for citation in citations:
-            with sal.container('citation-block'):
-                citation_block = st.container()
-                with sal.caption('citation-source', container=citation_block):
-                    source_text = I18N_CITATION_SOURCE_PAGE.format(
-                        citation.get("source"),
-                        citation.get("page")
-                    ) if citation.get("page") else citation.get("source")
-                    citation_block.caption(source_text)
-                with sal.text('citation-text', container=citation_block):
-                    citation_block.text(citation.get("text"))
+        with sal.container('citation-sources'):
+            col_citation_key, col_citation_value = st.columns([0.2, 0.8])
+            with col_citation_key:
+                with sal.write('citation-key-text'):
+                    st.write(I18N_CITATION_KEY_CITATION)
+            with col_citation_value:
+                for citation in citations:
+                    with sal.container('citation-block'):
+                        citation_block = st.container()
+                        with sal.caption('citation-source', container=citation_block):
+                            source_text = I18N_CITATION_SOURCE_PAGE.format(
+                                citation.get("source"),
+                                citation.get("page")
+                            ) if citation.get("page") else citation.get("source")
+                            citation_block.caption(source_text)
+                        with sal.text('citation-text', container=citation_block):
+                            citation_block.text(citation.get("text"))
 
     with sal.button('dialog-button'):
         if st.button(I18N_DIALOG_CLOSE_BUTTON):
@@ -168,7 +170,7 @@ def render_info_section(data_list, container=None):
             st.markdown(html, unsafe_allow_html=True)
 
 
-@st.experimental_fragment
+@st.fragment
 def render_message(message):
     role = message['role']
     content = message['content']
@@ -195,7 +197,7 @@ def render_message(message):
                     response_info_footer(msg_id)
 
 
-@st.experimental_fragment
+@st.fragment
 def render_pending_message(message):
     # Render the message within a fragment, that way st.rerun() will only affect this container and not the whole app
     with sal.chat_message():
@@ -212,7 +214,7 @@ def render_pending_message(message):
                     st.rerun()
 
 
-@st.experimental_fragment
+@st.fragment
 def render_empty_chat():
     empty_chat = st.container()
     deployment = get_deployment()

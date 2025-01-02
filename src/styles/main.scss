@@ -76,9 +76,22 @@
   padding-left: 0.75rem;
 }
 
+%citation-sources {
+  height: 400px;
+
+  > * {
+    height: 100%;
+    overflow-y:scroll;
+    overflow-x:hidden;
+  }
+}
+
 %citation-text {
   * {
     white-space: normal;
+    word-wrap: break-word;
+    /* Subtract the space for the left side line and force streamlit to use % width */
+    width: calc(100% - 0.75rem);
   }
 }
 
@@ -169,20 +182,6 @@
   }
 }
 
-%streamlit-app-view-block {
-  // This style block uses the available height for the empty message image in combination with %empty-chat
-  &:not(:has(div.stChatMessage)) {
-    display: flex;
-    // Use 90% to leave the rest 10% for the footer with chat prompt input
-    height: 90%;
-
-    > div {
-      display: flex;
-      width: 100%;
-    }
-  }
-}
-
 %app-header {
   padding-top: 0;
 }
@@ -203,6 +202,20 @@
   line-height: 1.5rem;
 }
 
+%streamlit-app-view-block {
+  // This style block uses the available height for the empty message image in combination with %empty-chat
+  &:not(:has(div.stChatMessage)) {
+    display: flex;
+    // Use 90% to leave the rest 10% for the footer with chat prompt input
+    height: 90%;
+
+    > div {
+      display: flex;
+      width: 100%;
+    }
+  }
+}
+
 /* Add new custom classes under the respective `sal-` component name key here.
 *  They will be compiled into the final stylesheet.
 *  Utility classes that are intended for multiple types of components need to be
@@ -215,7 +228,7 @@ $custom-classes: (
   sal-button-container: (dialog-button),
   sal-subheader: (app-header),
   sal-container: (citation-block),
-  sal-container-container: (empty-chat),
+  sal-container-container: (empty-chat, citation-sources),
   sal-write: (citation-key-text),
   sal-text: (citation-text, empty-chat-header, empty-chat-text),
   sal-caption: (citation-source),
