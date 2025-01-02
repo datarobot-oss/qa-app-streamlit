@@ -6,6 +6,15 @@
 
 In this repository you will find the Q&amp;A Streamlit application code template used within DataRobot. The application uses a styling library for Streamlit called `streamlit-sal`, ([read more](https://github.com/datarobot-oss/streamlit-sal)).
 
+
+## Deployment Configuration
+
+The deployment used for this Q&A application needs to have an association ID configured and automatic association ID generation enabled.
+This setting can be found under Console -> Deployments -> `<Your deployment>` -> Settings -> Custom metrics
+
+The `Association ID` name can be set to anything other than the reserved `promptText` or `resultText` values.
+
+
 ## Configuration
 
 You can run the Q&amp;A app in DataRobot using a custom application or by running the Streamlit app directly. Custom applications can be created via the Registry's Apps workshop or by
@@ -42,6 +51,21 @@ To run the tests use the shell script in the project root:
 pip install -r requirements-dev.txt
 ./run_tests.sh
 ```
+
+## Chat API
+
+LLM Blueprints created via DataRobots playground now support OpenAIs Chat API. The chat completion endpoint is made
+available via the deployment on: `<API_URL>/deployments/<deployment_id>/chat/completions`.
+Documentation for this API can be found here: https://platform.openai.com/docs/api-reference/chat
+
+Streaming will soon be supported by the above deployment Chat API implementation. As it is right now
+the streaming response always only contains 1 chunk due to the applied prompt and/or result text guards. 
+
+Streaming can be disabled in the `constants.py` by setting `ENABLE_CHAT_API_STREAMING` to `False`
+
+To disable the Chat API completely and continue to use the dataRobot-predict library, navigate to `constants.py`
+and set `FORCE_DISABLE_CHAT_API` to `True`
+
 
 ## App modifications
 
