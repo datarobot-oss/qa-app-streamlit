@@ -4,7 +4,7 @@ import streamlit_sal as sal
 from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDTH, I18N_APP_DESCRIPTION,
                        I18N_FORMAT_LATENCY, I18N_RESPONSE_LATENCY, I18N_RESPONSE_TOKENS,
                        I18N_FORMAT_CONFIDENCE, I18N_RESPONSE_CONFIDENCE, I18N_FORMAT_CURRENCY, I18N_RESPONSE_COST,
-                       I18N_DIALOG_CLOSE_BUTTON, I18N_SHARE_BUTTON, I18N_APP_NAME, I18N_SHARE_DIALOG_TITLE,
+                       I18N_DIALOG_CLOSE_BUTTON, I18N_SHARE_BUTTON, I18N_SHARE_DIALOG_TITLE,
                        I18N_CITATION_BUTTON, I18N_CITATION_DIALOG_TITLE, I18N_CITATION_KEY_ANSWER,
                        I18N_CITATION_KEY_PROMPT, I18N_CITATION_KEY_CITATION, I18N_CITATION_SOURCE_PAGE,
                        I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
@@ -12,12 +12,12 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        I18N_NO_DEPLOYMENT_ID, LLM_AVATAR, LLM_DISPLAY_NAME, USER_AVATAR, USER_DISPLAY_NAME,
                        ROLE_ASSISTANT, STATUS_ERROR)
 from dr_requests import submit_metric, send_predict_request, send_chat_api_request, get_application_info
-from utils import get_deployment, escape_result_text, get_association_id_column_name, get_message_by_role
+from utils import get_deployment, get_app_name, escape_result_text, get_association_id_column_name, get_message_by_role
 
 
 def render_app_header():
     app_info = get_application_info()
-    app_name = I18N_APP_NAME
+    app_name = get_app_name()
     app_description = I18N_APP_DESCRIPTION
     external_access_enabled = app_info.get('externalAccessEnabled', False)
     app_url = app_info.get('applicationUrl', None)
@@ -89,7 +89,7 @@ def show_citations_dialog(prompt, answer, citations):
             st.rerun()
 
 
-# If your LLM response contains more meta data, you can add them here to `info_items`
+# If your LLM response contains more metadata, you can add them here to `info_items`
 def get_info_section_data(message_meta):
     info_items = []
     if message_meta.get("datarobot_latency"):

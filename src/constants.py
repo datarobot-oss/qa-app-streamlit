@@ -40,7 +40,7 @@ LLM_AVATAR = ":material/smart_toy:"
 LLM_DISPLAY_NAME = "LLM Deployment"
 
 # Translations
-I18N_APP_NAME = "Q&A Chat Application"
+I18N_APP_NAME_DEFAULT = "Q&A Chat Application"  # Fallback name in case runtime param is not set
 I18N_APP_DESCRIPTION = ""
 
 I18N_RESPONSE_COST = "Cost"

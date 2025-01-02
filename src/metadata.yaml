@@ -1,4 +1,7 @@
 runtimeParameterDefinitions:
+- fieldName: APP_NAME
+  type: string
+  defaultValue: "Q&A Chat Application"
 - fieldName: CUSTOM_METRIC_ID
   type: string
 - fieldName: DEPLOYMENT_ID

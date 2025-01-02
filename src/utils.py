@@ -7,7 +7,7 @@ import requests
 import streamlit as st
 from datarobot import Deployment, AppPlatformError
 
-from constants import STATUS_PENDING, ROLE_ASSISTANT
+from constants import STATUS_PENDING, ROLE_ASSISTANT, I18N_APP_NAME_DEFAULT
 
 
 class DataRobotPredictionError(Exception):
@@ -41,6 +41,10 @@ def get_association_id_column_name():
     deployment_association_id_settings = cast(Dict[str, Any], deployment.get_association_id_settings())
     association_id_names = deployment_association_id_settings.get("column_names")
     return association_id_names[0] if association_id_names else None
+
+
+def get_app_name():
+    return os.getenv("app_name") or I18N_APP_NAME_DEFAULT
 
 
 def initiate_session_state():
