@@ -236,7 +236,7 @@ def test_chat_feedback_request(feedback_endpoint, model_id, is_model_specific):
 
     # Check the LLM response message
     assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
-    assert at.chat_message[1].markdown[1].value == 'Hello! How can I assist you today?'
+    assert at.chat_message[1].markdown[1].value == 'Why did the bicycle fall over? Because it was two-tired!'
 
     msg_id = at.session_state.messages[0].get('meta_id')
     feedback_up_button = at.button(key=f"feedback-up-{msg_id}")
