@@ -47,7 +47,7 @@ def test_empty_chat_app():
         assert at.text[1].value == 'Ask me anything!'
         assert at.chat_input[0].placeholder == 'Send your question'
         # Forced Chat API to be disabled
-        assert at.session_state.is_chat_api_enabled == False
+        assert at.session_state.is_chat_api_enabled == True
 
 
 @responses.activate
@@ -58,7 +58,6 @@ def test_empty_chat_app():
     "mock_deployment_api",
     "app_id"
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 def test_chat_api_supported_app():
     """The app loads and uses deployment capabilities to check for Chat API support"""
     at = AppTest.from_file("qa_chat_bot.py").run()
@@ -73,7 +72,6 @@ def test_chat_api_supported_app():
     "mock_deployment_chat_api_stream",
     "mock_version_api",
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 def test_chat_send_chat_api_stream_request():
     """The app receives chat response after sending a prompt"""
     app = AppTest.from_file("qa_chat_bot.py")
@@ -124,7 +122,6 @@ def test_chat_send_chat_api_stream_request():
     "mock_deployment_chat_api",
     "mock_version_api",
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 @patch('dr_requests.ENABLE_CHAT_API_STREAMING', False)
 def test_chat_send_chat_api_without_stream_request():
     """The app receives chat response after sending a prompt"""
@@ -174,9 +171,9 @@ def test_chat_send_chat_api_without_stream_request():
     "mock_set_env",
     "mock_app_info_api",
     "mock_deployment_api",
-    "mock_deployment_api",
     "mock_version_api",
 )
+@patch('constants.FORCE_DISABLE_CHAT_API', True)
 def test_chat_send_predict_request():
     """The app receives chat response after sending a prompt"""
     app = AppTest.from_file("qa_chat_bot.py")
@@ -224,6 +221,7 @@ def test_chat_send_predict_request():
     "mock_set_env",
     "mock_app_info_api",
     "mock_deployment_api",
+    "mock_deployment_chat_api_stream",
     "mock_version_api",
     "model_id",
     "feedback_endpoint",
