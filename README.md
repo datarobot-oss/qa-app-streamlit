@@ -7,10 +7,11 @@
 In this repository you will find the Q&amp;A Streamlit application code template used within DataRobot. The application uses a styling library for Streamlit called `streamlit-sal`, ([read more](https://github.com/datarobot-oss/streamlit-sal)).
 
 
-## Deployment Configuration
+## Deployment configuration
 
-The deployment used for this Q&A application needs to have an association ID configured and automatic association ID generation enabled.
-This setting can be found under Console -> Deployments -> `<Your deployment>` -> Settings -> Custom metrics
+The deployment used for this Q&A application needs to have a configured association ID and automatic association ID generation enabled.
+
+This setting can be found by navigating to **Console > Deployments > `<Your deployment>` > Settings > Custom metrics**.
 
 The `Association ID` name can be set to anything other than the reserved `promptText` or `resultText` values.
 
@@ -54,17 +55,16 @@ pip install -r requirements-dev.txt
 
 ## Chat API
 
-LLM Blueprints created via DataRobots playground now support OpenAIs Chat API. The chat completion endpoint is made
+LLM Blueprints created via DataRobot's Playground now support OpenAI's Chat API. The chat completion endpoint is made
 available via the deployment on: `<API_URL>/deployments/<deployment_id>/chat/completions`.
-Documentation for this API can be found here: https://platform.openai.com/docs/api-reference/chat
+Documentation for this API can be found [here](https://platform.openai.com/docs/api-reference/chat).
 
-Streaming will soon be supported by the above deployment Chat API implementation. As it is right now
-the streaming response always only contains 1 chunk due to the applied prompt and/or result text guards. 
+Streaming will soon be supported by the deployment Chat API implementation described above. Currently, the streaming response always contains only one chunk due to the applied prompt and/or result text guards. 
 
-Streaming can be disabled in the `constants.py` by setting `ENABLE_CHAT_API_STREAMING` to `False`
+Streaming can be disabled in the `constants.py` by setting `ENABLE_CHAT_API_STREAMING` to `False`.
 
 To disable the Chat API completely and continue to use the dataRobot-predict library, navigate to `constants.py`
-and set `FORCE_DISABLE_CHAT_API` to `True`
+and set `FORCE_DISABLE_CHAT_API` to `True`.
 
 
 ## App modifications
