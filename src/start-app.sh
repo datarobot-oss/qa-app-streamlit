@@ -17,6 +17,9 @@ if [ -n "$MLOPS_RUNTIME_PARAM_CUSTOM_METRIC_ID" ]; then
 else
   export custom_metric_id="$CUSTOM_METRIC_ID"
 fi
+if [ -n "$MLOPS_RUNTIME_PARAM_APP_NAME" ]; then
+  export app_name="$MLOPS_RUNTIME_PARAM_APP_NAME"
+fi
 
 streamlit-sal compile
 streamlit run --server.port=8080 qa_chat_bot.py

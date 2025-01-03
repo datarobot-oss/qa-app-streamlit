@@ -19,12 +19,12 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 @responses.activate
 @pytest.mark.usefixtures(
     "mock_set_env",
+    "mock_set_env_app_name",
     "mock_app_info_api",
     "mock_version_api",
     "mock_deployment_api",
     "app_id"
 )
-@patch('constants.I18N_APP_NAME', 'Application Test')
 @patch('constants.I18N_APP_DESCRIPTION', 'A small example description')
 @patch('constants.I18N_SPLASH_TITLE', 'What would you like to know?')
 @patch('constants.I18N_SPLASH_TEXT', 'Ask me anything!')

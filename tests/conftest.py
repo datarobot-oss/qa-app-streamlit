@@ -19,6 +19,11 @@ def custom_metric_id():
 
 
 @pytest.fixture(scope='module')
+def app_name():
+    return 'Application Test'
+
+
+@pytest.fixture(scope='module')
 def datarobot_token():
     return 'datarobot_token_' + str(ObjectId())
 
@@ -73,6 +78,16 @@ def app_base_url(
     app_id
 ):
     return f"https://test-app.datarobot.com/custom_applications/{app_id}"
+
+
+@pytest.fixture
+def mock_set_env_app_name(
+        monkeypatch,
+        app_name,
+):
+    with patch.dict(os.environ):
+        monkeypatch.setenv("app_name", app_name)
+        yield
 
 
 @pytest.fixture
