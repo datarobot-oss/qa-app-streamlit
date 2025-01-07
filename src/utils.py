@@ -7,7 +7,7 @@ import requests
 import streamlit as st
 from datarobot import Deployment, AppPlatformError
 
-from constants import STATUS_PENDING, ROLE_ASSISTANT, I18N_APP_NAME_DEFAULT
+from constants import STATUS_PENDING, ROLE_ASSISTANT, ROLE_SYSTEM, I18N_APP_NAME_DEFAULT
 
 
 class DataRobotPredictionError(Exception):
@@ -64,6 +64,9 @@ def initiate_session_state():
     # Create messages storage on first render
     if "messages" not in st.session_state:
         st.session_state.messages = []
+
+    if os.getenv("system_prompt") and len(st.session_state.messages) == 0:
+        st.session_state.messages.append({"role": ROLE_SYSTEM, "content": os.getenv("system_prompt")})
 
     if "messages_meta" not in st.session_state:
         st.session_state.messages_meta = {}
@@ -134,7 +137,7 @@ def escape_result_text(text):
 
 def get_message_by_role(role, meta_id):
     return next(
-        (msg for msg in st.session_state.messages if msg["meta_id"] == meta_id and msg["role"] == role), None)
+        (msg for msg in st.session_state.messages if msg.get("meta_id", None) == meta_id and msg["role"] == role), None)
 
 
 def strip_metadata_from_messages(messages):

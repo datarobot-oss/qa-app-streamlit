@@ -66,6 +66,8 @@ Streaming can be disabled in the `constants.py` by setting `ENABLE_CHAT_API_STRE
 To disable the Chat API completely and continue to use the dataRobot-predict library, navigate to `constants.py`
 and set `FORCE_DISABLE_CHAT_API` to `True`.
 
+A system prompt can be configured using the `SYSTEM_PROMPT` runtime parameter. This value will overwrite any previous prompts
+set, including configuration from **Workbench > Playground**.
 
 ## App modifications
 
