@@ -6,3 +6,5 @@ runtimeParameterDefinitions:
   type: string
 - fieldName: DEPLOYMENT_ID
   type: deployment
+- fieldName: SYSTEM_PROMPT
+  type: string
