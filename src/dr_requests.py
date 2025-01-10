@@ -14,8 +14,8 @@ from datarobot_predict.deployment import predict
 from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
     STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
     CHAT_CAPABILITIES_KEY, ENABLE_CHAT_API_STREAMING
-from utils import get_deployment, raise_datarobot_error_for_status, process_citations, rename_dataframe_columns, \
-    get_association_id_column_name, strip_metadata_from_messages, set_result_message_state
+from utils import get_deployment, raise_datarobot_error_for_status, process_citations, process_predict_citations, \
+    rename_dataframe_columns, get_association_id_column_name, strip_metadata_from_messages, set_result_message_state
 
 
 @st.cache_data(show_spinner=False)
@@ -108,7 +108,7 @@ def send_predict_request(message):
         result_df, response_headers = predict(deployment, input_df, prediction_endpoint=prediction_server_override_url())
         processed_df = rename_dataframe_columns(result_df)
         prediction = processed_df.to_dict(orient="records")[0]
-        processed_citations = process_citations(prediction)
+        processed_citations = process_predict_citations(prediction)
     except Exception as exc:
         logging.error(exc)
         prediction_error = str(exc)

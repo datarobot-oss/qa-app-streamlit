@@ -115,6 +115,34 @@ def process_citations(citations: dict[str: Any]) -> list[dict[str: Any]]:
             in
             output_list]
 
+# Process function for the result from datarobot-predict
+def process_predict_citations(input_dict: dict[str: Any]) -> list[dict[str: Any]]:
+    """Processes citation data"""
+    output_list = []
+    num_citations = len([k for k in input_dict.keys() if k.startswith("CITATION_CONTENT")])
+
+    for i in range(num_citations):
+        citation_content_key = f"CITATION_CONTENT_{i}"
+        citation_source_key = f"CITATION_SOURCE_{i}"
+        citation_page_key = f"CITATION_PAGE_{i}"
+
+        citation_dict = {
+            "page_content": input_dict[citation_content_key],
+            "metadata": {
+                "source": input_dict[citation_source_key],
+                "page": input_dict[citation_page_key]
+            },
+            "type": "Document"
+        }
+
+        output_list.append(citation_dict)
+
+    return [{'text': doc['page_content'],
+             'source': doc['metadata']['source'],
+             'page': doc['metadata']['page']} for doc
+            in
+            output_list]
+
 
 def rename_dataframe_columns(df):
     def clean_column_name(name):
