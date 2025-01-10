@@ -160,7 +160,7 @@ def send_chat_api_request(message):
                         message = data_json['choices'][0].get('message')
                         message_content = message.get('content')
                     result = data_json.get('datarobot_moderations', None)
-                    processed_citations = process_citations(result)
+                    processed_citations = process_citations(data_json.get('citations', []))
                 except Exception as exc:
                     logging.error(exc)
                     prediction_error = str(exc)
