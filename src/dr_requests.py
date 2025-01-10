@@ -147,6 +147,9 @@ def send_chat_api_request(message):
             data_str = chunk.decode('utf-8').lstrip("data: ")
             data_json = json.loads(data_str)
 
+            if len(data_json['choices']) == 0:
+                continue
+
             # Get completion content, e.g., choices[0].delta.content
             delta_content = data_json['choices'][0]['delta'].get('content') if ENABLE_CHAT_API_STREAMING else None
             if delta_content:
