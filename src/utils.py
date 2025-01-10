@@ -93,7 +93,30 @@ def add_new_prompt(prompt):
     st.session_state.pending_message_id = new_prompt_id
 
 
-def process_citations(input_dict: dict[str: Any]) -> list[dict[str: Any]]:
+def process_citations(citations: dict[str: Any]) -> list[dict[str: Any]]:
+    """Processes citation data"""
+    output_list = []
+
+    for citation in citations:
+        citation_dict = {
+            "page_content": citation.get('content', ''),
+            "metadata": {
+                "source": citation.get('metadata', {}).get('source'),
+                "page": citation.get('metadata', {}).get('page'),
+            },
+            "type": "Document"
+        }
+
+        output_list.append(citation_dict)
+
+    return [{'text': doc['page_content'],
+             'source': doc['metadata']['source'],
+             'page': doc['metadata']['page']} for doc
+            in
+            output_list]
+
+# Process function for the result from datarobot-predict
+def process_predict_citations(input_dict: dict[str: Any]) -> list[dict[str: Any]]:
     """Processes citation data"""
     output_list = []
     num_citations = len([k for k in input_dict.keys() if k.startswith("CITATION_CONTENT")])

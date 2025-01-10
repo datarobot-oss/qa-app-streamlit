@@ -101,17 +101,17 @@ def test_chat_send_chat_api_stream_request():
 
     # Check citation source
     assert at.caption[
-               1].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt'
-    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt'
+               1].value == 'datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt - Page: 0'
+    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt - Page: 0'
 
     # Check citation text
-    expected_citation_text_1 = 'Troubleshooting the Worker Queue'
-    assert expected_citation_text_1 in at.text[2].value, \
-        f"Expected '{expected_citation_text_1}' to be in '{at.text[2].value}'"
+    expected_citation_text_1 = 'A generalization of multiclass that provides greater flexibility.'
+    assert expected_citation_text_1 in at.text[0].value, \
+        f"Expected '{expected_citation_text_1}' to be in '{at.text[0].value}'"
 
-    expected_citation_text_2 = 'One consideration for choosing an error metric is the expected amount of noise in the data.'
-    assert expected_citation_text_2 in at.text[3].value, \
-        f"Expected '{expected_citation_text_2}' to be in '{at.text[3].value}'"
+    expected_citation_text_2 = 'Imagine you want to receive an answer'
+    assert expected_citation_text_2 in at.text[1].value, \
+        f"Expected '{expected_citation_text_2}' to be in '{at.text[1].value}'"
 
 
 @responses.activate
@@ -153,17 +153,17 @@ def test_chat_send_chat_api_without_stream_request():
 
     # Check citation source
     assert at.caption[
-               1].value == 'datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt'
-    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt'
+               1].value == 'datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt - Page: 0'
+    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt - Page: 0'
 
     # Check citation text
-    expected_citation_text_1 = 'What are summarized categorical features?'
-    assert expected_citation_text_1 in at.text[2].value, \
-        f"Expected '{expected_citation_text_1}' to be in '{at.text[2].value}'"
+    expected_citation_text_1 = 'Imagine you want to receive an answer'
+    assert expected_citation_text_1 in at.text[1].value, \
+        f"Expected '{expected_citation_text_1}' to be in '{at.text[1].value}'"
 
     expected_citation_text_2 = 'The **Illustration** tab shows how summarized categorical data is represented as a feature'
-    assert expected_citation_text_2 in at.text[3].value, \
-        f"Expected '{expected_citation_text_2}' to be in '{at.text[3].value}'"
+    assert expected_citation_text_2 in at.text[2].value, \
+        f"Expected '{expected_citation_text_2}' to be in '{at.text[2].value}'"
 
 
 @responses.activate
@@ -203,8 +203,8 @@ def test_chat_send_predict_request():
 
     # Check citation source
     assert at.caption[
-               1].value == 'datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|signin-help.txt'
-    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|gen-ai|playground.txt'
+               1].value == 'datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|signin-help.txt - Page: 0'
+    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|gen-ai|playground.txt - Page: 0'
 
     # Check citation text
     expected_citation_text_1 = 'The input entered during chatting used to generate the LLM response.'

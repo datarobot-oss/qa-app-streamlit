@@ -13,7 +13,22 @@
   "created": 1734014565,
   "model": "DataRobot Moderation",
   "object": "chat.completion.chunk",
-  "citations": [],
+  "citations": [
+    {
+      "content": "* _Multilabel_: A generalization of multiclass that provides greater flexibility. Each observation can be associated with 0, 1, or several labels  (\"Am I looking at a cat? A dog? A cat _and_ a dog? At neither a cat _nor_ a dog?\"). Predictions report probability for each label in an observation and don't necessarily sum to 1.\n\n\t* _[Summarized categorical](histogram#summarized-categorical-features)_: A variable type used for features that host a collection of categories (for example, the count of a product by category or department). It aggregates categorical data and, while typically used for [Feature Discovery](feature-discovery/index), allows you to create the type in your dataset and use the unique visualizations.\n\n\tThe following table summarizes the feature types that support multivariate modeling:",
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt",
+        "page": 0
+      }
+    },
+    {
+      "content": "Imagine you want to receive an answer to the question \"Do aliens exist?\" Your best plan to get an answer to this question is to interview a particular stranger by asking \"Did you see anything strange last night?\" If they say \"Yes\", you conclude aliens exist. If say \"No\", you conclude aliens don't exist. What's nice is that you have a friend in the army who has access to radar technology so they can determine whether an alien did or did not show up. However, you won't see your friend until next week, so for now conducting the interview experiment is your best option.",
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt",
+        "page": 0
+      }
+    }
+  ],
   "llm_blueprint_id": "6759612345e0837a3d481683",
   "llm_provider_guards": null,
   "prompt_vector": [],

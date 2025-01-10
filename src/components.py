@@ -79,7 +79,7 @@ def show_citations_dialog(prompt, answer, citations):
                             source_text = I18N_CITATION_SOURCE_PAGE.format(
                                 citation.get("source"),
                                 citation.get("page")
-                            ) if citation.get("page") else citation.get("source")
+                            ) if citation.get("page") is not None  else citation.get("source")
                             citation_block.caption(source_text)
                         with sal.text('citation-text', container=citation_block):
                             citation_block.text(citation.get("text"))
