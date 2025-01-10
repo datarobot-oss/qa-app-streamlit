@@ -147,7 +147,7 @@ def send_chat_api_request(message):
             data_str = chunk.decode('utf-8').lstrip("data: ")
             data_json = json.loads(data_str)
 
-            if len(data_json['choices']) == 0:
+            if len(data_json.get('choices', [])) == 0:
                 continue
 
             # Get completion content, e.g., choices[0].delta.content
