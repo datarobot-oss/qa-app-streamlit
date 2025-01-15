@@ -1,10 +1,10 @@
 {
-  "id": "f42e4af9-387a-4c56-9ca4-9d02c3c17567",
+  "id": "b63307a2-14af-4e7a-9d1d-ef1e0ac48972",
   "choices": [
     {
       "delta": {
-        "content": "Why don't scientists trust atoms? Because they make up everything.",
-        "role": null
+        "content": "",
+        "role": "assistant"
       },
       "finish_reason": null,
       "index": 0

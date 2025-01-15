@@ -57,11 +57,11 @@ pip install -r requirements-dev.txt
 
 LLM Blueprints created via DataRobot's Playground now support OpenAI's Chat API. The chat completion endpoint is made
 available via the deployment on: `<API_URL>/deployments/<deployment_id>/chat/completions`.
-Documentation for this API can be found [here](https://platform.openai.com/docs/api-reference/chat).
+Documentation for this API can be found [here](https://docs.datarobot.com/en/docs/gen-ai/genai-code/genai-chat-completion-api.html) or in [OpenAI docs](https://platform.openai.com/docs/api-reference/chat).
 
-Streaming will soon be supported by the deployment Chat API implementation described above. Currently, the streaming response always contains only one chunk due to the applied prompt and/or result text guards. 
+Streaming will soon be supported by the deployment Chat API implementation described above. Currently, streaming is only supported for GPT blueprints and the response always contains only one chunk due to the applied prompt and/or result text guards.
 
-Streaming can be disabled in the `constants.py` by setting `ENABLE_CHAT_API_STREAMING` to `False`.
+Streaming can be enabled in the `constants.py` by setting `ENABLE_CHAT_API_STREAMING` to `True`.
 
 To disable the Chat API completely and continue to use the dataRobot-predict library, navigate to `constants.py`
 and set `FORCE_DISABLE_CHAT_API` to `True`.
@@ -134,3 +134,4 @@ Monitoring ->Custom metrics** .
 | Error                                                              | Solution                                                                                                                              |
 |:-------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------|
 | `Could not find root directory. Did you run 'streamlit-sal init'?` | Make sure that all application src files have been uploaded, including dotfiles: `.streamlit-sal` (file) and `.streamlit` (directory) |
+| `500 Internal Server Error - ERROR: <any>`                         | Check the deployment runtime logs for additional error details. Navigate to **Console > Deployments > Actions > View logs**           |
