@@ -146,6 +146,14 @@ def mock_deployment_chat_api_stream(
 ):
     def mock_stream():
         current_dir = os.path.dirname(__file__)
+
+        initial_file_path = os.path.join(current_dir, 'mocks/mock_initial_chunk.json')
+        with open(initial_file_path, "r") as initial_file:
+            file_content = json.load(initial_file)
+            yield "data: {}\n\n".format(
+                json.dumps(file_content)
+            ).encode("utf-8")
+
         delta_file_path = os.path.join(current_dir, 'mocks/mock_delta_chunk.json')
         with open(delta_file_path, "r") as delta_file:
             file_content = json.load(delta_file)

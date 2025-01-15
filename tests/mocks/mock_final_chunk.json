@@ -1,5 +1,5 @@
 {
-  "id": "6896bfda-1234-46eb-5678-46a03daa3ea7",
+  "id": "8f467195-b4a7-4327-9f71-5f54a504329e",
   "choices": [
     {
       "delta": {
@@ -10,71 +10,174 @@
       "index": 0
     }
   ],
-  "created": 1734014565,
+  "created": 1736949292,
   "model": "DataRobot Moderation",
   "object": "chat.completion.chunk",
   "citations": [
     {
-      "content": "* _Multilabel_: A generalization of multiclass that provides greater flexibility. Each observation can be associated with 0, 1, or several labels  (\"Am I looking at a cat? A dog? A cat _and_ a dog? At neither a cat _nor_ a dog?\"). Predictions report probability for each label in an observation and don't necessarily sum to 1.\n\n\t* _[Summarized categorical](histogram#summarized-categorical-features)_: A variable type used for features that host a collection of categories (for example, the count of a product by category or department). It aggregates categorical data and, while typically used for [Feature Discovery](feature-discovery/index), allows you to create the type in your dataset and use the unique visualizations.\n\n\tThe following table summarizes the feature types that support multivariate modeling:",
+      "content": "Imagine you want to receive an answer to the question \"Do aliens exist?\" Your best plan to get an answer to this question is to interview a particular stranger by asking \"Did you see anything strange last night?\" If they say \"Yes\", you conclude aliens exist. If say \"No\", you conclude aliens don't exist. What's nice is that you have a friend in the army who has access to radar technology so they can determine whether an alien did or did not show up. However, you won't see your friend until next week, so for now conducting the interview experiment is your best option.",
+      "link": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt:0",
+      "vector": [],
       "metadata": {
-        "source": "datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt",
-        "page": 0
+        "source": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt",
+        "page": 0,
+        "chunk_id": 1307,
+        "similarity_score": 1.31
       }
     },
     {
-      "content": "Imagine you want to receive an answer to the question \"Do aliens exist?\" Your best plan to get an answer to this question is to interview a particular stranger by asking \"Did you see anything strange last night?\" If they say \"Yes\", you conclude aliens exist. If say \"No\", you conclude aliens don't exist. What's nice is that you have a friend in the army who has access to radar technology so they can determine whether an alien did or did not show up. However, you won't see your friend until next week, so for now conducting the interview experiment is your best option.",
+      "content": "You've successfully shown up to Black Friday at Best Buy with 3 of your friends and walkie talkies. However, you forgot to look at the ads in the paper for sales. Not to worry, you decided the way you were going to find the best deal in the Big Blue Box is to spread out around the store and walk around for 1 minute to find the best deal and then call your friends and tell them what you found. The friend with the best deal is now an anchor and the other friends start moving in that direction and repeat this process every minute until the friends are all in the same spot (2 hours later), looking at the same deal, feeling accomplished and smart.\\n\\n    === \"GridSearch\"",
+      "link": "datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt:0",
+      "vector": [],
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt",
+        "page": 0,
+        "chunk_id": 1325,
+        "similarity_score": 1.4
+      }
+    },
+    {
+      "content": "---\\ntitle: Troubleshooting the Worker Queue\\ndescription: If you expect to be able to increase your worker count but cannot, check the reasons described here.\\n\\n---\\n\\n#  Troubleshooting the Worker Queue {: #troubleshooting-the-worker-queue }\\n\\n{% include 'includes/worker-queue-tbsht-include.md' %}",
+      "link": "datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|workers-help.txt:0",
+      "vector": [],
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|workers-help.txt",
+        "page": 0,
+        "chunk_id": 4890,
+        "similarity_score": 1.45
+      }
+    },
+    {
+      "content": "One consideration for choosing an error metric is the expected amount of noise in the data. Different error metrics effectively make different assumptions about the distribution of the noise in the observed output. For example, for very noisy systems you might select an error metric that would give relatively less weight to some large errors (e.g., Mean Absolute Error, IQR Error, Median Error) under the assumption that these large errors may be due to noise in the input data rather than poor model fit. On the contrary, when input data is expected to have very low noise you might select an error metric which heavily penalizes large errors (e.g., R^2 or Maximum Error).\\n\\n###  Noisy systems {: #noisy-systems }\\n\\n####  Mean Logarithm Squared Error {: #mean-logarithm-squared-error }\\n\\n* Mean Logarithm Squared Error uses the log function to squash error values and decrease the impact of large errors.",
+      "link": "datarobot_english_documentation/datarobot_docs|en|modeling|reference|eureqa-ref|guidance.txt:0",
+      "vector": [],
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|modeling|reference|eureqa-ref|guidance.txt",
+        "page": 0,
+        "chunk_id": 5096,
+        "similarity_score": 1.5
+      }
+    },
+    {
+      "content": "Chatting is the activity of sending prompts and receiving a response from the LLM. Once you have set the configuration for your LLM, send it prompts (from the entry box in the lower center panel) to determine whether further refinements are needed before saving your draft as an LLM blueprint.\\n\\n![](images/playground-16.png)\\n\\nChatting within the playground is a \"conversation\"&mdash;you can ask follow up questions with subsequent prompts. Following is an example of asking the LLM to provide Python code for running DataRobot Autopilot:\\n\\n![](images/playground-9.png)\\n\\nYou could then ask it to make a change to \"that code\" and the LLM responds knowing the code being referenced because it is \"aware\" of the previous conversation history:\\n\\n![](images/playground-10.png)\\n\\nUse the playground to test and tune prompts until you are satisfied with the system prompt and settings. Then, click **Save as LLM blueprint** in the bottom of the right-hand panel.",
+      "link": "datarobot_english_documentation/datarobot_docs|en|gen-ai|playground.txt:0",
+      "vector": [],
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|gen-ai|playground.txt",
+        "page": 0,
+        "chunk_id": 5861,
+        "similarity_score": 1.5
+      }
+    },
+    {
+      "content": "---\\ntitle: Troubleshooting the Python client\\ndescription: Review cases that can cause issues with using the Python client and known fixes.\\n\\n---\\n\\n# Troubleshooting the Python client {: #troubleshooting-the-python-client }\\n\\nThis page outlines cases that can cause issues with using the Python client and provides known fixes.\\n\\n### InsecurePlatformWarning {: #insecureplatformwarning }\\n\\nPython versions earlier than 2.7.9 might report an [InsecurePlatformWarning](https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning) in your output. To prevent this warning without updating your Python version, you should install the [pyOpenSSL](https://urllib3.readthedocs.org/en/latest/security.html#pyopenssl) package:\\n\\n`pip install pyopenssl ndg-httpsclient pyasn1`\\n\\n### AttributeError: 'EntryPoint' object has no attribute 'resolve' {: #attributeerror-entrypoint-object-has-no-attribute-resolve }",
+      "link": "datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|py-help.txt:0",
+      "vector": [],
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|py-help.txt",
+        "page": 0,
+        "chunk_id": 614,
+        "similarity_score": 1.5
+      }
+    },
+    {
+      "content": "You've successfully shown up to Black Friday at Best Buy with 3 of your friends. However, you forgot to look at the ads in the paper for sales and you also forgot the walkie talkies. Not to worry, you decided the way you were going to find the best deal in the Big Blue Box is to spread out around the store in a 2 x 2 grid and grab the best deal in the area then meet your friends at the checkout counter and see who has the best deal. You meet at the checkout counter (5 minutes later), feeling that you didn't do all you could, but happy that you get to go home, eat leftover pumpkin pie and watch college football.\\n\\n??? ELI5 \"What's GridSearch and why is it important?\"\\n    Let's say that you're baking cookies and you want them to taste as good as they possibly can. To keep it simple, let's say you use exactly two ingredients: flour and sugar (realistically, you need more ingredients but just go with it for now).",
+      "link": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt:0",
+      "vector": [],
       "metadata": {
         "source": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt",
-        "page": 0
+        "page": 0,
+        "chunk_id": 1326,
+        "similarity_score": 1.52
+      }
+    },
+    {
+      "content": "CLM\\\\_AFTER\\\\_RNWL | Numeric | Renewal  | History | Policy | 0\\nNOTIF\\\\_AFT\\\\_RENEWAL | Numeric | \\tRenewal |  History | Policy | 0\\nCLM\\\\_DURING\\\\_CAX\\t | Numeric\\t | Cancellation claim | Policy | 0\\nCOMPLAINT | Numeric\\t | Customer complaint | Policy | 0\\nCLM\\\\_before\\\\_PAYMENT | Numeric | Claim before premium paid | Policy, Claim | 0\\nPROP\\\\_before\\\\_CLM\\t | Numeric\\t | Claim History| Claim | 0\\nNCD\\\\_REC\\\\_before\\\\_CLM\\t | Numeric\\t | Claim History |  Claim | 1\\nNOTIF\\\\_DELAY | \\tNumeric | \\tDelay in notification | Claim | 0\\nACCIDENT\\\\_NIGHT\\t | Numeric\\t | Night time accident | Claim | 0\\nNUM\\\\_PI\\\\_CLAIM\\t | Numeric | Number of personal injury claims | Claim | 0\\nNEW\\\\_VEHICLE\\\\_BEFORE\\\\_CLAIM | Numeric\\t | Vehicle History | Vehicle, Claim | 0\\nPERSONAL_INJURY_INDICATOR | Numeric | Personal Injury flag | Claim | 0\\nCLAIM\\\\_TYPE\\\\_ACCIDENT\\t | Numeric | \\tClaim details | Claim | 1\\nCLAIM\\\\_TYPE\\\\_FIRE\\t | Numeric\\t | Claim details | Claim | 0\\nCLAIM\\\\_TYPE\\\\_MOTOR\\\\_THEFT | Numeric | Claim details | Claim | 0",
+      "link": "datarobot_english_documentation/datarobot_docs|en|includes|fraud-claims-include.txt:0",
+      "vector": [],
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|includes|fraud-claims-include.txt",
+        "page": 0,
+        "chunk_id": 3235,
+        "similarity_score": 1.52
+      }
+    },
+    {
+      "content": "DataRobot returns the following message when testing the connection: <br><br>_Invalid Request: The request tokens do not match the user context. Do not copy the user context values (cookies; form fields; headers) between different requests or user sessions; always maintain the `ALL` of the supplied values across a complete single user flow. Failure Reasons:[Token values do not match;]_ | Make sure the login name of the user matches the login name in both Snowflake and Azure to map user and create access tokens. | You can alter the login name in Snowflake to match the username of Azure if it does not already match.",
+      "link": "datarobot_english_documentation/datarobot_docs|en|data|connect-data|data-sources|dc-snowflake.txt:0",
+      "vector": [],
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|data|connect-data|data-sources|dc-snowflake.txt",
+        "page": 0,
+        "chunk_id": 4478,
+        "similarity_score": 1.55
+      }
+    },
+    {
+      "content": "<table>\\n  <th colspan=\"4\" style=\"text-align:center;\">Prediction Explanation parameters</th>\\n <tr>\\n    <th>Job parameter</th>\\n    <th>Description</th>\\n    <th>Example value</th>\\n    <th>Data type</th>\\n  </tr>\\n  <tr>\\n    <td no-i18n=\"true\">maxExplanations</td>\\n    <td>Optional. Compute up to this number of explanations.</td>\\n    <td no-i18n=\"true\">10</td>\\n    <td>Integer</td>\\n  </tr>\\n  <tr>\\n    <td no-i18n=\"true\">thresholdHigh</td>\\n    <td>Optional. Limit explanations to predictions above this threshold.</td>\\n    <td no-i18n=\"true\">0.5</td>\\n    <td>Float</td>\\n  </tr>\\n  <tr>\\n    <td no-i18n=\"true\">thresholdLow</td>\\n    <td>Optional. Limit explanations to predictions below this threshold.</td>\\n    <td no-i18n=\"true\">0.15</td>\\n    <td>Float</td>\\n  </tr>\\n</table>",
+      "link": "datarobot_english_documentation/datarobot_docs|en|api|reference|batch-prediction-api|output-format.txt:0",
+      "vector": [],
+      "metadata": {
+        "source": "datarobot_english_documentation/datarobot_docs|en|api|reference|batch-prediction-api|output-format.txt",
+        "page": 0,
+        "chunk_id": 1116,
+        "similarity_score": 1.56
       }
     }
   ],
-  "llm_blueprint_id": "6759612345e0837a3d481683",
+  "llm_blueprint_id": "6759629338e0837a3d481683",
   "llm_provider_guards": null,
   "prompt_vector": [],
   "datarobot_moderations": {
-    "blocked_resultText": false,
-    "CITATION_SOURCE_3": "datarobot_english_documentation/datarobot_docs|en|modeling|reference|eureqa-ref|guidance.txt",
-    "CITATION_CONTENT_4": "Chatting is the activity of sending prompts and receiving a response from the LLM. Once you have set the configuration for your LLM, send it prompts (from the entry box in the lower center panel) to determine whether further refinements are needed before saving your draft as an LLM blueprint.\n\n![](images/playground-16.png)\n\nChatting within the playground is a \"conversation\"&mdash;you can ask follow up questions with subsequent prompts. Following is an example of asking the LLM to provide Python code for running DataRobot Autopilot:\n\n![](images/playground-9.png)\n\nYou could then ask it to make a change to \"that code\" and the LLM responds knowing the code being referenced because it is \"aware\" of the previous conversation history:\n\n![](images/playground-10.png)\n\nUse the playground to test and tune prompts until you are satisfied with the system prompt and settings. Then, click **Save as LLM blueprint** in the bottom of the right-hand panel.",
-    "CITATION_SOURCE_4": "datarobot_english_documentation/datarobot_docs|en|gen-ai|playground.txt",
-    "reported_promptText": false,
-    "Prompts_token_count": 4,
-    "CITATION_CONTENT_1": "You\u2019ve successfully shown up to Black Friday at Best Buy with 3 of your friends and walkie talkies. However, you forgot to look at the ads in the paper for sales. Not to worry, you decided the way you were going to find the best deal in the Big Blue Box is to spread out around the store and walk around for 1 minute to find the best deal and then call your friends and tell them what you found. The friend with the best deal is now an anchor and the other friends start moving in that direction and repeat this process every minute until the friends are all in the same spot (2 hours later), looking at the same deal, feeling accomplished and smart.\n\n    === \"GridSearch\"",
-    "CITATION_SOURCE_8": "datarobot_english_documentation/datarobot_docs|en|data|connect-data|data-sources|dc-snowflake.txt",
-    "CITATION_CONTENT_0": "Imagine you want to receive an answer to the question \"Do aliens exist?\" Your best plan to get an answer to this question is to interview a particular stranger by asking \"Did you see anything strange last night?\" If they say \"Yes\", you conclude aliens exist. If say \"No\", you conclude aliens don't exist. What's nice is that you have a friend in the army who has access to radar technology so they can determine whether an alien did or did not show up. However, you won't see your friend until next week, so for now conducting the interview experiment is your best option.",
-    "datarobot_latency": 0.026523828506469727,
-    "CITATION_PAGE_9": 0,
-    "CITATION_PAGE_2": 0,
-    "datarobot_confidence_score": 0.46153846153846156,
-    "datarobot_token_count": 17,
-    "CITATION_SOURCE_2": "datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|workers-help.txt",
     "CITATION_SOURCE_5": "datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|py-help.txt",
-    "moderated_promptText": "Tell me a joke",
-    "CITATION_SOURCE_9": "datarobot_english_documentation/datarobot_docs|en|api|reference|batch-prediction-api|output-format.txt",
-    "CITATION_PAGE_0": 0,
-    "CITATION_CONTENT_5": "---\ntitle: Troubleshooting the Python client\ndescription: Review cases that can cause issues with using the Python client and known fixes.\n\n---\n\n# Troubleshooting the Python client {: #troubleshooting-the-python-client }\n\nThis page outlines cases that can cause issues with using the Python client and provides known fixes.\n\n### InsecurePlatformWarning {: #insecureplatformwarning }\n\nPython versions earlier than 2.7.9 might report an [InsecurePlatformWarning](https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning) in your output. To prevent this warning without updating your Python version, you should install the [pyOpenSSL](https://urllib3.readthedocs.org/en/latest/security.html#pyopenssl) package:\n\n`pip install pyopenssl ndg-httpsclient pyasn1`\n\n### AttributeError: 'EntryPoint' object has no attribute 'resolve' {: #attributeerror-entrypoint-object-has-no-attribute-resolve }",
-    "CITATION_CONTENT_2": "---\ntitle: Troubleshooting the Worker Queue\ndescription: If you expect to be able to increase your worker count but cannot, check the reasons described here.\n\n---\n\n#  Troubleshooting the Worker Queue {: #troubleshooting-the-worker-queue }\n\n{% include 'includes/worker-queue-tbsht-include.md' %}",
-    "prompt_tokens_latency": 0.0007877349853515625,
-    "CITATION_SOURCE_1": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt",
     "CITATION_SOURCE_0": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt",
+    "CITATION_CONTENT_2": "---\\ntitle: Troubleshooting the Worker Queue\\ndescription: If you expect to be able to increase your worker count but cannot, check the reasons described here.\\n\\n---\\n\\n#  Troubleshooting the Worker Queue {: #troubleshooting-the-worker-queue }\\n\\n{% include 'includes/worker-queue-tbsht-include.md' %}",
+    "prompt_tokens_latency": 0.0007855892181396484,
+    "CITATION_CONTENT_4": "Chatting is the activity of sending prompts and receiving a response from the LLM. Once you have set the configuration for your LLM, send it prompts (from the entry box in the lower center panel) to determine whether further refinements are needed before saving your draft as an LLM blueprint.\\n\\n![](images/playground-16.png)\\n\\nChatting within the playground is a \"conversation\"&mdash;you can ask follow up questions with subsequent prompts. Following is an example of asking the LLM to provide Python code for running DataRobot Autopilot:\\n\\n![](images/playground-9.png)\\n\\nYou could then ask it to make a change to \"that code\" and the LLM responds knowing the code being referenced because it is \"aware\" of the previous conversation history:\\n\\n![](images/playground-10.png)\\n\\nUse the playground to test and tune prompts until you are satisfied with the system prompt and settings. Then, click **Save as LLM blueprint** in the bottom of the right-hand panel.",
     "CITATION_PAGE_8": 0,
-    "CITATION_PAGE_1": 0,
-    "CITATION_CONTENT_7": "CLM\\_AFTER\\_RNWL | Numeric | Renewal  | History | Policy | 0\nNOTIF\\_AFT\\_RENEWAL | Numeric | \tRenewal |  History | Policy | 0\nCLM\\_DURING\\_CAX\t | Numeric\t | Cancellation claim | Policy | 0\nCOMPLAINT | Numeric\t | Customer complaint | Policy | 0\nCLM\\_before\\_PAYMENT | Numeric | Claim before premium paid | Policy, Claim | 0\nPROP\\_before\\_CLM\t | Numeric\t | Claim History| Claim | 0\nNCD\\_REC\\_before\\_CLM\t | Numeric\t | Claim History |  Claim | 1\nNOTIF\\_DELAY | \tNumeric | \tDelay in notification | Claim | 0\nACCIDENT\\_NIGHT\t | Numeric\t | Night time accident | Claim | 0\nNUM\\_PI\\_CLAIM\t | Numeric | Number of personal injury claims | Claim | 0\nNEW\\_VEHICLE\\_BEFORE\\_CLAIM | Numeric\t | Vehicle History | Vehicle, Claim | 0\nPERSONAL_INJURY_INDICATOR | Numeric | Personal Injury flag | Claim | 0\nCLAIM\\_TYPE\\_ACCIDENT\t | Numeric | \tClaim details | Claim | 1\nCLAIM\\_TYPE\\_FIRE\t | Numeric\t | Claim details | Claim | 0\nCLAIM\\_TYPE\\_MOTOR\\_THEFT | Numeric | Claim details | Claim | 0",
-    "CITATION_CONTENT_3": "One consideration for choosing an error metric is the expected amount of noise in the data. Different error metrics effectively make different assumptions about the distribution of the noise in the observed output. For example, for very noisy systems you might select an error metric that would give relatively less weight to some large errors (e.g., Mean Absolute Error, IQR Error, Median Error) under the assumption that these large errors may be due to noise in the input data rather than poor model fit. On the contrary, when input data is expected to have very low noise you might select an error metric which heavily penalizes large errors (e.g., R^2 or Maximum Error).\n\n###  Noisy systems {: #noisy-systems }\n\n####  Mean Logarithm Squared Error {: #mean-logarithm-squared-error }\n\n* Mean Logarithm Squared Error uses the log function to squash error values and decrease the impact of large errors.",
-    "CITATION_SOURCE_7": "datarobot_english_documentation/datarobot_docs|en|includes|fraud-claims-include.txt",
+    "CITATION_SOURCE_1": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt",
+    "CITATION_PAGE_2": 0,
+    "CITATION_CONTENT_6": "You've successfully shown up to Black Friday at Best Buy with 3 of your friends. However, you forgot to look at the ads in the paper for sales and you also forgot the walkie talkies. Not to worry, you decided the way you were going to find the best deal in the Big Blue Box is to spread out around the store in a 2 x 2 grid and grab the best deal in the area then meet your friends at the checkout counter and see who has the best deal. You meet at the checkout counter (5 minutes later), feeling that you didn't do all you could, but happy that you get to go home, eat leftover pumpkin pie and watch college football.\\n\\n??? ELI5 \"What's GridSearch and why is it important?\"\\n    Let's say that you're baking cookies and you want them to taste as good as they possibly can. To keep it simple, let's say you use exactly two ingredients: flour and sugar (realistically, you need more ingredients but just go with it for now).",
+    "moderated_promptText": "Tell me a joke",
     "CITATION_SOURCE_6": "datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt",
-    "CITATION_PAGE_7": 0,
-    "CITATION_PAGE_3": 0,
-    "CITATION_CONTENT_6": "You\u2019ve successfully shown up to Black Friday at Best Buy with 3 of your friends. However, you forgot to look at the ads in the paper for sales and you also forgot the walkie talkies. Not to worry, you decided the way you were going to find the best deal in the Big Blue Box is to spread out around the store in a 2 x 2 grid and grab the best deal in the area then meet your friends at the checkout counter and see who has the best deal. You meet at the checkout counter (5 minutes later), feeling that you didn\u2019t do all you could, but happy that you get to go home, eat leftover pumpkin pie and watch college football.\n\n??? ELI5 \"What's GridSearch and why is it important?\"\n    Let\u2019s say that you\u2019re baking cookies and you want them to taste as good as they possibly can. To keep it simple, let\u2019s say you use exactly two ingredients: flour and sugar (realistically, you need more ingredients but just go with it for now).",
-    "CITATION_PAGE_5": 0,
-    "CITATION_CONTENT_8": "DataRobot returns the following message when testing the connection: <br><br>_Invalid Request: The request tokens do not match the user context. Do not copy the user context values (cookies; form fields; headers) between different requests or user sessions; always maintain the `ALL` of the supplied values across a complete single user flow. Failure Reasons:[Token values do not match;]_ | Make sure the login name of the user matches the login name in both Snowflake and Azure to map user and create access tokens. | You can alter the login name in Snowflake to match the username of Azure if it does not already match.",
-    "replaced_promptText": false,
-    "CITATION_PAGE_4": 0,
-    "CITATION_CONTENT_9": "<table>\n  <th colspan=\"4\" style=\"text-align:center;\">Prediction Explanation parameters</th>\n <tr>\n    <th>Job parameter</th>\n    <th>Description</th>\n    <th>Example value</th>\n    <th>Data type</th>\n  </tr>\n  <tr>\n    <td no-i18n=\"true\">maxExplanations</td>\n    <td>Optional. Compute up to this number of explanations.</td>\n    <td no-i18n=\"true\">10</td>\n    <td>Integer</td>\n  </tr>\n  <tr>\n    <td no-i18n=\"true\">thresholdHigh</td>\n    <td>Optional. Limit explanations to predictions above this threshold.</td>\n    <td no-i18n=\"true\">0.5</td>\n    <td>Float</td>\n  </tr>\n  <tr>\n    <td no-i18n=\"true\">thresholdLow</td>\n    <td>Optional. Limit explanations to predictions below this threshold.</td>\n    <td no-i18n=\"true\">0.15</td>\n    <td>Float</td>\n  </tr>\n</table>",
-    "blocked_promptText": false,
+    "rouge_1_latency": 0.030419111251831055,
+    "CITATION_SOURCE_2": "datarobot_english_documentation/datarobot_docs|en|get-started|gs-get-help|troubleshooting|workers-help.txt",
+    "CITATION_SOURCE_9": "datarobot_english_documentation/datarobot_docs|en|api|reference|batch-prediction-api|output-format.txt",
     "action_promptText": "",
+    "datarobot_token_count": 13,
+    "unmoderated_resultText": "Why don't scientists trust atoms? Because they make up everything.",
+    "CITATION_CONTENT_9": "<table>\\n  <th colspan=\"4\" style=\"text-align:center;\">Prediction Explanation parameters</th>\\n <tr>\\n    <th>Job parameter</th>\\n    <th>Description</th>\\n    <th>Example value</th>\\n    <th>Data type</th>\\n  </tr>\\n  <tr>\\n    <td no-i18n=\"true\">maxExplanations</td>\\n    <td>Optional. Compute up to this number of explanations.</td>\\n    <td no-i18n=\"true\">10</td>\\n    <td>Integer</td>\\n  </tr>\\n  <tr>\\n    <td no-i18n=\"true\">thresholdHigh</td>\\n    <td>Optional. Limit explanations to predictions above this threshold.</td>\\n    <td no-i18n=\"true\">0.5</td>\\n    <td>Float</td>\\n  </tr>\\n  <tr>\\n    <td no-i18n=\"true\">thresholdLow</td>\\n    <td>Optional. Limit explanations to predictions below this threshold.</td>\\n    <td no-i18n=\"true\">0.15</td>\\n    <td>Float</td>\\n  </tr>\\n</table>",
+    "CITATION_PAGE_1": 0,
+    "CITATION_SOURCE_4": "datarobot_english_documentation/datarobot_docs|en|gen-ai|playground.txt",
+    "Responses_rouge_1": 0.6363636363636364,
     "CITATION_PAGE_6": 0,
-    "unmoderated_resultText": "Why did the bicycle fall over? Because it was two-tired! Yup yup!",
-    "association_id": "8900d327-1234-4627-567d-338e4ee89902"
+    "CITATION_CONTENT_0": "Imagine you want to receive an answer to the question \"Do aliens exist?\" Your best plan to get an answer to this question is to interview a particular stranger by asking \"Did you see anything strange last night?\" If they say \"Yes\", you conclude aliens exist. If say \"No\", you conclude aliens don't exist. What's nice is that you have a friend in the army who has access to radar technology so they can determine whether an alien did or did not show up. However, you won't see your friend until next week, so for now conducting the interview experiment is your best option.",
+    "reported_promptText": false,
+    "replaced_promptText": false,
+    "Prompts_token_count": 4,
+    "CITATION_PAGE_4": 0,
+    "reported_resultText": false,
+    "replaced_resultText": false,
+    "CITATION_PAGE_9": 0,
+    "CITATION_SOURCE_8": "datarobot_english_documentation/datarobot_docs|en|data|connect-data|data-sources|dc-snowflake.txt",
+    "CITATION_CONTENT_1": "You've successfully shown up to Black Friday at Best Buy with 3 of your friends and walkie talkies. However, you forgot to look at the ads in the paper for sales. Not to worry, you decided the way you were going to find the best deal in the Big Blue Box is to spread out around the store and walk around for 1 minute to find the best deal and then call your friends and tell them what you found. The friend with the best deal is now an anchor and the other friends start moving in that direction and repeat this process every minute until the friends are all in the same spot (2 hours later), looking at the same deal, feeling accomplished and smart.\\n\\n    === \"GridSearch\"",
+    "CITATION_PAGE_5": 0,
+    "CITATION_CONTENT_3": "One consideration for choosing an error metric is the expected amount of noise in the data. Different error metrics effectively make different assumptions about the distribution of the noise in the observed output. For example, for very noisy systems you might select an error metric that would give relatively less weight to some large errors (e.g., Mean Absolute Error, IQR Error, Median Error) under the assumption that these large errors may be due to noise in the input data rather than poor model fit. On the contrary, when input data is expected to have very low noise you might select an error metric which heavily penalizes large errors (e.g., R^2 or Maximum Error).\\n\\n###  Noisy systems {: #noisy-systems }\\n\\n####  Mean Logarithm Squared Error {: #mean-logarithm-squared-error }\\n\\n* Mean Logarithm Squared Error uses the log function to squash error values and decrease the impact of large errors.",
+    "CITATION_CONTENT_8": "DataRobot returns the following message when testing the connection: <br><br>_Invalid Request: The request tokens do not match the user context. Do not copy the user context values (cookies; form fields; headers) between different requests or user sessions; always maintain the `ALL` of the supplied values across a complete single user flow. Failure Reasons:[Token values do not match;]_ | Make sure the login name of the user matches the login name in both Snowflake and Azure to map user and create access tokens. | You can alter the login name in Snowflake to match the username of Azure if it does not already match.",
+    "CITATION_PAGE_0": 0,
+    "blocked_resultText": false,
+    "CITATION_SOURCE_7": "datarobot_english_documentation/datarobot_docs|en|includes|fraud-claims-include.txt",
+    "Responses_token_count": 13,
+    "action_resultText": "",
+    "CITATION_PAGE_3": 0,
+    "CITATION_SOURCE_3": "datarobot_english_documentation/datarobot_docs|en|modeling|reference|eureqa-ref|guidance.txt",
+    "blocked_promptText": false,
+    "response_tokens_latency": 0.0007693767547607422,
+    "CITATION_CONTENT_5": "---\\ntitle: Troubleshooting the Python client\\ndescription: Review cases that can cause issues with using the Python client and known fixes.\\n\\n---\\n\\n# Troubleshooting the Python client {: #troubleshooting-the-python-client }\\n\\nThis page outlines cases that can cause issues with using the Python client and provides known fixes.\\n\\n### InsecurePlatformWarning {: #insecureplatformwarning }\\n\\nPython versions earlier than 2.7.9 might report an [InsecurePlatformWarning](https://urllib3.readthedocs.org/en/latest/security.html#insecureplatformwarning) in your output. To prevent this warning without updating your Python version, you should install the [pyOpenSSL](https://urllib3.readthedocs.org/en/latest/security.html#pyopenssl) package:\\n\\n`pip install pyopenssl ndg-httpsclient pyasn1`\\n\\n### AttributeError: 'EntryPoint' object has no attribute 'resolve' {: #attributeerror-entrypoint-object-has-no-attribute-resolve }",
+    "CITATION_PAGE_7": 0,
+    "datarobot_latency": 0.07997727394104004,
+    "CITATION_CONTENT_7": "CLM\\\\_AFTER\\\\_RNWL | Numeric | Renewal  | History | Policy | 0\\nNOTIF\\\\_AFT\\\\_RENEWAL | Numeric | \\tRenewal |  History | Policy | 0\\nCLM\\\\_DURING\\\\_CAX\\t | Numeric\\t | Cancellation claim | Policy | 0\\nCOMPLAINT | Numeric\\t | Customer complaint | Policy | 0\\nCLM\\\\_before\\\\_PAYMENT | Numeric | Claim before premium paid | Policy, Claim | 0\\nPROP\\\\_before\\\\_CLM\\t | Numeric\\t | Claim History| Claim | 0\\nNCD\\\\_REC\\\\_before\\\\_CLM\\t | Numeric\\t | Claim History |  Claim | 1\\nNOTIF\\\\_DELAY | \\tNumeric | \\tDelay in notification | Claim | 0\\nACCIDENT\\\\_NIGHT\\t | Numeric\\t | Night time accident | Claim | 0\\nNUM\\\\_PI\\\\_CLAIM\\t | Numeric | Number of personal injury claims | Claim | 0\\nNEW\\\\_VEHICLE\\\\_BEFORE\\\\_CLAIM | Numeric\\t | Vehicle History | Vehicle, Claim | 0\\nPERSONAL_INJURY_INDICATOR | Numeric | Personal Injury flag | Claim | 0\\nCLAIM\\\\_TYPE\\\\_ACCIDENT\\t | Numeric | \\tClaim details | Claim | 1\\nCLAIM\\\\_TYPE\\\\_FIRE\\t | Numeric\\t | Claim details | Claim | 0\\nCLAIM\\\\_TYPE\\\\_MOTOR\\\\_THEFT | Numeric | Claim details | Claim | 0",
+    "datarobot_confidence_score": 0.6363636363636364,
+    "association_id": "16465243-76b6-4746-a0ec-89c8dc97ed8f"
   }
 }
