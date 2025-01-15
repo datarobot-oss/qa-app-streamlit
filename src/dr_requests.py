@@ -139,7 +139,8 @@ def send_chat_api_request(message):
     request_error = None
     processed_citations = None
     message_content = ""
-    chat_completion = requests.post(url, json=chat_completions_request, headers=headers, stream=True)
+    chat_completion = requests.post(url, json=chat_completions_request, headers=headers,
+                                    stream=ENABLE_CHAT_API_STREAMING)
     for chunk in chat_completion.iter_lines():
         try:
             # Strip "data: " and parse JSON content
@@ -158,18 +159,13 @@ def send_chat_api_request(message):
             if len(data_json.get('choices', [])) == 0:
                 continue
 
-            # Get streaming content and yield partial message for write_stream component
-            delta_content = data_json['choices'][0]['delta'].get('content') if ENABLE_CHAT_API_STREAMING else None
-            if delta_content:
-                message_content += delta_content
-                yield delta_content
-
-            # Check if this is the last chunk
-            if data_json['choices'][0].get('finish_reason') == 'stop':
+            is_last_chunk = data_json['choices'][0].get('finish_reason') == 'stop'
+            if is_last_chunk:
                 try:
                     if not ENABLE_CHAT_API_STREAMING:
-                        message = data_json['choices'][0].get('message')
-                        message_content = message.get('content')
+                        # Set the message content for single chunk responses
+                        message = data_json['choices'][0].get('message', {})
+                        message_content = message.get('content', '')
                     result = data_json.get('datarobot_moderations', None)
                     processed_citations = process_citations(data_json.get('citations', []))
                 except Exception as exc:
@@ -180,6 +176,12 @@ def send_chat_api_request(message):
                 status = STATUS_COMPLETED if not request_error else STATUS_ERROR
                 set_result_message_state(meta_id, message_content, status, citations=processed_citations,
                                          extra_model_output=result, error=request_error)
+
+            elif ENABLE_CHAT_API_STREAMING:
+                delta_content = data_json['choices'][0].get('delta', {}).get('content', '')
+                message_content += delta_content
+                yield delta_content
+
 
         except json.JSONDecodeError:
             continue  # Skip chunks that aren’t valid JSON. Not sure if necessary as it does not yet send true partial chunks

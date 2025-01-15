@@ -203,7 +203,7 @@ def render_pending_message(message):
     with sal.chat_message():
         with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=LLM_AVATAR):
             st.markdown(f"__{LLM_DISPLAY_NAME}:__")
-            if ENABLE_CHAT_API_STREAMING:
+            if st.session_state.is_chat_api_enabled and ENABLE_CHAT_API_STREAMING:
                 st.write_stream(send_chat_api_request(message))
                 # Trigger manual rerun so the footer gets populated with extra model output
                 st.rerun()
