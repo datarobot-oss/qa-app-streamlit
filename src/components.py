@@ -10,7 +10,7 @@ from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDT
                        I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
                        ROLE_USER, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
                        I18N_NO_DEPLOYMENT_ID, LLM_AVATAR, LLM_DISPLAY_NAME, USER_AVATAR, USER_DISPLAY_NAME,
-                       ROLE_ASSISTANT, STATUS_ERROR)
+                       ROLE_ASSISTANT, STATUS_ERROR, ENABLE_CHAT_API_STREAMING)
 from dr_requests import submit_metric, send_predict_request, send_chat_api_request, get_application_info
 from utils import get_deployment, get_app_name, escape_result_text, get_association_id_column_name, get_message_by_role
 
@@ -203,14 +203,19 @@ def render_pending_message(message):
     with sal.chat_message():
         with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=LLM_AVATAR):
             st.markdown(f"__{LLM_DISPLAY_NAME}:__")
-            if st.session_state.is_chat_api_enabled:
+            if ENABLE_CHAT_API_STREAMING:
                 st.write_stream(send_chat_api_request(message))
                 # Trigger manual rerun so the footer gets populated with extra model output
                 st.rerun()
             else:
                 with st.spinner(I18N_LOADING_MESSAGE):
-                    send_predict_request(message)
-                    # Trigger manual rerun to render the response including its footer
+                    if st.session_state.is_chat_api_enabled:
+                        # Iterate over generator function to execute fully
+                        for _ in send_chat_api_request(message):
+                            pass
+                    else:
+                        send_predict_request(message)
+                    # Trigger manual rerun to render the response including its footer with extra model output
                     st.rerun()
 
 
