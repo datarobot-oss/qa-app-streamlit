@@ -90,14 +90,6 @@ def send_predict_request(message):
         (prompt_column_name, prompt),
     ]
     data = dict(filter(lambda item: item is not None, data_tuples))
-    data_size = sys.getsizeof(data)
-
-    if data_size >= MAX_PREDICTION_INPUT_SIZE_BYTES:
-        st.write(
-            ('Prompt input is too large: {} bytes. ' 'Max allowed size is: {} bytes.').format(
-                data_size, MAX_PREDICTION_INPUT_SIZE_BYTES
-            )
-        )
 
     input_df = pd.DataFrame(data, index=[0])
     prediction = None
@@ -105,6 +97,12 @@ def send_predict_request(message):
     processed_citations = None
 
     try:
+        data_size = sys.getsizeof(data)
+        if data_size >= MAX_PREDICTION_INPUT_SIZE_BYTES:
+            raise Exception("Prompt input is too large: {size} bytes. Max allowed size is: {max_size} bytes.".format(
+                size=data_size, max_size=MAX_PREDICTION_INPUT_SIZE_BYTES
+            ))
+
         result_df, response_headers = predict(deployment, input_df, prediction_endpoint=prediction_server_override_url())
         processed_df = rename_dataframe_columns(result_df)
         prediction = processed_df.to_dict(orient="records")[0]
@@ -133,45 +131,57 @@ def send_chat_api_request(message):
     chat_completions_request = {
         "model": deployment.model.get("type"),
         "messages": strip_metadata_from_messages(st.session_state.messages),
-        "stream": ENABLE_CHAT_API_STREAMING,
+        # Only set stream value when it is true, the endpoint validation is too strict and fails for stream: False/None
+        **({"stream": True} if ENABLE_CHAT_API_STREAMING else {})
     }
 
     result = None
-    prediction_error = None
+    request_error = None
     processed_citations = None
     message_content = ""
-    chat_completion = requests.post(url, json=chat_completions_request, headers=headers, stream=True)
+    chat_completion = requests.post(url, json=chat_completions_request, headers=headers,
+                                    stream=ENABLE_CHAT_API_STREAMING)
     for chunk in chat_completion.iter_lines():
         try:
             # Strip "data: " and parse JSON content
             data_str = chunk.decode('utf-8').lstrip("data: ")
             data_json = json.loads(data_str)
 
+            # Presence of 'message' indicates that an error has occurred
+            if data_json.get('message'):
+                request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
+                    code=chat_completion.status_code, reason=chat_completion.reason, msg=data_json.get('message'),
+                    url=url)
+                set_result_message_state(meta_id, message_content, status=STATUS_ERROR, error=request_error)
+                continue
+
+            # Some LLMs might start the first streaming chunk without any choices
             if len(data_json.get('choices', [])) == 0:
                 continue
 
-            # Get completion content, e.g., choices[0].delta.content
-            delta_content = data_json['choices'][0]['delta'].get('content') if ENABLE_CHAT_API_STREAMING else None
-            if delta_content:
-                message_content += delta_content
-                yield delta_content
-
-            # Check if this is the last chunk
-            if data_json['choices'][0].get('finish_reason') == 'stop':
+            is_last_chunk = data_json['choices'][0].get('finish_reason') == 'stop'
+            if is_last_chunk:
                 try:
                     if not ENABLE_CHAT_API_STREAMING:
-                        message = data_json['choices'][0].get('message')
-                        message_content = message.get('content')
+                        # Set the message content for single chunk responses
+                        message = data_json['choices'][0].get('message', {})
+                        message_content = message.get('content', '')
                     result = data_json.get('datarobot_moderations', None)
                     processed_citations = process_citations(data_json.get('citations', []))
                 except Exception as exc:
                     logging.error(exc)
-                    prediction_error = str(exc)
+                    request_error = 'Error while processing response from Chat API:  \n{exc}'.format(exc=str(exc))
 
-                message_content = message_content if not prediction_error else None
-                status = STATUS_COMPLETED if not prediction_error else STATUS_ERROR
+                message_content = message_content if not request_error else None
+                status = STATUS_COMPLETED if not request_error else STATUS_ERROR
                 set_result_message_state(meta_id, message_content, status, citations=processed_citations,
-                                         extra_model_output=result, error=prediction_error)
+                                         extra_model_output=result, error=request_error)
+
+            elif ENABLE_CHAT_API_STREAMING:
+                delta_content = data_json['choices'][0].get('delta', {}).get('content', '')
+                message_content += delta_content
+                yield delta_content
+
 
         except json.JSONDecodeError:
             continue  # Skip chunks that aren’t valid JSON. Not sure if necessary as it does not yet send true partial chunks
