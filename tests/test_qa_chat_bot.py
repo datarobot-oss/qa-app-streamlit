@@ -46,7 +46,7 @@ def test_empty_chat_app():
         assert at.text[0].value == 'What would you like to know?'
         assert at.text[1].value == 'Ask me anything!'
         assert at.chat_input[0].placeholder == 'Send your question'
-        assert at.session_state.is_chat_api_enabled == True
+        assert at.session_state.is_chat_api_enabled == False
 
 
 @responses.activate
