@@ -29,6 +29,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../s
 @patch('constants.I18N_SPLASH_TITLE', 'What would you like to know?')
 @patch('constants.I18N_SPLASH_TEXT', 'Ask me anything!')
 @patch('constants.I18N_INPUT_PLACEHOLDER', 'Send your question')
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
 def test_empty_chat_app():
     # Path to the CSV file relative to the test file
     current_dir = os.path.dirname(__file__)
@@ -57,6 +58,7 @@ def test_empty_chat_app():
     "mock_deployment_api",
     "app_id"
 )
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
 def test_chat_api_supported_app():
     """The app loads and uses deployment capabilities to check for Chat API support"""
     at = AppTest.from_file("qa_chat_bot.py").run()
@@ -71,6 +73,7 @@ def test_chat_api_supported_app():
     "mock_deployment_chat_api",
     "mock_version_api",
 )
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
 def test_chat_send_chat_api_without_stream_request():
     """The app receives chat response after sending a prompt"""
     app = AppTest.from_file("qa_chat_bot.py")
@@ -122,7 +125,6 @@ def test_chat_send_chat_api_without_stream_request():
     "mock_deployment_api",
     "mock_version_api",
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', True)
 def test_chat_send_predict_request():
     """The app receives chat response after sending a prompt"""
     app = AppTest.from_file("qa_chat_bot.py")
@@ -175,6 +177,7 @@ def test_chat_send_predict_request():
     "mock_version_api",
 )
 @patch('dr_requests.ENABLE_CHAT_API_STREAMING', True)
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
 def test_chat_send_chat_api_stream_request():
     """The app receives chat response after sending a prompt"""
     app = AppTest.from_file("qa_chat_bot.py")
@@ -230,6 +233,7 @@ def test_chat_send_chat_api_stream_request():
     "is_model_specific"
 )
 @pytest.mark.parametrize("is_model_specific", [True, False])
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
 @patch('dr_requests.ENABLE_CHAT_API_STREAMING', True)
 def test_chat_feedback_request(feedback_endpoint, model_id, is_model_specific):
     """The user can submit feedback for a response"""
