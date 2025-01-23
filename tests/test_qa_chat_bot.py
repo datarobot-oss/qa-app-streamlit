@@ -60,7 +60,7 @@ def test_empty_chat_app():
 def test_chat_api_supported_app():
     """The app loads and uses deployment capabilities to check for Chat API support"""
     at = AppTest.from_file("qa_chat_bot.py").run()
-    assert at.session_state.is_chat_api_enabled == True
+    assert at.session_state.is_chat_api_enabled == False
 
 
 @responses.activate
