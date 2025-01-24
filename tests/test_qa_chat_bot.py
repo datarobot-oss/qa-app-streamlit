@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 from collections import namedtuple
 from unittest.mock import patch
 
@@ -10,8 +9,6 @@ import responses
 from streamlit.testing.v1 import AppTest
 
 from .conftest import find_request_by_url
-
-# sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 
 # NOTE: The tests currently leak values between scenarios via cached functions.
