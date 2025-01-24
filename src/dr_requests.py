@@ -15,7 +15,7 @@ from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT
     STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
     CHAT_CAPABILITIES_KEY, ENABLE_CHAT_API_STREAMING
 from utils import get_deployment, raise_datarobot_error_for_status, process_citations, process_predict_citations, \
-    rename_dataframe_columns, get_association_id_column_name, strip_metadata_from_messages, set_result_message_state
+    rename_dataframe_columns, get_association_id_column_name, sanitize_messages_for_request, set_result_message_state
 
 
 @st.cache_data(show_spinner=False)
@@ -130,7 +130,7 @@ def send_chat_api_request(message):
 
     chat_completions_request = {
         "model": deployment.model.get("type"),
-        "messages": strip_metadata_from_messages(st.session_state.messages),
+        "messages": sanitize_messages_for_request(st.session_state.messages),
         # Only set stream value when it is true, the endpoint validation is too strict and fails for stream: False/None
         **({"stream": True} if ENABLE_CHAT_API_STREAMING else {})
     }
@@ -167,7 +167,12 @@ def send_chat_api_request(message):
                         message = data_json['choices'][0].get('message', {})
                         message_content = message.get('content', '')
                     result = data_json.get('datarobot_moderations', None)
-                    processed_citations = process_citations(data_json.get('citations', []))
+
+                    if data_json.get('citations'):
+                        processed_citations = process_citations(data_json.get('citations'))
+                    elif data_json.get('datarobot_moderations'):
+                        processed_citations = process_predict_citations(data_json.get('datarobot_moderations'))
+
                 except Exception as exc:
                     logging.error(exc)
                     request_error = 'Error while processing response from Chat API:  \n{exc}'.format(exc=str(exc))

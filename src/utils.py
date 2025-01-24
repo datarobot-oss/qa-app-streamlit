@@ -163,12 +163,18 @@ def get_message_by_role(role, meta_id):
         (msg for msg in st.session_state.messages if msg.get("meta_id", None) == meta_id and msg["role"] == role), None)
 
 
-def strip_metadata_from_messages(messages):
-    """Strips meta_id field from the messages, otherwise OpenAI will fail due to schema mismatch"""
-    return [
-        {key: message[key] for key in message if key in {"role", "content"}}
-        for message in messages
-    ]
+def sanitize_messages_for_request(messages):
+    """Strips meta_id and any invalid fields from the messages, otherwise OpenAI will fail due to schema mismatch"""
+    sanitized_messages = []
+    for i, message in enumerate(messages):
+        if message['content'] is None:
+            if i > 0 and messages[i - 1]['meta_id'] == message['meta_id']:
+                sanitized_messages.pop()
+            continue
+
+        sanitized_messages.append({key: message[key] for key in message if key in {"role", "content"}})
+
+    return sanitized_messages
 
 
 def set_result_message_state(meta_id, content, status, citations=None, extra_model_output=None, error=None):

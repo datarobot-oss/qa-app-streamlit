@@ -1,0 +1,47 @@
+{
+  "choices": [
+    {
+      "finish_reason": "stop",
+      "index": 0,
+      "message": {
+        "content": "Giraffes only need to drink water once every few days because they get most of their water from the plants they eat!",
+        "role": "assistant"
+      }
+    }
+  ],
+  "citations": null,
+  "created": 1736948732,
+  "datarobot_moderations": {
+    "Prompts_token_count": 6,
+    "Responses_rouge_1": 0.5,
+    "Responses_token_count": 26,
+    "action_promptText": "",
+    "action_resultText": "",
+    "association_id": "9e6640ba-19d7-43fa-b391-814020e6edd0",
+    "blocked_promptText": false,
+    "blocked_resultText": false,
+    "datarobot_confidence_score": 0.5,
+    "datarobot_latency": 0.6248588562011719,
+    "datarobot_token_count": 26,
+    "moderated_promptText": "Tell me an interesting animal fact",
+    "prompt_tokens_latency": 0.0007832050323486328,
+    "replaced_promptText": false,
+    "replaced_resultText": false,
+    "reported_promptText": false,
+    "reported_resultText": false,
+    "response_tokens_latency": 0.0007982254028320312,
+    "rouge_1_latency": 0.031659841537475586,
+    "unmoderated_resultText": "Giraffes only need to drink water once every few days because they get most of their water from the plants they eat!"
+  },
+  "id": "4643511e-4197-47f6-aeba-0a40dcfe6b0c",
+  "llm_blueprint_id": "6759629338e0837a3d481683",
+  "llm_provider_guards": null,
+  "model": "llm-blueprint-6759629338e0837a3d481683",
+  "object": "chat.completion",
+  "prompt_vector": [],
+  "usage": {
+    "completion_tokens": 134,
+    "prompt_tokens": 11584,
+    "total_tokens": 11718
+  }
+}

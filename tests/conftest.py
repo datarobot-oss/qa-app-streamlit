@@ -1,10 +1,17 @@
 import json
 import os
+import sys
+from pathlib import Path
 from unittest.mock import patch
 
 import pytest
 import responses
 from bson import ObjectId
+
+
+# Add the `src` directory to the Python path
+src_path = Path(__file__).resolve().parent.parent / "src"
+sys.path.insert(0, str(src_path))
 
 
 # Fixtures
@@ -191,6 +198,39 @@ def mock_deployment_chat_api(
             body=json.dumps(file_content).encode("utf-8")
         )
 
+
+@pytest.fixture
+def mock_deployment_chat_api_no_citations(
+        datarobot_endpoint,
+        model_id,
+        deployment_id,
+):
+    current_dir = os.path.dirname(__file__)
+    mock_no_stream_file_path = os.path.join(current_dir, 'mocks/mock_chat_api_no_stream_no_citations.json')
+    with open(mock_no_stream_file_path, "r") as no_stream_file:
+        file_content = json.load(no_stream_file)
+
+        responses.post(
+            f"{datarobot_endpoint}/deployments/{deployment_id}/chat/completions",
+            body=json.dumps(file_content).encode("utf-8")
+        )
+
+
+@pytest.fixture
+def mock_deployment_chat_api_legacy_citations(
+        datarobot_endpoint,
+        model_id,
+        deployment_id,
+):
+    current_dir = os.path.dirname(__file__)
+    mock_no_stream_file_path = os.path.join(current_dir, 'mocks/mock_chat_api_no_stream_legacy_citations.json')
+    with open(mock_no_stream_file_path, "r") as no_stream_file:
+        file_content = json.load(no_stream_file)
+
+        responses.post(
+            f"{datarobot_endpoint}/deployments/{deployment_id}/chat/completions",
+            body=json.dumps(file_content).encode("utf-8")
+        )
 
 
 @pytest.fixture

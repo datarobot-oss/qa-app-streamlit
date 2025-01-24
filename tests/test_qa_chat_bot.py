@@ -1,6 +1,5 @@
 import json
 import os
-import sys
 from collections import namedtuple
 from unittest.mock import patch
 
@@ -10,8 +9,6 @@ import responses
 from streamlit.testing.v1 import AppTest
 
 from .conftest import find_request_by_url
-
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), '../src')))
 
 
 # NOTE: The tests currently leak values between scenarios via cached functions.
@@ -100,6 +97,64 @@ def test_chat_send_chat_api_without_stream_request():
 
     msg_id = at.session_state.messages[0].get('meta_id')
     citation_button = at.button(key=f"citation-{msg_id}")
+    assert f"citation-{msg_id}" in at.session_state
+    assert citation_button.label == 'Citation'
+    citation_button.click().run()
+
+    # Check citation source
+    assert at.caption[
+               1].value == 'datarobot_english_documentation/datarobot_docs|en|modeling|special-workflows|multilabel.txt - Page: 0'
+    assert at.caption[2].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt - Page: 0'
+
+    # Check citation text
+    expected_citation_text_1 = 'Imagine you want to receive an answer'
+    assert expected_citation_text_1 in at.text[1].value, \
+        f"Expected '{expected_citation_text_1}' to be in '{at.text[1].value}'"
+
+    expected_citation_text_2 = 'What are summarized categorical features?'
+    assert expected_citation_text_2 in at.text[2].value, \
+        f"Expected '{expected_citation_text_2}' to be in '{at.text[2].value}'"
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_app_info_api",
+    "mock_deployment_api",
+    "mock_deployment_chat_api_no_citations",
+    "mock_version_api",
+)
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
+def test_chat_api_no_citations():
+    """The app should not show citations button when not available"""
+    app = AppTest.from_file("qa_chat_bot.py")
+    at = app.run()
+    assert at.session_state.is_chat_api_enabled == True
+    at.chat_input[0].set_value('Tell me an interesting animal fact').run()
+
+    # Assert that the citations button does not exist when Citations are not available
+    msg_id = at.session_state.messages[0].get('meta_id')
+    assert f"citation-{msg_id}" not in at.session_state
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_app_info_api",
+    "mock_deployment_api",
+    "mock_deployment_chat_api_legacy_citations",
+    "mock_version_api",
+)
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
+def test_chat_api_legacy_citations():
+    app = AppTest.from_file("qa_chat_bot.py")
+    at = app.run()
+    assert at.session_state.is_chat_api_enabled == True
+    at.chat_input[0].set_value('Tell me an interesting animal fact').run()
+
+    msg_id = at.session_state.messages[0].get('meta_id')
+    citation_button = at.button(key=f"citation-{msg_id}")
+    assert f"citation-{msg_id}" in at.session_state
     assert citation_button.label == 'Citation'
     citation_button.click().run()
 
