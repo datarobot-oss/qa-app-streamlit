@@ -3,6 +3,7 @@ import logging
 import os
 import sys
 from datetime import datetime
+from pprint import pprint
 from typing import Optional
 
 import pandas as pd
@@ -10,12 +11,14 @@ import requests
 import streamlit as st
 from datarobot.models.deployment import CustomMetric
 from datarobot_predict.deployment import predict
+from openai import OpenAI, APIError
 
 from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
     STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
-    CHAT_CAPABILITIES_KEY, ENABLE_CHAT_API_STREAMING
+    CHAT_CAPABILITIES_KEY
 from utils import get_deployment, raise_datarobot_error_for_status, process_citations, process_predict_citations, \
-    rename_dataframe_columns, get_association_id_column_name, sanitize_messages_for_request, set_result_message_state
+    rename_dataframe_columns, get_association_id_column_name, sanitize_messages_for_request, set_result_message_state, \
+    get_base_url, ResponseProcessingError
 
 
 @st.cache_data(show_spinner=False)
@@ -119,77 +122,93 @@ def send_predict_request(message):
 
 def send_chat_api_request(message):
     meta_id = message['meta_id']
-    endpoint = st.session_state.endpoint
-    deployment_id = st.session_state.deployment_id
     deployment = get_deployment()
-    url = f"{endpoint}/deployments/{deployment_id}/chat/completions"
-    headers = {
-        "Authorization": "Token {}".format(st.session_state.token),
-        "Content-Type": "application/json",
-    }
+    base_url = get_base_url()
+    openai_client = OpenAI(base_url=base_url, api_key=st.session_state.token)
 
-    chat_completions_request = {
-        "model": deployment.model.get("type"),
-        "messages": sanitize_messages_for_request(st.session_state.messages),
-        # Only set stream value when it is true, the endpoint validation is too strict and fails for stream: False/None
-        **({"stream": True} if ENABLE_CHAT_API_STREAMING else {})
-    }
-
-    result = None
-    request_error = None
     processed_citations = None
-    message_content = ""
-    chat_completion = requests.post(url, json=chat_completions_request, headers=headers,
-                                    stream=ENABLE_CHAT_API_STREAMING)
-    for chunk in chat_completion.iter_lines():
+    try:
+        completion = openai_client.chat.completions.create(model=deployment.model.get("type"),
+                                                           messages=sanitize_messages_for_request(
+                                                               st.session_state.messages))
+
+        content = completion.choices[0].delta.content
         try:
-            # Strip "data: " and parse JSON content
-            data_str = chunk.decode('utf-8').lstrip("data: ")
-            data_json = json.loads(data_str)
+            if content.model_extra.get('citations'):
+                processed_citations = process_citations(completion.model_extra.get('citations'))
+            elif content.model_extra.get('datarobot_moderations'):
+                processed_citations = process_predict_citations(completion.model_extra.get('datarobot_moderations'))
+        except Exception as exc:
+            raise ResponseProcessingError(exc)
 
-            # Presence of 'message' indicates that an error has occurred
-            if data_json.get('message'):
-                request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
-                    code=chat_completion.status_code, reason=chat_completion.reason, msg=data_json.get('message'),
-                    url=url)
-                set_result_message_state(meta_id, message_content, status=STATUS_ERROR, error=request_error)
+        set_result_message_state(meta_id, content, status=STATUS_COMPLETED,
+                                 citations=processed_citations,
+                                 extra_model_output=[])
+        return
+
+    except APIError as e:
+        request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
+            code=e.status_code, reason="Chat API returned an error", msg=e.body,
+            url=get_base_url())
+        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
+    except ResponseProcessingError as e:
+        request_error = '{reason}  \n{msg}'.format(reason="Error processing response from Chat API", msg=e)
+        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
+    except Exception as e:
+        set_result_message_state(meta_id, None, status=STATUS_ERROR,
+                                 error=f"An unexpected error occurred: {e}")
+
+
+def send_chat_api_streaming_request(message):
+    meta_id = message['meta_id']
+    deployment = get_deployment()
+    base_url = get_base_url()
+    openai_client = OpenAI(base_url=base_url, api_key=st.session_state.token)
+
+    processed_citations = None
+    aggregated_content = ""
+    try:
+        streaming_response = openai_client.chat.completions.create(model=deployment.model.get("type"),
+                                                                   messages=sanitize_messages_for_request(
+                                                                       st.session_state.messages),
+                                                                   stream=True)
+
+        for chunk in streaming_response:
+            # For some LLMs the first chunk might not include any choice or content
+            if len(chunk.choices) == 0:
                 continue
 
-            # Some LLMs might start the first streaming chunk without any choices
-            if len(data_json.get('choices', [])) == 0:
-                continue
-
-            is_last_chunk = data_json['choices'][0].get('finish_reason') == 'stop'
-            if is_last_chunk:
+            content = chunk.choices[0].delta.content
+            is_final_chunk = chunk.choices[0].finish_reason == 'stop'
+            aggregated_content += content if content is not None else ''
+            if not is_final_chunk and content:
+                yield content
+            elif is_final_chunk:
                 try:
-                    if not ENABLE_CHAT_API_STREAMING:
-                        # Set the message content for single chunk responses
-                        message = data_json['choices'][0].get('message', {})
-                        message_content = message.get('content', '')
-                    result = data_json.get('datarobot_moderations', None)
-
-                    if data_json.get('citations'):
-                        processed_citations = process_citations(data_json.get('citations'))
-                    elif data_json.get('datarobot_moderations'):
-                        processed_citations = process_predict_citations(data_json.get('datarobot_moderations'))
-
+                    if chunk.model_extra.get('citations'):
+                        processed_citations = process_citations(chunk.model_extra.get('citations'))
+                    elif chunk.model_extra.get('datarobot_moderations'):
+                        processed_citations = process_predict_citations(chunk.model_extra.get('datarobot_moderations'))
                 except Exception as exc:
-                    logging.error(exc)
-                    request_error = 'Error while processing response from Chat API:  \n{exc}'.format(exc=str(exc))
+                    raise ResponseProcessingError(exc)
 
-                message_content = message_content if not request_error else None
-                status = STATUS_COMPLETED if not request_error else STATUS_ERROR
-                set_result_message_state(meta_id, message_content, status, citations=processed_citations,
-                                         extra_model_output=result, error=request_error)
+                print('SET RESULT MESSAGE NOW!')
+                pprint(processed_citations)
+                set_result_message_state(meta_id, aggregated_content, status=STATUS_COMPLETED,
+                                         citations=processed_citations,
+                                         extra_model_output=[])
 
-            elif ENABLE_CHAT_API_STREAMING:
-                delta_content = data_json['choices'][0].get('delta', {}).get('content', '')
-                message_content += delta_content
-                yield delta_content
-
-
-        except json.JSONDecodeError:
-            continue  # Skip chunks that aren’t valid JSON. Not sure if necessary as it does not yet send true partial chunks
+    except APIError as e:
+        request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
+            code=e.status_code, reason="Chat API returned an error", msg=e.body,
+            url=get_base_url())
+        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
+    except ResponseProcessingError as e:
+        request_error = '{reason}  \n{msg}'.format(reason="Error processing response from Chat API", msg=e)
+        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
+    except Exception as e:
+        set_result_message_state(meta_id, None, status=STATUS_ERROR,
+                                 error=f"An unexpected error occurred: {e}")
 
 
 @st.cache_data(show_spinner=False)

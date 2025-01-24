@@ -14,6 +14,10 @@ class DataRobotPredictionError(Exception):
     """Raised if there are issues getting predictions from DataRobot"""
 
 
+class ResponseProcessingError(Exception):
+    """Raised if the app faces issues processing the response from OpenAI"""
+
+
 def raise_datarobot_error_for_status(response):
     """Raise DataRobotPredictionError if the request fails along with the response returned"""
     try:
@@ -31,6 +35,13 @@ def get_deployment():
     except AppPlatformError:
         logging.error('Failed to get deployment')
         return None
+
+
+@st.cache_data(show_spinner=False)
+def get_base_url():
+    endpoint = st.session_state.endpoint
+    deployment_id = st.session_state.deployment_id
+    return f"{endpoint}/deployments/{deployment_id}"
 
 
 @st.cache_data(show_spinner=False)
