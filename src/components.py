@@ -44,7 +44,7 @@ from dr_requests import (
     send_chat_api_streaming_request,
     get_application_info
 )
-from utils import get_deployment, get_app_name, get_association_id_column_name, get_message_by_role
+from utils import get_deployment, get_app_name, get_association_id_column_name, get_message_by_role, escape_result_text
 
 
 def render_app_header():
@@ -225,9 +225,8 @@ def render_message(message):
                 if 'status' in meta_data and meta_data['status'] == STATUS_ERROR:
                     st.error(meta_data['error_message'], icon="🚨")
                 else:
-                    # escaped_text = escape_result_text(message['content'])
-                    st.write(message['content'])
-                    # st.write(escaped_text)
+                    escaped_text = escape_result_text(message['content'])
+                    st.write(escaped_text)
                     response_info_footer(msg_id)
 
 
