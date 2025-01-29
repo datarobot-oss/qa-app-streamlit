@@ -1,29 +1,25 @@
 import streamlit as st
 import streamlit_sal as sal
 
-from constants import (APP_LOGO, APP_EMPTY_CHAT_IMAGE, APP_EMPTY_CHAT_IMAGE_WIDTH, I18N_APP_DESCRIPTION,
-                       I18N_FORMAT_LATENCY, I18N_RESPONSE_LATENCY, I18N_RESPONSE_TOKENS,
-                       I18N_FORMAT_CONFIDENCE, I18N_RESPONSE_CONFIDENCE, I18N_FORMAT_CURRENCY, I18N_RESPONSE_COST,
-                       I18N_DIALOG_CLOSE_BUTTON, I18N_SHARE_BUTTON, I18N_SHARE_DIALOG_TITLE,
-                       I18N_CITATION_BUTTON, I18N_CITATION_DIALOG_TITLE, I18N_CITATION_KEY_ANSWER,
-                       I18N_CITATION_KEY_PROMPT, I18N_CITATION_KEY_CITATION, I18N_CITATION_SOURCE_PAGE,
-                       I18N_SPLASH_TITLE, I18N_SPLASH_TEXT, I18N_LOADING_MESSAGE, I18N_ACCESSIBILITY_LABEL_LLM,
-                       ROLE_USER, I18N_ACCESSIBILITY_LABEL_YOU, I18N_NO_DEPLOYMENT_FOUND,
-                       I18N_NO_DEPLOYMENT_ID, LLM_AVATAR, LLM_DISPLAY_NAME, USER_AVATAR, USER_DISPLAY_NAME,
-                       ROLE_ASSISTANT, STATUS_ERROR, ENABLE_CHAT_API_STREAMING)
-from dr_requests import submit_metric, send_predict_request, send_chat_api_request, send_chat_api_streaming_request, \
+import constants
+from dr_requests import (
+    submit_metric,
+    send_predict_request,
+    send_chat_api_request,
+    send_chat_api_streaming_request,
     get_application_info
-from utils import get_deployment, get_app_name, escape_result_text, get_association_id_column_name, get_message_by_role
+)
+from utils import get_deployment, get_app_name, get_association_id_column_name, get_message_by_role
 
 
 def render_app_header():
     app_info = get_application_info()
     app_name = get_app_name()
-    app_description = I18N_APP_DESCRIPTION
+    app_description = constants.I18N_APP_DESCRIPTION
     external_access_enabled = app_info.get('externalAccessEnabled', False)
     app_url = app_info.get('applicationUrl', None)
 
-    st.logo(APP_LOGO)
+    st.logo(constants.APP_LOGO)
 
     # Remove flex grow so header does not take half the app height
     with sal.columns('no-flex-grow'):
@@ -38,32 +34,32 @@ def render_app_header():
         with sal.column('justify-end', 'flex-row', container=col1):
             if external_access_enabled and app_url:
                 with sal.button('share-button', container=col1):
-                    if col1.button(I18N_SHARE_BUTTON, key='share-button'):
+                    if col1.button(constants.I18N_SHARE_BUTTON, key='share-button'):
                         show_share_dialog(app_url)
 
 
-@st.dialog(I18N_SHARE_DIALOG_TITLE, width="small")
+@st.dialog(constants.I18N_SHARE_DIALOG_TITLE, width="small")
 def show_share_dialog(url):
     st.code(url, language="markdown")
     with sal.button('dialog-button'):
-        if st.button(I18N_DIALOG_CLOSE_BUTTON):
+        if st.button(constants.I18N_DIALOG_CLOSE_BUTTON):
             st.rerun()
 
 
-@st.dialog(I18N_CITATION_DIALOG_TITLE, width="large")
+@st.dialog(constants.I18N_CITATION_DIALOG_TITLE, width="large")
 def show_citations_dialog(prompt, answer, citations):
     with sal.container('citation-dialog-content'):
         col_prompt_key, col_prompt_value = st.columns([0.2, 0.8])
         with col_prompt_key:
             with sal.write('citation-key-text'):
-                st.write(I18N_CITATION_KEY_PROMPT)
+                st.write(constants.I18N_CITATION_KEY_PROMPT)
         with col_prompt_value:
             st.write(prompt)
 
         col_answer_key, col_answer_value = st.columns([0.2, 0.8])
         with col_answer_key:
             with sal.write('citation-key-text'):
-                st.write(I18N_CITATION_KEY_ANSWER)
+                st.write(constants.I18N_CITATION_KEY_ANSWER)
         with col_answer_value:
             st.write(answer)
 
@@ -71,13 +67,13 @@ def show_citations_dialog(prompt, answer, citations):
             col_citation_key, col_citation_value = st.columns([0.2, 0.8])
             with col_citation_key:
                 with sal.write('citation-key-text'):
-                    st.write(I18N_CITATION_KEY_CITATION)
+                    st.write(constants.I18N_CITATION_KEY_CITATION)
             with col_citation_value:
                 for citation in citations:
                     with sal.container('citation-block'):
                         citation_block = st.container()
                         with sal.caption('citation-source', container=citation_block):
-                            source_text = I18N_CITATION_SOURCE_PAGE.format(
+                            source_text = constants.I18N_CITATION_SOURCE_PAGE.format(
                                 citation.get("source"),
                                 citation.get("page")
                             ) if citation.get("page") is not None  else citation.get("source")
@@ -86,7 +82,7 @@ def show_citations_dialog(prompt, answer, citations):
                             citation_block.text(citation.get("text"))
 
     with sal.button('dialog-button'):
-        if st.button(I18N_DIALOG_CLOSE_BUTTON):
+        if st.button(constants.I18N_DIALOG_CLOSE_BUTTON):
             st.rerun()
 
 
@@ -94,27 +90,27 @@ def show_citations_dialog(prompt, answer, citations):
 def get_info_section_data(message_meta):
     info_items = []
     if message_meta.get("datarobot_latency"):
-        formatted_value = I18N_FORMAT_LATENCY.format(f'{message_meta["datarobot_latency"]:.2f}')
-        info_items.append({I18N_RESPONSE_LATENCY: formatted_value})
+        formatted_value = constants.I18N_FORMAT_LATENCY.format(f'{message_meta["datarobot_latency"]:.2f}')
+        info_items.append({constants.I18N_RESPONSE_LATENCY: formatted_value})
 
     if message_meta.get("datarobot_token_count"):
-        info_items.append({I18N_RESPONSE_TOKENS: message_meta["datarobot_token_count"]})
+        info_items.append({constants.I18N_RESPONSE_TOKENS: message_meta["datarobot_token_count"]})
 
     if message_meta.get("datarobot_confidence_score"):
-        formatted_value = I18N_FORMAT_CONFIDENCE.format(
+        formatted_value = constants.I18N_FORMAT_CONFIDENCE.format(
             f'{(100 * message_meta["datarobot_confidence_score"]):.2f}')
-        info_items.append({I18N_RESPONSE_CONFIDENCE: formatted_value})
+        info_items.append({constants.I18N_RESPONSE_CONFIDENCE: formatted_value})
 
     if message_meta.get("cost"):
-        formatted_value = I18N_FORMAT_CURRENCY.format(message_meta.get("cost"))
-        info_items.append({I18N_RESPONSE_COST: formatted_value})
+        formatted_value = constants.I18N_FORMAT_CURRENCY.format(message_meta.get("cost"))
+        info_items.append({constants.I18N_RESPONSE_COST: formatted_value})
 
     return info_items
 
 
 def response_info_footer(meta_id):
-    prompt_message = get_message_by_role(ROLE_USER, meta_id)
-    result_message = get_message_by_role(ROLE_ASSISTANT, meta_id)
+    prompt_message = get_message_by_role(constants.ROLE_USER, meta_id)
+    result_message = get_message_by_role(constants.ROLE_ASSISTANT, meta_id)
     message_meta = st.session_state.messages_meta.get(meta_id, None)
 
     prompt = prompt_message['content']
@@ -148,7 +144,8 @@ def response_info_footer(meta_id):
                                     key=f"feedback-down-{meta_id}")
                 if citations:
                     with sal.button('citation-button', container=col1):
-                        col1.button(I18N_CITATION_BUTTON, key=f"citation-{meta_id}", on_click=show_citations_dialog,
+                        col1.button(constants.I18N_CITATION_BUTTON, key=f"citation-{meta_id}",
+                                    on_click=show_citations_dialog,
                                     args=(prompt, answer, citations))
 
 
@@ -177,9 +174,9 @@ def render_message(message):
     content = message['content']
     msg_id = message['meta_id']
 
-    msg_acc_name = I18N_ACCESSIBILITY_LABEL_YOU if role == ROLE_USER else I18N_ACCESSIBILITY_LABEL_LLM
-    msg_name = USER_DISPLAY_NAME if role == ROLE_USER else LLM_DISPLAY_NAME
-    msg_avatar = USER_AVATAR if role == ROLE_USER else LLM_AVATAR
+    msg_acc_name = constants.I18N_ACCESSIBILITY_LABEL_YOU if role == constants.ROLE_USER else constants.I18N_ACCESSIBILITY_LABEL_LLM
+    msg_name = constants.USER_DISPLAY_NAME if role == constants.ROLE_USER else constants.LLM_DISPLAY_NAME
+    msg_avatar = constants.USER_AVATAR if role == constants.ROLE_USER else constants.LLM_AVATAR
     meta_data = st.session_state.messages_meta[msg_id]
 
     # Render the message within a fragment, that way st.rerun() will only affect this container and not the whole app
@@ -187,14 +184,15 @@ def render_message(message):
         with st.chat_message(name=msg_acc_name, avatar=msg_avatar):
             st.markdown(f"__{msg_name}:__")
 
-            if role == ROLE_USER:
+            if role == constants.ROLE_USER:
                 st.markdown(content)
             else:
-                if 'status' in meta_data and meta_data['status'] == STATUS_ERROR:
+                if 'status' in meta_data and meta_data['status'] == constants.STATUS_ERROR:
                     st.error(meta_data['error_message'], icon="🚨")
                 else:
-                    escaped_text = escape_result_text(message['content'])
-                    st.write(escaped_text)
+                    # escaped_text = escape_result_text(message['content'])
+                    st.write(message['content'])
+                    # st.write(escaped_text)
                     response_info_footer(msg_id)
 
 
@@ -202,16 +200,16 @@ def render_message(message):
 def render_pending_message(message):
     # Render the message within a fragment, that way st.rerun() will only affect this container and not the whole app
     with sal.chat_message():
-        with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=LLM_AVATAR):
-            st.markdown(f"__{LLM_DISPLAY_NAME}:__")
-            if st.session_state.is_chat_api_enabled and ENABLE_CHAT_API_STREAMING:
+        with st.chat_message(name=constants.I18N_ACCESSIBILITY_LABEL_LLM, avatar=constants.LLM_AVATAR):
+            st.markdown(f"__{constants.LLM_DISPLAY_NAME}:__")
+            if st.session_state.is_chat_api_enabled and constants.ENABLE_CHAT_API_STREAMING:
                 # Immediately render any incoming streaming response
                 st.write_stream(send_chat_api_streaming_request(message))
                 # The final streaming chunk has been received now. Trigger rerun to let the render_message handle the
                 # message rendering.
                 st.rerun()
             else:
-                with st.spinner(I18N_LOADING_MESSAGE):
+                with st.spinner(constants.I18N_LOADING_MESSAGE):
                     # Display a loading spinner message while we wait for a chat response
                     if st.session_state.is_chat_api_enabled:
                         send_chat_api_request(message)
@@ -227,14 +225,14 @@ def render_empty_chat():
     deployment = get_deployment()
 
     if st.session_state.deployment_id and deployment:
-        empty_chat.image(APP_EMPTY_CHAT_IMAGE, width=APP_EMPTY_CHAT_IMAGE_WIDTH)
+        empty_chat.image(constants.APP_EMPTY_CHAT_IMAGE, width=constants.APP_EMPTY_CHAT_IMAGE_WIDTH)
         with sal.text('empty-chat-header', container=empty_chat):
-            empty_chat.text(I18N_SPLASH_TITLE)
-        if I18N_SPLASH_TEXT:
+            empty_chat.text(constants.I18N_SPLASH_TITLE)
+        if constants.I18N_SPLASH_TEXT:
             with sal.text('empty-chat-text', container=empty_chat):
-                empty_chat.text(I18N_SPLASH_TEXT)
+                empty_chat.text(constants.I18N_SPLASH_TEXT)
     else:
-        error_text = I18N_NO_DEPLOYMENT_FOUND.format(
-            st.session_state.deployment_id) if st.session_state.deployment_id and not deployment else I18N_NO_DEPLOYMENT_ID
+        error_text = constants.I18N_NO_DEPLOYMENT_FOUND.format(
+            st.session_state.deployment_id) if st.session_state.deployment_id and not deployment else constants.I18N_NO_DEPLOYMENT_ID
         with sal.text('empty-chat-text', container=empty_chat):
             empty_chat.error(error_text)

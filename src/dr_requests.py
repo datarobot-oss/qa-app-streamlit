@@ -3,7 +3,6 @@ import logging
 import os
 import sys
 from datetime import datetime
-from pprint import pprint
 from typing import Optional
 
 import pandas as pd
@@ -11,14 +10,31 @@ import requests
 import streamlit as st
 from datarobot.models.deployment import CustomMetric
 from datarobot_predict.deployment import predict
-from openai import OpenAI, APIError
+from openai import OpenAI
 
-from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
-    STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
+from constants import (
+    CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS,
+    MAX_PREDICTION_INPUT_SIZE_BYTES,
+    STATUS_ERROR,
+    STATUS_COMPLETED,
+    DEFAULT_PROMPT_COLUMN_NAME,
+    DEFAULT_RESULT_COLUMN_NAME,
+    CAPABILITIES_TIMEOUT_SECONDS,
     CHAT_CAPABILITIES_KEY
-from utils import get_deployment, raise_datarobot_error_for_status, process_citations, process_predict_citations, \
-    rename_dataframe_columns, get_association_id_column_name, sanitize_messages_for_request, set_result_message_state, \
-    get_base_url, ResponseProcessingError
+)
+from utils import (
+    get_deployment,
+    raise_datarobot_error_for_status,
+    process_citations,
+    process_predict_citations,
+    rename_dataframe_columns,
+    get_association_id_column_name,
+    sanitize_messages_for_request,
+    set_result_message_state,
+    get_base_url,
+    ResponseProcessingError,
+    handle_chat_api_error
+)
 
 
 @st.cache_data(show_spinner=False)
@@ -127,36 +143,32 @@ def send_chat_api_request(message):
     openai_client = OpenAI(base_url=base_url, api_key=st.session_state.token)
 
     processed_citations = None
-    try:
+    extra_model_output = None
+
+    with handle_chat_api_error(meta_id):
         completion = openai_client.chat.completions.create(model=deployment.model.get("type"),
                                                            messages=sanitize_messages_for_request(
                                                                st.session_state.messages))
 
-        content = completion.choices[0].delta.content
+        content = completion.choices[0].message.content
         try:
-            if content.model_extra.get('citations'):
+            if completion.model_extra.get('citations'):
                 processed_citations = process_citations(completion.model_extra.get('citations'))
-            elif content.model_extra.get('datarobot_moderations'):
-                processed_citations = process_predict_citations(completion.model_extra.get('datarobot_moderations'))
+
+            if completion.model_extra.get('datarobot_moderations'):
+                extra_model_output = completion.model_extra.get('datarobot_moderations')
+
+            if extra_model_output and not processed_citations:
+                processed_citations = process_predict_citations(extra_model_output)
+
         except Exception as exc:
             raise ResponseProcessingError(exc)
 
         set_result_message_state(meta_id, content, status=STATUS_COMPLETED,
                                  citations=processed_citations,
-                                 extra_model_output=[])
+                                 extra_model_output=extra_model_output)
         return
 
-    except APIError as e:
-        request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
-            code=e.status_code, reason="Chat API returned an error", msg=e.body,
-            url=get_base_url())
-        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
-    except ResponseProcessingError as e:
-        request_error = '{reason}  \n{msg}'.format(reason="Error processing response from Chat API", msg=e)
-        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
-    except Exception as e:
-        set_result_message_state(meta_id, None, status=STATUS_ERROR,
-                                 error=f"An unexpected error occurred: {e}")
 
 
 def send_chat_api_streaming_request(message):
@@ -166,13 +178,14 @@ def send_chat_api_streaming_request(message):
     openai_client = OpenAI(base_url=base_url, api_key=st.session_state.token)
 
     processed_citations = None
+    extra_model_output = None
     aggregated_content = ""
-    try:
+
+    with handle_chat_api_error(meta_id):
         streaming_response = openai_client.chat.completions.create(model=deployment.model.get("type"),
                                                                    messages=sanitize_messages_for_request(
                                                                        st.session_state.messages),
                                                                    stream=True)
-
         for chunk in streaming_response:
             # For some LLMs the first chunk might not include any choice or content
             if len(chunk.choices) == 0:
@@ -181,34 +194,25 @@ def send_chat_api_streaming_request(message):
             content = chunk.choices[0].delta.content
             is_final_chunk = chunk.choices[0].finish_reason == 'stop'
             aggregated_content += content if content is not None else ''
-            if not is_final_chunk and content:
+            if not is_final_chunk and content is not None:
                 yield content
             elif is_final_chunk:
                 try:
-                    if chunk.model_extra.get('citations'):
-                        processed_citations = process_citations(chunk.model_extra.get('citations'))
-                    elif chunk.model_extra.get('datarobot_moderations'):
-                        processed_citations = process_predict_citations(chunk.model_extra.get('datarobot_moderations'))
+                    if hasattr(chunk, 'citations'):
+                        processed_citations = process_citations(chunk.citations)
+
+                    if hasattr(chunk, 'datarobot_moderations'):
+                        extra_model_output = chunk.datarobot_moderations
+
+                    if extra_model_output and not processed_citations:
+                        processed_citations = process_predict_citations(extra_model_output)
+
                 except Exception as exc:
                     raise ResponseProcessingError(exc)
 
-                print('SET RESULT MESSAGE NOW!')
-                pprint(processed_citations)
                 set_result_message_state(meta_id, aggregated_content, status=STATUS_COMPLETED,
                                          citations=processed_citations,
-                                         extra_model_output=[])
-
-    except APIError as e:
-        request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
-            code=e.status_code, reason="Chat API returned an error", msg=e.body,
-            url=get_base_url())
-        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
-    except ResponseProcessingError as e:
-        request_error = '{reason}  \n{msg}'.format(reason="Error processing response from Chat API", msg=e)
-        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
-    except Exception as e:
-        set_result_message_state(meta_id, None, status=STATUS_ERROR,
-                                 error=f"An unexpected error occurred: {e}")
+                                         extra_model_output=extra_model_output)
 
 
 @st.cache_data(show_spinner=False)

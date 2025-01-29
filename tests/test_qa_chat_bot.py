@@ -8,7 +8,7 @@ import pytest
 import responses
 from streamlit.testing.v1 import AppTest
 
-from .conftest import find_request_by_url
+from .conftest import find_request_by_url, create_stream_chat_completion, create_chat_completion
 
 
 # NOTE: The tests currently leak values between scenarios via cached functions.
@@ -67,12 +67,52 @@ def test_chat_api_supported_app():
     "mock_set_env",
     "mock_app_info_api",
     "mock_deployment_api",
-    "mock_deployment_chat_api",
+    "mock_version_api",
+    "mock_bad_request_error",
+    "deployment_id",
+    "datarobot_endpoint"
+)
+@patch('constants.FORCE_DISABLE_CHAT_API', False)
+@patch("openai.resources.chat.Completions.create")
+def test_chat_send_chat_api_error(openai_create, mock_bad_request_error, deployment_id, datarobot_endpoint):
+    """The app receives chat response after sending a prompt"""
+
+    openai_create.side_effect = mock_bad_request_error
+
+    app = AppTest.from_file("qa_chat_bot.py")
+    at = app.run()
+    assert at.session_state.is_chat_api_enabled == True
+    at.chat_input[0].set_value('Tell me an interesting animal fact').run()
+
+    # Check the user prompt message
+    assert at.chat_message[0].markdown[0].value == '__You:__'
+    assert at.chat_message[0].markdown[1].value == 'Tell me an interesting animal fact'
+
+    # Check the LLM response message
+    assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
+    request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
+        code=400, reason="Chat API returned an error",
+        msg="{'message': 'ERROR: The LLM has received an invalid request.'}",
+        url=f"{datarobot_endpoint}/deployments/{deployment_id}")
+    assert at.chat_message[1].error[0].value == request_error
+
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_app_info_api",
+    "mock_deployment_api",
     "mock_version_api",
 )
 @patch('constants.FORCE_DISABLE_CHAT_API', False)
-def test_chat_send_chat_api_without_stream_request():
+@patch("openai.resources.chat.Completions.create")
+def test_chat_send_chat_api_without_stream_request(openai_create):
     """The app receives chat response after sending a prompt"""
+
+    mock_file = 'mock_chat_api_no_stream.json'
+    openai_create.return_value = create_chat_completion(mock_file)
+
     app = AppTest.from_file("qa_chat_bot.py")
     at = app.run()
     assert at.session_state.is_chat_api_enabled == True
@@ -121,12 +161,16 @@ def test_chat_send_chat_api_without_stream_request():
     "mock_set_env",
     "mock_app_info_api",
     "mock_deployment_api",
-    "mock_deployment_chat_api_no_citations",
     "mock_version_api",
 )
 @patch('constants.FORCE_DISABLE_CHAT_API', False)
-def test_chat_api_no_citations():
+@patch("openai.resources.chat.Completions.create")
+def test_chat_api_no_citations(openai_create):
     """The app should not show citations button when not available"""
+
+    mock_file = 'mock_chat_api_no_stream_no_citations.json'
+    openai_create.return_value = create_chat_completion(mock_file)
+
     app = AppTest.from_file("qa_chat_bot.py")
     at = app.run()
     assert at.session_state.is_chat_api_enabled == True
@@ -142,11 +186,14 @@ def test_chat_api_no_citations():
     "mock_set_env",
     "mock_app_info_api",
     "mock_deployment_api",
-    "mock_deployment_chat_api_legacy_citations",
     "mock_version_api",
 )
 @patch('constants.FORCE_DISABLE_CHAT_API', False)
-def test_chat_api_legacy_citations():
+@patch("openai.resources.chat.Completions.create")
+def test_chat_api_legacy_citations(openai_create):
+    mock_file = 'mock_chat_api_no_stream_legacy_citations.json'
+    openai_create.return_value = create_chat_completion(mock_file)
+
     app = AppTest.from_file("qa_chat_bot.py")
     at = app.run()
     assert at.session_state.is_chat_api_enabled == True
@@ -228,13 +275,17 @@ def test_chat_send_predict_request():
     "mock_set_env",
     "mock_app_info_api",
     "mock_deployment_api",
-    "mock_deployment_chat_api_stream",
     "mock_version_api",
 )
-@patch('dr_requests.ENABLE_CHAT_API_STREAMING', True)
+@patch('components.ENABLE_CHAT_API_STREAMING', True)
+@patch('constants.ENABLE_CHAT_API_STREAMING', True)
 @patch('constants.FORCE_DISABLE_CHAT_API', False)
-def test_chat_send_chat_api_stream_request():
+@patch("openai.resources.chat.Completions.create")
+def test_chat_send_chat_api_stream_request(openai_create):
     """The app receives chat response after sending a prompt"""
+    chunk_files = ['mock_initial_chunk.json', 'mock_delta_chunk.json', 'mock_final_chunk.json']
+    openai_create.return_value = create_stream_chat_completion(chunk_files)
+
     app = AppTest.from_file("qa_chat_bot.py")
     at = app.run()
     assert at.session_state.is_chat_api_enabled == True
@@ -288,10 +339,14 @@ def test_chat_send_chat_api_stream_request():
     "is_model_specific"
 )
 @pytest.mark.parametrize("is_model_specific", [True, False])
+@patch('components.ENABLE_CHAT_API_STREAMING', True)
 @patch('constants.FORCE_DISABLE_CHAT_API', False)
-@patch('dr_requests.ENABLE_CHAT_API_STREAMING', True)
-def test_chat_feedback_request(feedback_endpoint, model_id, is_model_specific):
+@patch("openai.resources.chat.Completions.create")
+def test_chat_feedback_request(openai_create, feedback_endpoint, model_id, is_model_specific):
     """The user can submit feedback for a response"""
+    chunk_files = ['mock_initial_chunk.json', 'mock_delta_chunk.json', 'mock_final_chunk.json']
+    openai_create.return_value = create_stream_chat_completion(chunk_files)
+
     app = AppTest.from_file("qa_chat_bot.py")
     at = app.run()
     assert at.session_state.is_chat_api_enabled == True

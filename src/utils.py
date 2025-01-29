@@ -1,13 +1,15 @@
 import logging
 import os
 import uuid
+from contextlib import contextmanager
 from typing import cast, Dict, Any
 
 import requests
 import streamlit as st
 from datarobot import Deployment, AppPlatformError
+from openai import APIError
 
-from constants import STATUS_PENDING, ROLE_ASSISTANT, ROLE_SYSTEM, I18N_APP_NAME_DEFAULT
+from constants import STATUS_PENDING, ROLE_ASSISTANT, ROLE_SYSTEM, I18N_APP_NAME_DEFAULT, STATUS_ERROR
 
 
 class DataRobotPredictionError(Exception):
@@ -220,3 +222,20 @@ def set_result_message_meta_state(meta_id, status, citations=None, extra_model_o
         if extra_model_output.get(association_id_column_name):
             st.session_state.messages_meta[meta_id]['association_id'] = extra_model_output[
                 association_id_column_name] if association_id_column_name else meta_id
+
+
+@contextmanager
+def handle_chat_api_error(meta_id):
+    try:
+        yield
+    except APIError as e:
+        request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
+            code=e.status_code, reason="Chat API returned an error", msg=e.body,
+            url=get_base_url())
+        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
+    except ResponseProcessingError as e:
+        request_error = '{reason}  \n{msg}'.format(reason="Error processing response from Chat API", msg=e)
+        set_result_message_state(meta_id, None, status=STATUS_ERROR, error=request_error)
+    except Exception as e:
+        set_result_message_state(meta_id, None, status=STATUS_ERROR,
+                                 error=f"An unexpected error occurred: {e}")
