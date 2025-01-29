@@ -17,6 +17,7 @@ from .conftest import find_request_by_url, create_stream_chat_completion, create
 @pytest.mark.usefixtures(
     "mock_set_env",
     "mock_set_env_app_name",
+    "mock_set_env_enable_enable_chat_api",
     "mock_app_info_api",
     "mock_version_api",
     "mock_deployment_api",
@@ -26,7 +27,6 @@ from .conftest import find_request_by_url, create_stream_chat_completion, create
 @patch('constants.I18N_SPLASH_TITLE', 'What would you like to know?')
 @patch('constants.I18N_SPLASH_TEXT', 'Ask me anything!')
 @patch('constants.I18N_INPUT_PLACEHOLDER', 'Send your question')
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 def test_empty_chat_app():
     # Path to the CSV file relative to the test file
     current_dir = os.path.dirname(__file__)
@@ -50,12 +50,12 @@ def test_empty_chat_app():
 @responses.activate
 @pytest.mark.usefixtures(
     "mock_set_env",
+    "mock_set_env_enable_enable_chat_api",
     "mock_app_info_api",
     "mock_version_api",
     "mock_deployment_api",
     "app_id"
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 def test_chat_api_supported_app():
     """The app loads and uses deployment capabilities to check for Chat API support"""
     at = AppTest.from_file("qa_chat_bot.py").run()
@@ -65,6 +65,7 @@ def test_chat_api_supported_app():
 @responses.activate
 @pytest.mark.usefixtures(
     "mock_set_env",
+    "mock_set_env_enable_enable_chat_api",
     "mock_app_info_api",
     "mock_deployment_api",
     "mock_version_api",
@@ -72,7 +73,6 @@ def test_chat_api_supported_app():
     "deployment_id",
     "datarobot_endpoint"
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 @patch("openai.resources.chat.Completions.create")
 def test_chat_send_chat_api_error(openai_create, mock_bad_request_error, deployment_id, datarobot_endpoint):
     """The app receives chat response after sending a prompt"""
@@ -101,11 +101,11 @@ def test_chat_send_chat_api_error(openai_create, mock_bad_request_error, deploym
 @responses.activate
 @pytest.mark.usefixtures(
     "mock_set_env",
+    "mock_set_env_enable_enable_chat_api",
     "mock_app_info_api",
     "mock_deployment_api",
     "mock_version_api",
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 @patch("openai.resources.chat.Completions.create")
 def test_chat_send_chat_api_without_stream_request(openai_create):
     """The app receives chat response after sending a prompt"""
@@ -159,11 +159,11 @@ def test_chat_send_chat_api_without_stream_request(openai_create):
 @responses.activate
 @pytest.mark.usefixtures(
     "mock_set_env",
+    "mock_set_env_enable_enable_chat_api",
     "mock_app_info_api",
     "mock_deployment_api",
     "mock_version_api",
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 @patch("openai.resources.chat.Completions.create")
 def test_chat_api_no_citations(openai_create):
     """The app should not show citations button when not available"""
@@ -184,11 +184,11 @@ def test_chat_api_no_citations(openai_create):
 @responses.activate
 @pytest.mark.usefixtures(
     "mock_set_env",
+    "mock_set_env_enable_enable_chat_api",
     "mock_app_info_api",
     "mock_deployment_api",
     "mock_version_api",
 )
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 @patch("openai.resources.chat.Completions.create")
 def test_chat_api_legacy_citations(openai_create):
     mock_file = 'mock_chat_api_no_stream_legacy_citations.json'
@@ -273,13 +273,12 @@ def test_chat_send_predict_request():
 @responses.activate
 @pytest.mark.usefixtures(
     "mock_set_env",
+    "mock_set_env_enable_enable_chat_api",
+    "mock_set_env_enable_enable_chat_api_streaming",
     "mock_app_info_api",
     "mock_deployment_api",
     "mock_version_api",
 )
-@patch('components.ENABLE_CHAT_API_STREAMING', True)
-@patch('constants.ENABLE_CHAT_API_STREAMING', True)
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 @patch("openai.resources.chat.Completions.create")
 def test_chat_send_chat_api_stream_request(openai_create):
     """The app receives chat response after sending a prompt"""
@@ -330,6 +329,8 @@ def test_chat_send_chat_api_stream_request(openai_create):
 @responses.activate
 @pytest.mark.usefixtures(
     "mock_set_env",
+    "mock_set_env_enable_enable_chat_api",
+    "mock_set_env_enable_enable_chat_api_streaming",
     "mock_app_info_api",
     "mock_deployment_api",
     "mock_deployment_chat_api_stream",
@@ -339,8 +340,6 @@ def test_chat_send_chat_api_stream_request(openai_create):
     "is_model_specific"
 )
 @pytest.mark.parametrize("is_model_specific", [True, False])
-@patch('components.ENABLE_CHAT_API_STREAMING', True)
-@patch('constants.FORCE_DISABLE_CHAT_API', False)
 @patch("openai.resources.chat.Completions.create")
 def test_chat_feedback_request(openai_create, feedback_endpoint, model_id, is_model_specific):
     """The user can submit feedback for a response"""

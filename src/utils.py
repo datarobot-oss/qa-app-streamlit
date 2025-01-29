@@ -57,29 +57,34 @@ def get_association_id_column_name():
 
 
 def get_app_name():
-    return os.getenv("app_name") or I18N_APP_NAME_DEFAULT
+    return os.getenv("APP_NAME") or I18N_APP_NAME_DEFAULT
 
 
 def initiate_session_state():
     # Env variables
     if 'token' not in st.session_state:
-        st.session_state.token = os.getenv("token")
+        st.session_state.token = os.getenv("TOKEN")
     if 'endpoint' not in st.session_state:
-        st.session_state.endpoint = os.getenv("endpoint")
+        st.session_state.endpoint = os.getenv("ENDPOINT")
     if 'custom_metric_id' not in st.session_state:
-        st.session_state.custom_metric_id = os.getenv("custom_metric_id") or None
+        st.session_state.custom_metric_id = os.getenv("CUSTOM_METRIC_ID")
     if 'deployment_id' not in st.session_state:
-        st.session_state.deployment_id = os.getenv("deployment_id") or None
+        st.session_state.deployment_id = os.getenv("DEPLOYMENT_ID")
     if 'app_id' not in st.session_state:
-        app_base_url_path = os.getenv("app_base_url_path", None)
+        app_base_url_path = os.getenv("APP_BASE_URL_PATH")
         st.session_state.app_id = app_base_url_path.split('/')[-1].strip() if app_base_url_path else None
+
+    if 'enable_chat_api' not in st.session_state:
+        st.session_state.enable_chat_api = os.getenv("ENABLE_CHAT_API", 'False').lower() == 'true'
+    if 'enable_chat_api_streaming' not in st.session_state:
+        st.session_state.enable_chat_api_streaming = os.getenv("ENABLE_CHAT_API_STREAMING", 'False').lower() == 'true'
 
     # Create messages storage on first render
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    if os.getenv("system_prompt") and len(st.session_state.messages) == 0:
-        st.session_state.messages.append({"role": ROLE_SYSTEM, "content": os.getenv("system_prompt")})
+    if os.getenv("SYSTEM_PROMPT") and len(st.session_state.messages) == 0:
+        st.session_state.messages.append({"role": ROLE_SYSTEM, "content": os.getenv("SYSTEM_PROMPT")})
 
     if "messages_meta" not in st.session_state:
         st.session_state.messages_meta = {}

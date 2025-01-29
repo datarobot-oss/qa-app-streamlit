@@ -19,7 +19,7 @@ def start_streamlit():
     initiate_session_state()
     is_chat_api_enabled = get_has_chat_api_support(deployment_id=st.session_state.deployment_id,
                                        token=st.session_state.token,
-                                       endpoint=st.session_state.endpoint) if FORCE_DISABLE_CHAT_API == False else False
+                                       endpoint=st.session_state.endpoint) if st.session_state.enable_chat_api else False
     set_chat_api_session_state(is_chat_api_enabled)
 
     # Setup DR client

@@ -86,19 +86,28 @@ def app_id():
 
 
 @pytest.fixture
-def app_base_url(
-    app_id
-):
+def app_base_url(app_id):
     return f"https://test-app.datarobot.com/custom_applications/{app_id}"
 
 
 @pytest.fixture
-def mock_set_env_app_name(
-        monkeypatch,
-        app_name,
-):
+def mock_set_env_app_name(monkeypatch, app_name):
     with patch.dict(os.environ):
-        monkeypatch.setenv("app_name", app_name)
+        monkeypatch.setenv("APP_NAME", app_name)
+        yield
+
+
+@pytest.fixture
+def mock_set_env_enable_enable_chat_api(monkeypatch, app_name):
+    with patch.dict(os.environ):
+        monkeypatch.setenv("ENABLE_CHAT_API", "true")
+        yield
+
+
+@pytest.fixture
+def mock_set_env_enable_enable_chat_api_streaming(monkeypatch, app_name):
+    with patch.dict(os.environ):
+        monkeypatch.setenv("ENABLE_CHAT_API_STREAMING", "true")
         yield
 
 
@@ -112,11 +121,11 @@ def mock_set_env(
     app_base_url,
 ):
     with patch.dict(os.environ, clear=True):
-        monkeypatch.setenv("token", datarobot_token)
-        monkeypatch.setenv("endpoint", datarobot_endpoint)
-        monkeypatch.setenv("custom_metric_id", custom_metric_id)
-        monkeypatch.setenv("deployment_id", deployment_id)
-        monkeypatch.setenv("app_base_url_path", app_base_url)
+        monkeypatch.setenv("TOKEN", datarobot_token)
+        monkeypatch.setenv("ENDPOINT", datarobot_endpoint)
+        monkeypatch.setenv("CUSTOM_METRIC_ID", custom_metric_id)
+        monkeypatch.setenv("DEPLOYMENT_ID", deployment_id)
+        monkeypatch.setenv("APP_BASE_URL_PATH", app_base_url)
         yield
 
 
