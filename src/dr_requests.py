@@ -10,12 +10,31 @@ import requests
 import streamlit as st
 from datarobot.models.deployment import CustomMetric
 from datarobot_predict.deployment import predict
+from openai import OpenAI
 
-from constants import CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS, MAX_PREDICTION_INPUT_SIZE_BYTES, STATUS_ERROR, \
-    STATUS_COMPLETED, DEFAULT_PROMPT_COLUMN_NAME, DEFAULT_RESULT_COLUMN_NAME, CAPABILITIES_TIMEOUT_SECONDS, \
-    CHAT_CAPABILITIES_KEY, ENABLE_CHAT_API_STREAMING
-from utils import get_deployment, raise_datarobot_error_for_status, process_citations, process_predict_citations, \
-    rename_dataframe_columns, get_association_id_column_name, sanitize_messages_for_request, set_result_message_state
+from constants import (
+    CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS,
+    MAX_PREDICTION_INPUT_SIZE_BYTES,
+    STATUS_ERROR,
+    STATUS_COMPLETED,
+    DEFAULT_PROMPT_COLUMN_NAME,
+    DEFAULT_RESULT_COLUMN_NAME,
+    CAPABILITIES_TIMEOUT_SECONDS,
+    CHAT_CAPABILITIES_KEY
+)
+from utils import (
+    get_deployment,
+    raise_datarobot_error_for_status,
+    process_citations,
+    process_predict_citations,
+    rename_dataframe_columns,
+    get_association_id_column_name,
+    sanitize_messages_for_request,
+    set_result_message_state,
+    get_base_url,
+    ResponseProcessingError,
+    handle_chat_api_error
+)
 
 
 @st.cache_data(show_spinner=False)
@@ -119,77 +138,81 @@ def send_predict_request(message):
 
 def send_chat_api_request(message):
     meta_id = message['meta_id']
-    endpoint = st.session_state.endpoint
-    deployment_id = st.session_state.deployment_id
     deployment = get_deployment()
-    url = f"{endpoint}/deployments/{deployment_id}/chat/completions"
-    headers = {
-        "Authorization": "Token {}".format(st.session_state.token),
-        "Content-Type": "application/json",
-    }
+    base_url = get_base_url()
+    openai_client = OpenAI(base_url=base_url, api_key=st.session_state.token)
 
-    chat_completions_request = {
-        "model": deployment.model.get("type"),
-        "messages": sanitize_messages_for_request(st.session_state.messages),
-        # Only set stream value when it is true, the endpoint validation is too strict and fails for stream: False/None
-        **({"stream": True} if ENABLE_CHAT_API_STREAMING else {})
-    }
-
-    result = None
-    request_error = None
     processed_citations = None
-    message_content = ""
-    chat_completion = requests.post(url, json=chat_completions_request, headers=headers,
-                                    stream=ENABLE_CHAT_API_STREAMING)
-    for chunk in chat_completion.iter_lines():
+    extra_model_output = None
+
+    with handle_chat_api_error(meta_id):
+        completion = openai_client.chat.completions.create(model=deployment.model.get("type"),
+                                                           messages=sanitize_messages_for_request(
+                                                               st.session_state.messages))
+
+        content = completion.choices[0].message.content
         try:
-            # Strip "data: " and parse JSON content
-            data_str = chunk.decode('utf-8').lstrip("data: ")
-            data_json = json.loads(data_str)
+            if completion.model_extra.get('citations'):
+                processed_citations = process_citations(completion.model_extra.get('citations'))
 
-            # Presence of 'message' indicates that an error has occurred
-            if data_json.get('message'):
-                request_error = '`{url}`  \n{code} {reason}  \n{msg}'.format(
-                    code=chat_completion.status_code, reason=chat_completion.reason, msg=data_json.get('message'),
-                    url=url)
-                set_result_message_state(meta_id, message_content, status=STATUS_ERROR, error=request_error)
+            if completion.model_extra.get('datarobot_moderations'):
+                extra_model_output = completion.model_extra.get('datarobot_moderations')
+
+            if extra_model_output and not processed_citations:
+                processed_citations = process_predict_citations(extra_model_output)
+
+        except Exception as exc:
+            raise ResponseProcessingError(exc)
+
+        set_result_message_state(meta_id, content, status=STATUS_COMPLETED,
+                                 citations=processed_citations,
+                                 extra_model_output=extra_model_output)
+        return
+
+
+
+def send_chat_api_streaming_request(message):
+    meta_id = message['meta_id']
+    deployment = get_deployment()
+    base_url = get_base_url()
+    openai_client = OpenAI(base_url=base_url, api_key=st.session_state.token)
+
+    processed_citations = None
+    extra_model_output = None
+    aggregated_content = ""
+
+    with handle_chat_api_error(meta_id):
+        streaming_response = openai_client.chat.completions.create(model=deployment.model.get("type"),
+                                                                   messages=sanitize_messages_for_request(
+                                                                       st.session_state.messages),
+                                                                   stream=True)
+        for chunk in streaming_response:
+            # For some LLMs the first chunk might not include any choice or content
+            if len(chunk.choices) == 0:
                 continue
 
-            # Some LLMs might start the first streaming chunk without any choices
-            if len(data_json.get('choices', [])) == 0:
-                continue
-
-            is_last_chunk = data_json['choices'][0].get('finish_reason') == 'stop'
-            if is_last_chunk:
+            content = chunk.choices[0].delta.content
+            is_final_chunk = chunk.choices[0].finish_reason == 'stop'
+            aggregated_content += content if content is not None else ''
+            if not is_final_chunk and content is not None:
+                yield content
+            elif is_final_chunk:
                 try:
-                    if not ENABLE_CHAT_API_STREAMING:
-                        # Set the message content for single chunk responses
-                        message = data_json['choices'][0].get('message', {})
-                        message_content = message.get('content', '')
-                    result = data_json.get('datarobot_moderations', None)
+                    if hasattr(chunk, 'citations'):
+                        processed_citations = process_citations(chunk.citations)
 
-                    if data_json.get('citations'):
-                        processed_citations = process_citations(data_json.get('citations'))
-                    elif data_json.get('datarobot_moderations'):
-                        processed_citations = process_predict_citations(data_json.get('datarobot_moderations'))
+                    if hasattr(chunk, 'datarobot_moderations'):
+                        extra_model_output = chunk.datarobot_moderations
+
+                    if extra_model_output and not processed_citations:
+                        processed_citations = process_predict_citations(extra_model_output)
 
                 except Exception as exc:
-                    logging.error(exc)
-                    request_error = 'Error while processing response from Chat API:  \n{exc}'.format(exc=str(exc))
+                    raise ResponseProcessingError(exc)
 
-                message_content = message_content if not request_error else None
-                status = STATUS_COMPLETED if not request_error else STATUS_ERROR
-                set_result_message_state(meta_id, message_content, status, citations=processed_citations,
-                                         extra_model_output=result, error=request_error)
-
-            elif ENABLE_CHAT_API_STREAMING:
-                delta_content = data_json['choices'][0].get('delta', {}).get('content', '')
-                message_content += delta_content
-                yield delta_content
-
-
-        except json.JSONDecodeError:
-            continue  # Skip chunks that aren’t valid JSON. Not sure if necessary as it does not yet send true partial chunks
+                set_result_message_state(meta_id, aggregated_content, status=STATUS_COMPLETED,
+                                         citations=processed_citations,
+                                         extra_model_output=extra_model_output)
 
 
 @st.cache_data(show_spinner=False)

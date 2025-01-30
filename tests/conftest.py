@@ -4,10 +4,15 @@ import sys
 from pathlib import Path
 from unittest.mock import patch
 
+import httpx
 import pytest
 import responses
 from bson import ObjectId
-
+from openai import BadRequestError
+from openai.types.chat import ChatCompletionMessage
+from openai.types.chat.chat_completion import ChatCompletion, Choice
+from openai.types.chat.chat_completion_chunk import ChatCompletionChunk, ChoiceDelta
+from openai.types.chat.chat_completion_chunk import Choice as StreamChoice
 
 # Add the `src` directory to the Python path
 src_path = Path(__file__).resolve().parent.parent / "src"
@@ -341,3 +346,89 @@ def find_request_by_url(calls, url):
         (c for c in calls if c.request.url == url),
         None,  # Return None if no matching call is found
     )
+
+
+def create_chat_completion(mock_file):
+    current_dir = os.path.dirname(__file__)
+
+    file_path = os.path.join(current_dir, f"mocks/{mock_file}")
+    with open(file_path, "r") as chunk_file_content:
+        mock_data = json.load(chunk_file_content)
+
+        citations = None
+        datarobot_moderations = None
+        if mock_data.get('citations'):
+            citations = mock_data.get("citations")
+        if mock_data.get('datarobot_moderations'):
+            datarobot_moderations = mock_data.get("datarobot_moderations")
+
+        return ChatCompletion(
+            id=mock_data.get("id"),
+            model=mock_data.get("model"),
+            object=mock_data.get("object"),
+            choices=[
+                Choice(
+                    finish_reason="stop",
+                    index=0,
+                    message=ChatCompletionMessage(
+                        content=mock_data.get("choices")[0].get("message").get("content"),
+                        role=mock_data.get("choices")[0].get("message").get("role"),
+                    ),
+                )
+            ],
+            created=mock_data.get("created"),
+            citations=citations,
+            datarobot_moderations=datarobot_moderations,
+        )
+
+
+def create_stream_chat_completion(chunk_files):
+    current_dir = os.path.dirname(__file__)
+
+    for filename in chunk_files:
+        file_path = os.path.join(current_dir, f"mocks/{filename}")
+        with open(file_path, "r") as chunk_file_content:
+            chunk_data = json.load(chunk_file_content)
+
+            citations = None
+            datarobot_moderations = None
+            if chunk_data.get('citations'):
+                citations = chunk_data.get("citations")
+            if chunk_data.get('datarobot_moderations'):
+                datarobot_moderations = chunk_data.get("datarobot_moderations")
+
+            yield ChatCompletionChunk(
+                id=chunk_data.get("id"),
+                model=chunk_data.get("model"),
+                object=chunk_data.get("object"),
+                choices=[
+                    StreamChoice(
+                        index=chunk_data.get("choices")[0].get("index"),
+                        finish_reason=chunk_data.get("choices")[0].get("finish_reason"),
+                        delta=ChoiceDelta(
+                            content=chunk_data.get("choices")[0].get("delta").get("content"),
+                            role=chunk_data.get("choices")[0].get("delta").get("role"),
+                        )
+                    ),
+                ],
+                created=chunk_data.get("created"),
+                citations=citations,
+                datarobot_moderations=datarobot_moderations,
+            )
+
+
+@pytest.fixture
+def mock_bad_request_error(datarobot_endpoint, deployment_id):
+    def raise_bad_request_error(model, messages):
+        mock_response = httpx.Response(
+            status_code=400,
+            request=httpx.Request("POST", f"{datarobot_endpoint}/deployments/{deployment_id}/"),
+            content=b'{"message": "ERROR: The LLM has received an invalid request."}'
+        )
+        raise BadRequestError(
+            message="Mock bad request error",
+            response=mock_response,
+            body={"message": "ERROR: The LLM has received an invalid request."}
+        )
+
+    return raise_bad_request_error
