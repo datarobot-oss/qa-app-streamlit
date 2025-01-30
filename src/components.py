@@ -34,8 +34,7 @@ from constants import (
     USER_DISPLAY_NAME,
     ROLE_ASSISTANT,
     ROLE_USER,
-    STATUS_ERROR,
-    ENABLE_CHAT_API_STREAMING
+    STATUS_ERROR
 )
 from dr_requests import (
     submit_metric,
@@ -236,7 +235,7 @@ def render_pending_message(message):
     with sal.chat_message():
         with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=LLM_AVATAR):
             st.markdown(f"__{LLM_DISPLAY_NAME}:__")
-            if st.session_state.is_chat_api_enabled and ENABLE_CHAT_API_STREAMING:
+            if st.session_state.is_chat_api_enabled and st.session_state.enable_chat_api_streaming:
                 # Immediately render any incoming streaming response
                 st.write_stream(send_chat_api_streaming_request(message))
                 # The final streaming chunk has been received now. Trigger rerun to let the render_message handle the
