@@ -57,13 +57,13 @@ pip install -r requirements-dev.txt
 
 LLM Blueprints created via DataRobot's Playground now support OpenAI's Chat API. The chat completion endpoint is made
 available via the deployment on: `<API_URL>/deployments/<deployment_id>/chat/completions`.
-Documentation for this API can be found [here](https://docs.datarobot.com/en/docs/gen-ai/genai-code/genai-chat-completion-api.html) or in [OpenAI docs](https://platform.openai.com/docs/api-reference/chat).
+Documentation for this API can be found [here](https://docs.datarobot.com/en/docs/gen-ai/genai-code/genai-chat-completion-api.html) or in the [OpenAI docs](https://platform.openai.com/docs/api-reference/chat).
 
 To enable Chat API, select a deployment that supports it and set the runtime parameter `ENABLE_CHAT_API` to `True`.
-If the selected deployment does _not_ support Chat API, it will automatically fall back to use the `datarobot-predict`
-library.
+If the selected deployment does _not_ support Chat API, it will automatically use the `datarobot-predict`
+library by default.
 
-Streaming will soon be supported by the deployment Chat API implementation described above. Currently, streaming is only supported for GPT blueprints and the response always contains only one chunk due to the applied prompt and/or result text guards.
+DataRobot only supports streaming for GPT blueprints and the response always contains only one chunk due to the applied prompt and/or resulting text guards.
 
 Streaming can be enabled in the runtime parameters by setting `ENABLE_CHAT_API_STREAMING` to `True`.
 
