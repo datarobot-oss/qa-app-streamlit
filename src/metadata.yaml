@@ -6,14 +6,14 @@ runtimeParameterDefinitions:
   type: string
 - fieldName: DEPLOYMENT_ID
   type: deployment
-- fieldName: SYSTEM_PROMPT
-  type: string
-  description: Replaces the system prompt set in Playground
 - fieldName: ENABLE_CHAT_API
   type: boolean
   defaultValue: False
-  description: Use Chat API if the deployment supports it
+  description: Use Chat API if the deployment supports it.
+- fieldName: SYSTEM_PROMPT
+  type: string
+  description: Replaces the system prompt set in Playground. Requires ENABLE_CHAT_API to be `True`.
 - fieldName: ENABLE_CHAT_API_STREAMING
   type: boolean
   defaultValue: False
-  description: Stream the response from Chat API
+  description: Stream the response from Chat API. Requires ENABLE_CHAT_API to be `True`.
