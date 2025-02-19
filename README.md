@@ -132,7 +132,8 @@ Monitoring ->Custom metrics** .
 
 ## Troubleshooting
 
-| Error                                                              | Solution                                                                                                                              |
-|:-------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------|
-| `Could not find root directory. Did you run 'streamlit-sal init'?` | Make sure that all application src files have been uploaded, including dotfiles: `.streamlit-sal` (file) and `.streamlit` (directory) |
-| `500 Internal Server Error - ERROR: <any>`                         | Check the deployment runtime logs for additional error details. Navigate to **Console > Deployments > Actions > View logs**           |
+| Error                                                                                                                         | Solution                                                                                                                              |
+|:------------------------------------------------------------------------------------------------------------------------------|:--------------------------------------------------------------------------------------------------------------------------------------|
+| `Could not find root directory. Did you run 'streamlit-sal init'?`                                                            | Make sure that all application src files have been uploaded, including dotfiles: `.streamlit-sal` (file) and `.streamlit` (directory) |
+| `500 Internal Server Error - ERROR: <any>`                                                                                    | Check the deployment runtime logs for additional error details. Navigate to **Console > Deployments > Actions > View logs**           |
+| `Amazon Bedrock invalid request error: [400] Code: ValidationException. Message: The provided model identifier is invalid.."` | Make sure that the AWS_REGION set in the Model registry matches your AWS credentials                                                  |
