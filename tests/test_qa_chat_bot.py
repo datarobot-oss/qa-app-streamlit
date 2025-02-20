@@ -333,6 +333,39 @@ def test_chat_send_chat_api_stream_request(openai_create):
     "mock_set_env_enable_enable_chat_api_streaming",
     "mock_app_info_api",
     "mock_deployment_api",
+    "mock_version_api",
+)
+@patch("openai.resources.chat.Completions.create")
+def test_chat_send_chat_api_stream_request_no_citations(openai_create):
+    """The app receives chat response after sending a prompt"""
+    chunk_files = ['mock_initial_chunk.json', 'mock_delta_chunk.json', 'mock_final_chunk_no_citations.json']
+    openai_create.return_value = create_stream_chat_completion(chunk_files)
+
+    app = AppTest.from_file("qa_chat_bot.py")
+    at = app.run()
+    assert at.session_state.is_chat_api_enabled == True
+    at.chat_input[0].set_value('Tell me a joke').run()
+
+    # Check the user prompt message
+    assert at.chat_message[0].markdown[0].value == '__You:__'
+    assert at.chat_message[0].markdown[1].value == 'Tell me a joke'
+
+    # Check the LLM response message
+    assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
+    assert at.chat_message[1].markdown[1].value == 'Why don\'t scientists trust atoms? Because they make up everything.'
+
+    # Assert that the citations button does not exist when Citations are not available
+    msg_id = at.session_state.messages[0].get('meta_id')
+    assert f"citation-{msg_id}" not in at.session_state
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_set_env_enable_enable_chat_api",
+    "mock_set_env_enable_enable_chat_api_streaming",
+    "mock_app_info_api",
+    "mock_deployment_api",
     "mock_deployment_chat_api_stream",
     "mock_version_api",
     "model_id",

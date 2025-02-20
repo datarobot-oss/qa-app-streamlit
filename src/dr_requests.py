@@ -198,7 +198,7 @@ def send_chat_api_streaming_request(message):
                 yield content
             elif is_final_chunk:
                 try:
-                    if hasattr(chunk, 'citations'):
+                    if hasattr(chunk, 'citations') and chunk.citations is not None:
                         processed_citations = process_citations(chunk.citations)
 
                     if hasattr(chunk, 'datarobot_moderations'):

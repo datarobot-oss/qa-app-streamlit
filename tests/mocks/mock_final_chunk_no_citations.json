@@ -1,0 +1,21 @@
+{
+  "id": "8f467195-b4a7-4327-9f71-5f54a504329e",
+  "choices": [
+    {
+      "delta": {
+        "content": null,
+        "role": null
+      },
+      "finish_reason": "stop",
+      "index": 0
+    }
+  ],
+  "created": 1736949292,
+  "model": "DataRobot Moderation",
+  "object": "chat.completion.chunk",
+  "citations": null,
+  "llm_blueprint_id": "6759629338e0837a3d481683",
+  "llm_provider_guards": null,
+  "prompt_vector": [],
+  "datarobot_moderations": null
+}
