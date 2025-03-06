@@ -8,6 +8,7 @@ DEFAULT_RESULT_COLUMN_NAME = 'resultText'
 
 # Chat API
 CHAT_CAPABILITIES_KEY = 'supports_chat_api'
+DEFAULT_CHAT_MODEL_NAME = 'datarobot-deployed-llm'
 
 # Timeouts
 CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS = 60

@@ -9,7 +9,7 @@
       ],
       "source": {
          "repositoryUrl": "https://github.com/datarobot-oss/qa-app-streamlit",
-         "releaseTag": "11.0.11"
+         "releaseTag": "11.0.12"
       },
       "previewImage": "qa-app-preview.png"
    },
