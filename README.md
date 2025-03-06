@@ -71,8 +71,8 @@ A system prompt can be configured using the `SYSTEM_PROMPT` runtime parameter. T
 set, including configuration from **Workbench > Playground**.
 
 The Q&amp;A app uses the reserved model name `datarobot-deployed-llm` when making requests through the Chat API. This is due to the 
-openai client requiring the model parameter to be set. The Chat completion endpoint will then use the baked-in default model
-of the deployment. If you have multiple models within your deployment, you can modify this parameter by changing
+openai client requiring the model parameter to be set. By using this reserved value, the Chat completion endpoint will use the default model used when creating the custom model 
+used in the deployment. If you have multiple models within your deployment, you can modify this parameter by changing
 the `DEFAULT_CHAT_MODEL_NAME` in `constants.py`
 
 ## App modifications
