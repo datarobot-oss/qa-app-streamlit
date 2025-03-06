@@ -70,7 +70,7 @@ Streaming can be enabled in the runtime parameters by setting `ENABLE_CHAT_API_S
 A system prompt can be configured using the `SYSTEM_PROMPT` runtime parameter. This value will overwrite any previous prompts
 set, including configuration from **Workbench > Playground**.
 
-The Q&amp;A app uses the reserved magic model name `datarobot-deployed-llm` for any Chat API calls. This is due to the 
+The Q&amp;A app uses the reserved model name `datarobot-deployed-llm` when making requests through the Chat API. This is due to the 
 openai client requiring the model parameter to be set. The Chat completion endpoint will then use the baked-in default model
 of the deployment. If you have multiple models within your deployment, you can modify this parameter by changing
 the `DEFAULT_CHAT_MODEL_NAME` in `constants.py`
