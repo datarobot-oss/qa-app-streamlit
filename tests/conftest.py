@@ -373,7 +373,7 @@ def create_chat_completion(mock_file):
 
         return ChatCompletion(
             id=mock_data.get("id"),
-            model=mock_data.get("model"),
+            model='datarobot-deployed-llm',
             object=mock_data.get("object"),
             choices=[
                 Choice(
@@ -408,7 +408,7 @@ def create_stream_chat_completion(chunk_files):
 
             yield ChatCompletionChunk(
                 id=chunk_data.get("id"),
-                model=chunk_data.get("model"),
+                model='datarobot-deployed-llm',
                 object=chunk_data.get("object"),
                 choices=[
                     StreamChoice(

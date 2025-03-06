@@ -20,7 +20,8 @@ from constants import (
     DEFAULT_PROMPT_COLUMN_NAME,
     DEFAULT_RESULT_COLUMN_NAME,
     CAPABILITIES_TIMEOUT_SECONDS,
-    CHAT_CAPABILITIES_KEY
+    CHAT_CAPABILITIES_KEY,
+    DEFAULT_CHAT_MODEL_NAME,
 )
 from utils import (
     get_deployment,
@@ -138,7 +139,6 @@ def send_predict_request(message):
 
 def send_chat_api_request(message):
     meta_id = message['meta_id']
-    deployment = get_deployment()
     base_url = get_base_url()
     openai_client = OpenAI(base_url=base_url, api_key=st.session_state.token)
 
@@ -146,7 +146,7 @@ def send_chat_api_request(message):
     extra_model_output = None
 
     with handle_chat_api_error(meta_id):
-        completion = openai_client.chat.completions.create(model=deployment.model.get("type"),
+        completion = openai_client.chat.completions.create(model=DEFAULT_CHAT_MODEL_NAME,
                                                            messages=sanitize_messages_for_request(
                                                                st.session_state.messages))
 
@@ -173,7 +173,6 @@ def send_chat_api_request(message):
 
 def send_chat_api_streaming_request(message):
     meta_id = message['meta_id']
-    deployment = get_deployment()
     base_url = get_base_url()
     openai_client = OpenAI(base_url=base_url, api_key=st.session_state.token)
 
@@ -182,7 +181,7 @@ def send_chat_api_streaming_request(message):
     aggregated_content = ""
 
     with handle_chat_api_error(meta_id):
-        streaming_response = openai_client.chat.completions.create(model=deployment.model.get("type"),
+        streaming_response = openai_client.chat.completions.create(model=DEFAULT_CHAT_MODEL_NAME,
                                                                    messages=sanitize_messages_for_request(
                                                                        st.session_state.messages),
                                                                    stream=True)
