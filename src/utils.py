@@ -4,6 +4,8 @@ import uuid
 from contextlib import contextmanager
 from typing import cast, Dict, Any
 
+import re
+import json
 import requests
 import streamlit as st
 from datarobot import Deployment, AppPlatformError
@@ -139,6 +141,9 @@ def process_predict_citations(input_dict: dict[str: Any]) -> list[dict[str: Any]
     output_list = []
     num_citations = len([k for k in input_dict.keys() if k.startswith("CITATION_CONTENT")])
 
+    if num_citations == 0 and '_LLM_CONTEXT' in input_dict:
+        return process_llm_context_citations(input_dict["_LLM_CONTEXT"])
+
     for i in range(num_citations):
         citation_content_key = f"CITATION_CONTENT_{i}"
         citation_source_key = f"CITATION_SOURCE_{i}"
@@ -160,6 +165,41 @@ def process_predict_citations(input_dict: dict[str: Any]) -> list[dict[str: Any]
              'page': doc['metadata']['page']} for doc
             in
             output_list]
+
+
+def process_llm_context_citations(llm_context: str):
+    citations = json.loads(llm_context)
+    output_list = []
+
+    for citation in citations:
+        link = citation.get("link", '')
+        [source, page] = split_source_page(link)
+
+        citation_dict = {
+            "page_content": citation.get("content", ''),
+            "metadata": {
+                "source": source,
+                "page": page
+            },
+            "type": "Document"
+        }
+
+        output_list.append(citation_dict)
+
+    return [{'text': doc['page_content'],
+             'source': doc['metadata']['source'],
+             'page': doc['metadata']['page']} for doc
+            in
+            output_list]
+
+
+def split_source_page(link):
+    match = re.match(r"^(.*):(\d+)$", link)
+    if match:
+        return match.group(1), match.group(2)
+    else:
+        # Remove the ':' at the end when no page info is found
+        return link[:-1], None
 
 
 def rename_dataframe_columns(df):
