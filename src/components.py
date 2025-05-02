@@ -152,7 +152,8 @@ def response_info_footer(meta_id):
     feedback = message_meta['feedback_value']
     citations = message_meta.get('citations', None)
     custom_metric_id = st.session_state.custom_metric_id
-    association_id = get_association_id_column_name()
+    association_id_column_name = get_association_id_column_name()
+    association_id = message_meta.get(association_id_column_name, meta_id) if association_id_column_name else meta_id
 
     info_section_data = get_info_section_data(message_meta)
     has_info_data = len(info_section_data) > 0
@@ -168,14 +169,14 @@ def response_info_footer(meta_id):
                     btn_up_icon_class = 'feedback-up-icon-active' if feedback == 1 else 'feedback-up-icon'
                     with sal.button('feedback-button', btn_up_icon_class, container=col1):
                         # Uses thin blank “ ” (U+2009) to be visible
-                        col1.button(' ', on_click=submit_metric, args=(meta_id, message_meta, 1),
-                                    key=f"feedback-up-{meta_id}")
+                        col1.button(' ', on_click=submit_metric, args=(association_id, message_meta, 1),
+                                    key=f"feedback-up-{association_id}")
 
                     btn_down_icon_class = 'feedback-down-icon-active' if feedback == 0 else 'feedback-down-icon'
                     with sal.button('feedback-button', btn_down_icon_class, container=col1):
                         # Uses thin blank “ ” (U+2009) to be visible
-                        col1.button(' ', on_click=submit_metric, args=(meta_id, message_meta, 0),
-                                    key=f"feedback-down-{meta_id}")
+                        col1.button(' ', on_click=submit_metric, args=(association_id, message_meta, 0),
+                                    key=f"feedback-down-{association_id}")
                 if citations:
                     with sal.button('citation-button', container=col1):
                         col1.button(I18N_CITATION_BUTTON, key=f"citation-{meta_id}",
