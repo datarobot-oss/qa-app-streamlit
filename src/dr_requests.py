@@ -68,7 +68,7 @@ def prediction_server_override_url() -> Optional[str]:
         return None
 
 
-def submit_metric(meta_id, message_meta, value):
+def submit_metric(association_id, message_meta, value):
     deployment = get_deployment()
     endpoint = st.session_state.endpoint
     custom_metric_id = st.session_state.custom_metric_id
@@ -82,7 +82,7 @@ def submit_metric(meta_id, message_meta, value):
     url = f"{endpoint}/deployments/{deployment.id}/customMetrics/{custom_metric_id}/fromJSON/"
 
     ts = datetime.utcnow()
-    rows = [{"timestamp": ts.isoformat(), "value": value, "associationId": meta_id}]
+    rows = [{"timestamp": ts.isoformat(), "value": value, "associationId": association_id}]
     data = {
         "buckets": rows,
     }
