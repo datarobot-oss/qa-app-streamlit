@@ -1,4 +1,4 @@
-streamlit==1.41.0
+streamlit==1.42.1
 datarobot>=3.4.0
 datarobot-predict>=1.9.0,<2.0.0
 requests>=2.28.1
