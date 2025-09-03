@@ -1,4 +1,5 @@
 # Local dev files
+/.python-version
 /src/.python-version
 /src/start-app-local.sh
 /src/styles/sal-stylesheet.css
