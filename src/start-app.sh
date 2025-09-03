@@ -3,7 +3,7 @@ echo "Starting App"
 
 export TOKEN="$DATAROBOT_API_TOKEN"
 export ENDPOINT="$DATAROBOT_ENDPOINT"
-export APP_BASE_URL_PATH="$STREAMLIT_SERVER_BASE_URL_PATH"
+export APP_ID="$APPLICATION_ID"
 
 # If you have configured runtime params via DataRobots application source, the following 2 values should be set automatically.
 # Otherwise you will need to set DEPLOYMENT_ID (required) and CUSTOM_METRIC_ID (optional) manually

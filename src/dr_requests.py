@@ -216,8 +216,8 @@ def send_chat_api_streaming_request(message):
 
 @st.cache_data(show_spinner=False)
 def get_application_info():
-    if st.session_state.app_id is None:
-        # Fallback for local development
+    if st.session_state.app_id is None or st.session_state.app_id == "":
+        # Fallback for local development or invalid APP_ID
         return {}
 
     # Set HTTP headers. The charset should match the contents of the file.

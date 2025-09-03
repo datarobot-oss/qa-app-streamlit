@@ -73,9 +73,7 @@ def initiate_session_state():
     if 'deployment_id' not in st.session_state:
         st.session_state.deployment_id = os.getenv("DEPLOYMENT_ID")
     if 'app_id' not in st.session_state:
-        app_base_url_path = os.getenv("APP_BASE_URL_PATH")
-        st.session_state.app_id = app_base_url_path.split('/')[-1].strip() if app_base_url_path else None
-
+        st.session_state.app_id = os.getenv("APP_ID")
     if 'enable_chat_api' not in st.session_state:
         st.session_state.enable_chat_api = os.getenv("ENABLE_CHAT_API", 'False').lower() == 'true'
     if 'enable_chat_api_streaming' not in st.session_state:
