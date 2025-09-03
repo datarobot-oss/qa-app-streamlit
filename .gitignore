@@ -1,6 +1,8 @@
 # Local dev files
-./styles/sal-stylesheet.css
-./src/start-app-local.sh
+/.python-version
+/src/.python-version
+/src/start-app-local.sh
+/src/styles/sal-stylesheet.css
 
 # JetBrains IDE
 .idea
