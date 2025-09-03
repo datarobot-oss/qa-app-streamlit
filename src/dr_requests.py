@@ -212,6 +212,7 @@ def send_chat_api_streaming_request(message):
                 set_result_message_state(meta_id, aggregated_content, status=STATUS_COMPLETED,
                                          citations=processed_citations,
                                          extra_model_output=extra_model_output)
+                return
 
 
 @st.cache_data(show_spinner=False)
