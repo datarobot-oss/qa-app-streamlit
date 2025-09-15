@@ -1,5 +1,3 @@
-import json
-import sys
 import os
 from collections import namedtuple
 from unittest.mock import patch
@@ -14,6 +12,7 @@ from streamlit.testing.v1 import AppTest
 @pytest.mark.usefixtures(
     "mock_set_env",
     "mock_app_info_api",
+    "mock_set_env_disable_chat_api",
     "mock_deployment_api",
     "mock_version_api",
 )

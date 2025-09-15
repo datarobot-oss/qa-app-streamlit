@@ -93,14 +93,14 @@ def mock_set_env_app_name(monkeypatch, app_name):
 
 
 @pytest.fixture
-def mock_set_env_enable_enable_chat_api(monkeypatch, app_name):
+def mock_set_env_disable_chat_api(monkeypatch, app_name):
     with patch.dict(os.environ):
-        monkeypatch.setenv("ENABLE_CHAT_API", "true")
+        monkeypatch.setenv("ENABLE_CHAT_API", "false")
         yield
 
 
 @pytest.fixture
-def mock_set_env_enable_enable_chat_api_streaming(monkeypatch, app_name):
+def mock_set_env_enable_chat_api_streaming(monkeypatch, app_name):
     with patch.dict(os.environ):
         monkeypatch.setenv("ENABLE_CHAT_API_STREAMING", "true")
         yield
@@ -121,6 +121,7 @@ def mock_set_env(
         monkeypatch.setenv("CUSTOM_METRIC_ID", custom_metric_id)
         monkeypatch.setenv("DEPLOYMENT_ID", deployment_id)
         monkeypatch.setenv("APP_ID", app_id)
+        monkeypatch.setenv("ENABLE_CHAT_API", True)
         yield
 
 
