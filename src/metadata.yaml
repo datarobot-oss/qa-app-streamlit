@@ -8,7 +8,7 @@ runtimeParameterDefinitions:
   type: deployment
 - fieldName: ENABLE_CHAT_API
   type: boolean
-  defaultValue: False
+  defaultValue: True
   description: Use Chat API if the deployment supports it.
 - fieldName: SYSTEM_PROMPT
   type: string
