@@ -157,7 +157,8 @@ def send_chat_api_request(message):
 
             if completion.model_extra.get('datarobot_moderations'):
                 extra_model_output = completion.model_extra.get('datarobot_moderations')
-
+            elif completion.model_extra.get('datarobot_association_id'):
+                extra_model_output = {'datarobot_association_id': completion.model_extra.get('datarobot_association_id')}
             if extra_model_output and not processed_citations:
                 processed_citations = process_predict_citations(extra_model_output)
 
@@ -202,6 +203,8 @@ def send_chat_api_streaming_request(message):
 
                     if hasattr(chunk, 'datarobot_moderations'):
                         extra_model_output = chunk.datarobot_moderations
+                    elif hasattr(chunk, 'datarobot_association_id'):
+                        extra_model_output = {'datarobot_association_id': chunk.datarobot_association_id}
 
                     if extra_model_output and not processed_citations:
                         processed_citations = process_predict_citations(extra_model_output)

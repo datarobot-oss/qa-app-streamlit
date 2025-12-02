@@ -75,7 +75,7 @@ def initiate_session_state():
     if 'app_id' not in st.session_state:
         st.session_state.app_id = os.getenv("APP_ID")
     if 'enable_chat_api' not in st.session_state:
-        st.session_state.enable_chat_api = os.getenv("ENABLE_CHAT_API", 'False').lower() == 'true'
+        st.session_state.enable_chat_api = os.getenv("ENABLE_CHAT_API", 'True').lower() == 'true'
     if 'enable_chat_api_streaming' not in st.session_state:
         st.session_state.enable_chat_api_streaming = os.getenv("ENABLE_CHAT_API_STREAMING", 'False').lower() == 'true'
 
@@ -262,9 +262,11 @@ def set_result_message_meta_state(meta_id, status, citations=None, extra_model_o
         if extra_model_output.get('datarobot_confidence_score'):
             st.session_state.messages_meta[meta_id]['datarobot_confidence_score'] = extra_model_output[
                 'datarobot_confidence_score']
-        if extra_model_output.get(association_id_column_name):
+        if association_id_column_name and extra_model_output.get(association_id_column_name):
             st.session_state.messages_meta[meta_id]['association_id'] = extra_model_output[
                 association_id_column_name] if association_id_column_name else meta_id
+        elif extra_model_output.get('datarobot_association_id'):
+            st.session_state.messages_meta[meta_id]['association_id'] = extra_model_output['datarobot_association_id']
 
 
 @contextmanager

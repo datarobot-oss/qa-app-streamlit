@@ -152,8 +152,7 @@ def response_info_footer(meta_id):
     feedback = message_meta['feedback_value']
     citations = message_meta.get('citations', None)
     custom_metric_id = st.session_state.custom_metric_id
-    association_id_column_name = get_association_id_column_name()
-    association_id = message_meta.get(association_id_column_name, meta_id) if association_id_column_name else meta_id
+    association_id = message_meta.get('association_id')
 
     info_section_data = get_info_section_data(message_meta)
     has_info_data = len(info_section_data) > 0

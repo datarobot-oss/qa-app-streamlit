@@ -380,8 +380,9 @@ def test_chat_feedback_request(openai_create, feedback_endpoint, model_id, is_mo
     assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
     assert at.chat_message[1].markdown[1].value == 'Why don\'t scientists trust atoms? Because they make up everything.'
 
-    msg_id = at.session_state.messages[0].get('meta_id')
-    feedback_up_button = at.button(key=f"feedback-up-{msg_id}")
+    meta_id = at.session_state.messages[0].get('meta_id')
+    assoc_id = at.session_state.messages_meta[meta_id]["association_id"]
+    feedback_up_button = at.button(key=f"feedback-up-{assoc_id}")
     # '\u2009' matches the thin whitespace for a feedback button
     assert feedback_up_button.label == '\u2009'
     assert feedback_up_button.value is False
