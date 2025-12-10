@@ -281,7 +281,7 @@ def mock_deployment_api(
         json={
             "associationId": {
                 "columnNames": [
-                    "a_id"
+                    "association_id"
                 ],
                 "requiredInPredictionRequests": False,
                 "autoGenerateId": False,
