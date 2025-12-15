@@ -156,7 +156,11 @@ def response_info_footer(meta_id):
 
     info_section_data = get_info_section_data(message_meta)
     has_info_data = len(info_section_data) > 0
-    if has_info_data or citations is not None:
+    if (
+        has_info_data
+        or citations is not None
+        or (custom_metric_id is not None and association_id is not None)
+    ):
         with sal.columns('chat-message-footer'):
             col0, col1 = st.columns([0.7, 0.3], vertical_alignment="center")
 
