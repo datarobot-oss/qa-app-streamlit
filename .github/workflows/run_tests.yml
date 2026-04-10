@@ -14,17 +14,18 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v3
 
-      - name: Set up Python
-        uses: actions/setup-python@v4
+      - name: Install uv
+        uses: astral-sh/setup-uv@v5
         with:
-          python-version: 3.12
+          python-version: "3.12"
 
       - name: Install dependencies
-        run: |
-          pip install -r requirements-dev.txt
+        run: uv sync
+        working-directory: src
 
-      - name: Run pytest
-        run: |
-          pip install -r requirements-dev.txt
-          cd src && streamlit-sal compile && cd -
-          ./run_tests.sh --maxfail=1 --disable-warnings --verbose
+      - name: Compile SAL stylesheet
+        run: uv run streamlit-sal compile
+        working-directory: src
+
+      - name: Run tests
+        run: ./run_tests.sh --maxfail=1 --disable-warnings --verbose
