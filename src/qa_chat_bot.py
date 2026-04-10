@@ -4,6 +4,7 @@ from datarobot import Client
 from datarobot.client import set_client
 from streamlit_sal import sal_stylesheet
 
+
 from components import render_empty_chat, render_app_header, render_message, render_pending_message
 from constants import *
 from dr_requests import get_has_chat_api_support
@@ -17,14 +18,22 @@ st.set_page_config(page_title=get_app_name(), page_icon=APP_FAVICON, layout=APP_
 
 def start_streamlit():
     initiate_session_state()
-    is_chat_api_enabled = get_has_chat_api_support(deployment_id=st.session_state.deployment_id,
-                                       token=st.session_state.token,
-                                       endpoint=st.session_state.endpoint) if st.session_state.enable_chat_api else False
-    set_chat_api_session_state(is_chat_api_enabled)
 
-    # Setup DR client
-    set_client(Client(token=st.session_state.token, endpoint=st.session_state.endpoint))
-    has_valid_deployment = st.session_state.deployment_id and get_deployment()
+    # Setup DR client — reads DATAROBOT_API_TOKEN and DATAROBOT_ENDPOINT automatically
+    set_client(Client())
+
+    if st.session_state.use_llm_gateway:
+        # No deployment needed — route requests through the DataRobot LLM Gateway.
+        set_chat_api_session_state(False)
+        has_valid_deployment = True
+    else:
+        is_chat_api_enabled = get_has_chat_api_support(
+            deployment_id=st.session_state.deployment_id,
+            token=st.session_state.token,
+            endpoint=st.session_state.endpoint,
+        ) if st.session_state.enable_chat_api else False
+        set_chat_api_session_state(is_chat_api_enabled)
+        has_valid_deployment = bool(st.session_state.deployment_id and get_deployment())
 
     # Wraps the application with a SAL stylesheet so elements within it can be customized
     with sal_stylesheet():

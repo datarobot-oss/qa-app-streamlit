@@ -1,0 +1,49 @@
+[project]
+name = "qa-app-streamlit"
+version = "0.1.0"
+requires-python = ">=3.12,<3.13"
+dependencies = [
+    "streamlit==1.42.1",
+    "datarobot>=3.6.0",
+    "datarobot-predict>=1.9.0,<2.0.0",
+    "requests>=2.28.1",
+    "pandas==2.2.2",
+    "streamlit-sal==0.2.0",
+    "openai>=1.60.0",
+    "litellm>=1.67.0",
+    "pydantic-settings>=2.0.0",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.0.0",
+    "multidict",
+    "aiosignal",
+    "bson",
+    "yarl",
+    "responses",
+    "ruff>=0.11.0",
+]
+
+[tool.ruff]
+line-length = 120
+target-version = "py312"
+
+[tool.ruff.lint]
+select = [
+    "E",   # pycodestyle errors
+    "F",   # pyflakes
+    "I",   # isort
+    "UP",  # pyupgrade
+    "B",   # flake8-bugbear
+    "SIM", # flake8-simplify
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["config", "constants", "components", "dr_requests", "utils"]
+
+[tool.ruff.format]
+quote-style = "double"
+
+[tool.uv]
+package = false

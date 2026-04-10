@@ -41,6 +41,8 @@ from dr_requests import (
     send_predict_request,
     send_chat_api_request,
     send_chat_api_streaming_request,
+    send_llm_gateway_request,
+    send_llm_gateway_streaming_request,
     get_application_info
 )
 from utils import get_deployment, get_app_name, get_association_id_column_name, get_message_by_role, escape_result_text
@@ -239,7 +241,15 @@ def render_pending_message(message):
     with sal.chat_message():
         with st.chat_message(name=I18N_ACCESSIBILITY_LABEL_LLM, avatar=LLM_AVATAR):
             st.markdown(f"__{LLM_DISPLAY_NAME}:__")
-            if st.session_state.is_chat_api_enabled and st.session_state.enable_chat_api_streaming:
+            if st.session_state.use_llm_gateway:
+                if st.session_state.enable_chat_api_streaming:
+                    st.write_stream(send_llm_gateway_streaming_request(message))
+                    st.rerun()
+                else:
+                    with st.spinner(I18N_LOADING_MESSAGE):
+                        send_llm_gateway_request(message)
+                        st.rerun()
+            elif st.session_state.is_chat_api_enabled and st.session_state.enable_chat_api_streaming:
                 # Immediately render any incoming streaming response
                 st.write_stream(send_chat_api_streaming_request(message))
                 # The final streaming chunk has been received now. Trigger rerun to let the render_message handle the
@@ -259,9 +269,9 @@ def render_pending_message(message):
 @st.fragment
 def render_empty_chat():
     empty_chat = st.container()
-    deployment = get_deployment()
+    deployment = None if st.session_state.use_llm_gateway else get_deployment()
 
-    if st.session_state.deployment_id and deployment:
+    if st.session_state.use_llm_gateway or (st.session_state.deployment_id and deployment):
         empty_chat.image(APP_EMPTY_CHAT_IMAGE, width=APP_EMPTY_CHAT_IMAGE_WIDTH)
         with sal.text('empty-chat-header', container=empty_chat):
             empty_chat.text(I18N_SPLASH_TITLE)

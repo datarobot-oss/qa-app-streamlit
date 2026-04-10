@@ -1,17 +1,17 @@
 import logging
-import os
 import uuid
 from contextlib import contextmanager
-from typing import cast, Dict, Any
+from typing import Any, cast, Dict
 
-import re
 import json
+import re
 import requests
 import streamlit as st
-from datarobot import Deployment, AppPlatformError
+from datarobot import Client, Deployment, AppPlatformError
 from openai import APIError
 
-from constants import STATUS_PENDING, ROLE_ASSISTANT, ROLE_SYSTEM, I18N_APP_NAME_DEFAULT, STATUS_ERROR
+from config import Config
+from constants import STATUS_PENDING, ROLE_ASSISTANT, ROLE_SYSTEM, STATUS_ERROR
 
 
 class DataRobotPredictionError(Exception):
@@ -59,32 +59,37 @@ def get_association_id_column_name():
 
 
 def get_app_name():
-    return os.getenv("APP_NAME") or I18N_APP_NAME_DEFAULT
+    return Config().app_name
 
 
 def initiate_session_state():
-    # Env variables
+    config = Config()
+    dr = Client()
+
     if 'token' not in st.session_state:
-        st.session_state.token = os.getenv("TOKEN")
+        st.session_state.token = dr.token
     if 'endpoint' not in st.session_state:
-        st.session_state.endpoint = os.getenv("ENDPOINT")
+        st.session_state.endpoint = dr.endpoint
     if 'custom_metric_id' not in st.session_state:
-        st.session_state.custom_metric_id = os.getenv("CUSTOM_METRIC_ID")
+        st.session_state.custom_metric_id = config.custom_metric_id
     if 'deployment_id' not in st.session_state:
-        st.session_state.deployment_id = os.getenv("DEPLOYMENT_ID")
+        st.session_state.deployment_id = config.deployment_id
     if 'app_id' not in st.session_state:
-        st.session_state.app_id = os.getenv("APP_ID")
+        st.session_state.app_id = config.application_id
     if 'enable_chat_api' not in st.session_state:
-        st.session_state.enable_chat_api = os.getenv("ENABLE_CHAT_API", 'True').lower() == 'true'
+        st.session_state.enable_chat_api = config.enable_chat_api
     if 'enable_chat_api_streaming' not in st.session_state:
-        st.session_state.enable_chat_api_streaming = os.getenv("ENABLE_CHAT_API_STREAMING", 'False').lower() == 'true'
+        st.session_state.enable_chat_api_streaming = config.enable_chat_api_streaming
+    # True when running without a Deployment — routes requests through the LLM Gateway instead.
+    if 'use_llm_gateway' not in st.session_state:
+        st.session_state.use_llm_gateway = not bool(st.session_state.deployment_id)
 
     # Create messages storage on first render
     if "messages" not in st.session_state:
         st.session_state.messages = []
 
-    if os.getenv("SYSTEM_PROMPT") and len(st.session_state.messages) == 0:
-        st.session_state.messages.append({"role": ROLE_SYSTEM, "content": os.getenv("SYSTEM_PROMPT")})
+    if config.system_prompt and len(st.session_state.messages) == 0:
+        st.session_state.messages.append({"role": ROLE_SYSTEM, "content": config.system_prompt})
 
     if "messages_meta" not in st.session_state:
         st.session_state.messages_meta = {}
