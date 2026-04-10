@@ -279,7 +279,5 @@ def render_empty_chat():
             with sal.text('empty-chat-text', container=empty_chat):
                 empty_chat.text(I18N_SPLASH_TEXT)
     else:
-        error_text = I18N_NO_DEPLOYMENT_FOUND.format(
-            st.session_state.deployment_id) if st.session_state.deployment_id and not deployment else I18N_NO_DEPLOYMENT_ID
         with sal.text('empty-chat-text', container=empty_chat):
-            empty_chat.error(error_text)
+            empty_chat.error(I18N_NO_DEPLOYMENT_FOUND.format(st.session_state.deployment_id))
