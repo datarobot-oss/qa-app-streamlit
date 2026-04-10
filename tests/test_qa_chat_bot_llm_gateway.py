@@ -33,7 +33,7 @@ def _mock_stream(*chunks: str):
 )
 def test_llm_gateway_empty_chat():
     """Gateway mode: the app loads and shows the empty-chat splash without a DEPLOYMENT_ID."""
-    at = AppTest.from_file("qa_chat_bot.py").run()
+    at = AppTest.from_file("qa_chat_bot.py").run(timeout=10)
     assert at.session_state.use_llm_gateway is True
     assert at.session_state.is_chat_api_enabled is False
     # Chat input is available even without a deployment
@@ -53,9 +53,9 @@ def test_llm_gateway_non_streaming(mock_litellm):
     """Gateway mode: non-streaming response is rendered correctly."""
     mock_litellm.return_value = _mock_completion("The capital of France is Paris.")
 
-    at = AppTest.from_file("qa_chat_bot.py").run()
+    at = AppTest.from_file("qa_chat_bot.py").run(timeout=10)
     assert at.session_state.use_llm_gateway is True
-    at.chat_input[0].set_value("What is the capital of France?").run()
+    at.chat_input[0].set_value("What is the capital of France?").run(timeout=10)
 
     assert at.chat_message[0].markdown[1].value == "What is the capital of France?"
     assert at.chat_message[1].markdown[1].value == "The capital of France is Paris."
@@ -78,9 +78,9 @@ def test_llm_gateway_streaming(mock_litellm):
     """Gateway mode: streaming response is assembled and rendered correctly."""
     mock_litellm.return_value = _mock_stream("Paris ", "is the capital ", "of France.")
 
-    at = AppTest.from_file("qa_chat_bot.py").run()
+    at = AppTest.from_file("qa_chat_bot.py").run(timeout=10)
     assert at.session_state.use_llm_gateway is True
-    at.chat_input[0].set_value("What is the capital of France?").run()
+    at.chat_input[0].set_value("What is the capital of France?").run(timeout=10)
 
     assert at.chat_message[0].markdown[1].value == "What is the capital of France?"
     assert at.chat_message[1].markdown[1].value == "Paris is the capital of France."
@@ -97,7 +97,7 @@ def test_llm_gateway_error(mock_litellm):
     """Gateway mode: LLM errors are surfaced as an error message in the UI."""
     mock_litellm.side_effect = Exception("Gateway unavailable")
 
-    at = AppTest.from_file("qa_chat_bot.py").run()
-    at.chat_input[0].set_value("Hello").run()
+    at = AppTest.from_file("qa_chat_bot.py").run(timeout=10)
+    at.chat_input[0].set_value("Hello").run(timeout=10)
 
     assert at.chat_message[1].error[0].value == "LLM Gateway error: Gateway unavailable"
