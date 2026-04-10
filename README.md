@@ -80,7 +80,7 @@ the `DEFAULT_CHAT_MODEL_NAME` in `constants.py`
 
 When `DEPLOYMENT_ID` is not set, the app routes requests through the DataRobot LLM Gateway via [LiteLLM](https://github.com/BerriAI/litellm) instead of a specific deployment. This is useful for prototyping without a dedicated deployment.
 
-The model is configured via the `DATAROBOT_LLM_MODEL` runtime parameter (default: `datarobot/azure/gpt-4o-mini`). Available models can be listed with `datarobot.genai.LLMGatewayCatalog().list_as_dict()`.
+The model is configured via the `DATAROBOT_LLM_MODEL` runtime parameter (default: `datarobot/azure/gpt-5-1-2025-11-13`). Available models can be listed with `datarobot.genai.LLMGatewayCatalog().list_as_dict()`.
 
 In this mode, feedback buttons and citations are not available (these require a deployment).
 

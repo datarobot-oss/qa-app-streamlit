@@ -435,7 +435,7 @@ def mock_set_env_llm_gateway(
         monkeypatch.setenv("DATAROBOT_API_TOKEN", datarobot_token)
         monkeypatch.setenv("DATAROBOT_ENDPOINT", datarobot_endpoint)
         monkeypatch.setenv("APPLICATION_ID", app_id)
-        monkeypatch.setenv("DATAROBOT_LLM_MODEL", "datarobot/azure/gpt-4o-mini")
+        monkeypatch.setenv("DATAROBOT_LLM_MODEL", "datarobot/azure/gpt-5-1-2025-11-13")
         monkeypatch.setenv("LITELLM_TELEMETRY", "False")
         yield
 

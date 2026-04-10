@@ -19,5 +19,5 @@ runtimeParameterDefinitions:
   description: Stream the response from Chat API. Requires ENABLE_CHAT_API to be `True`.
 - fieldName: DATAROBOT_LLM_MODEL
   type: string
-  defaultValue: "datarobot/azure/gpt-4o-mini"
+  defaultValue: "datarobot/azure/gpt-5-1-2025-11-13"
   description: LiteLLM model string for the DataRobot LLM Gateway. Used when DEPLOYMENT_ID is not set. Find available models with datarobot.genai.LLMGatewayCatalog().list_as_dict().

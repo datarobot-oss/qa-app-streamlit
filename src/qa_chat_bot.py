@@ -1,9 +1,8 @@
+import os
 import streamlit as st
 import streamlit_sal as sal
 from datarobot import Client
 from datarobot.client import set_client
-from streamlit_sal import sal_stylesheet
-
 
 from components import render_empty_chat, render_app_header, render_message, render_pending_message
 from constants import *
@@ -14,6 +13,22 @@ from utils import add_new_prompt, initiate_session_state, set_chat_api_session_s
 # Basic application page configuration, modify values in `constants.py`
 st.set_page_config(page_title=get_app_name(), page_icon=APP_FAVICON, layout=APP_LAYOUT,
                    initial_sidebar_state=SIDEBAR_DEFAULT_STATE)
+
+_SRC_DIR = os.path.dirname(os.path.abspath(__file__))
+
+
+def _inject_sal_stylesheet():
+    """Inject the pre-compiled SAL stylesheet directly, bypassing streamlit_sal's
+    find_root_dir() which depends on CWD and a .streamlit_sal config file that may
+    not be found when the platform runs streamlit from an unexpected working directory."""
+    css_path = os.path.join(_SRC_DIR, "styles", "sal-stylesheet.css")
+    try:
+        with open(css_path) as f:
+            css = f.read()
+        if css:
+            st.markdown(f"<style class='hidden'>{css}</style>", unsafe_allow_html=True)
+    except FileNotFoundError:
+        pass  # Best effort — app still works without custom styling
 
 
 def start_streamlit():
@@ -35,36 +50,34 @@ def start_streamlit():
         set_chat_api_session_state(is_chat_api_enabled)
         has_valid_deployment = bool(st.session_state.deployment_id and get_deployment())
 
-    # Wraps the application with a SAL stylesheet so elements within it can be customized
-    with sal_stylesheet():
-        render_app_header()
+    _inject_sal_stylesheet()
+    render_app_header()
 
-        # You can manually enable the sidebar in `constants.py` and add your own content below
-        if SHOW_SIDEBAR:
-            with st.sidebar:
-                st.subheader('Sidebar Title')
-                st.write('Add your sidebar content here')
+    # You can manually enable the sidebar in `constants.py` and add your own content below
+    if SHOW_SIDEBAR:
+        with st.sidebar:
+            st.subheader('Sidebar Title')
+            st.write('Add your sidebar content here')
 
-        if has_valid_deployment:
-            if prompt := st.chat_input(I18N_INPUT_PLACEHOLDER):
-                add_new_prompt(prompt)
+    if has_valid_deployment:
+        if prompt := st.chat_input(I18N_INPUT_PLACEHOLDER):
+            add_new_prompt(prompt)
 
-        # Ignore any system message in the conversation context
-        filtered_messages = [msg for msg in st.session_state.messages if msg["role"] != ROLE_SYSTEM]
-        if len(filtered_messages) > 0:
-            # Render all chat messages from this session on every app rerun
-            for message in filtered_messages:
-                # Render the prompt entered by the user in a fragment function
-                render_message(message)
+    # Ignore any system message in the conversation context
+    filtered_messages = [msg for msg in st.session_state.messages if msg["role"] != ROLE_SYSTEM]
+    if len(filtered_messages) > 0:
+        # Render all chat messages from this session on every app rerun
+        for message in filtered_messages:
+            # Render the prompt entered by the user in a fragment function
+            render_message(message)
 
-            if st.session_state.pending_message_id:
-                pending_message = get_message_by_role(ROLE_USER, st.session_state.pending_message_id)
-                render_pending_message(pending_message)
-        else:
-            # Render the empty chat splash in a fragment.
-            # The SAL container remains here to keep the upper sal_stylesheet context
-            with sal.container('empty-chat'):
-                render_empty_chat()
+        if st.session_state.pending_message_id:
+            pending_message = get_message_by_role(ROLE_USER, st.session_state.pending_message_id)
+            render_pending_message(pending_message)
+    else:
+        # Render the empty chat splash
+        with sal.container('empty-chat'):
+            render_empty_chat()
 
 
 if __name__ == "__main__":

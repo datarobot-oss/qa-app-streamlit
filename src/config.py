@@ -27,4 +27,4 @@ class Config(DataRobotAppFrameworkBaseSettings):
     # Used when DEPLOYMENT_ID is not set (gateway mode).
     # Find available models with: datarobot.genai.LLMGatewayCatalog().list_as_dict()
     # See: https://github.com/carsongee/get-datarobot-llms
-    datarobot_llm_model: str = "datarobot/azure/gpt-4o-mini"
+    datarobot_llm_model: str = "datarobot/azure/gpt-5-1-2025-11-13"
