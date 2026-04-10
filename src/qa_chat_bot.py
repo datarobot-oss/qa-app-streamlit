@@ -17,10 +17,10 @@ st.set_page_config(page_title=get_app_name(), page_icon=APP_FAVICON, layout=APP_
 
 
 def start_streamlit():
-    initiate_session_state()
-
     # Setup DR client — reads DATAROBOT_API_TOKEN and DATAROBOT_ENDPOINT automatically
-    set_client(Client())
+    dr = Client()
+    set_client(dr)
+    initiate_session_state(dr)
 
     if st.session_state.use_llm_gateway:
         # No deployment needed — route requests through the DataRobot LLM Gateway.

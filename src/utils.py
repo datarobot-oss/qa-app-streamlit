@@ -62,9 +62,8 @@ def get_app_name():
     return Config().app_name
 
 
-def initiate_session_state():
+def initiate_session_state(dr: Client):
     config = Config()
-    dr = Client()
 
     if 'token' not in st.session_state:
         st.session_state.token = dr.token

@@ -122,6 +122,7 @@ def mock_set_env(
         monkeypatch.setenv("DEPLOYMENT_ID", deployment_id)
         monkeypatch.setenv("APPLICATION_ID", app_id)
         monkeypatch.setenv("ENABLE_CHAT_API", "true")
+        monkeypatch.setenv("LITELLM_TELEMETRY", "False")
         yield
 
 
@@ -435,6 +436,7 @@ def mock_set_env_llm_gateway(
         monkeypatch.setenv("DATAROBOT_ENDPOINT", datarobot_endpoint)
         monkeypatch.setenv("APPLICATION_ID", app_id)
         monkeypatch.setenv("DATAROBOT_LLM_MODEL", "datarobot/azure/gpt-4o-mini")
+        monkeypatch.setenv("LITELLM_TELEMETRY", "False")
         yield
 
 
