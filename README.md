@@ -21,35 +21,36 @@ The `Association ID` name can be set to anything other than the reserved `prompt
 You can run the Q&amp;A app in DataRobot using a custom application or by running the Streamlit app directly. Custom applications can be created via the Registry's Apps workshop or by
 using [DRApps](https://github.com/datarobot/dr-apps/blob/main/README.md).
 
-Define the variables for the app to communicate with DataRobot. If you run the app locally or via another environment, then you'll need to set the env variables. When this app is run via
-the **Applications** page, the variables are set automatically via runtime parameters set in the application source.
-
-```shell
-export token="$DATAROBOT_API_TOKEN"  # Your API token from DR developer tools page
-export endpoint="$DATAROBOT_ENDPOINT"  # Example: https://app.datarobot.com/api/v2/
-export deployment_id="$DEPLOYMENT_ID"  # ID of the deployment
-export custom_metric_id="$CUSTOM_METRIC_ID"  # Optional: Response feedback custom metric id 
-```
+**Dependencies** are managed with [uv](https://github.com/astral-sh/uv). Install and run locally:
 
 ```sh
-pip install --no-cache-dir -r requirements.txt
-
 cd src/
+uv sync
 streamlit-sal compile
 streamlit run --server.port=8080 qa_chat_bot.py
 ```
 
-Alternatively, run the `start-app.sh` directly from the app src:
+Alternatively, run `start-app.sh` directly from the app src:
 
 ```sh
 cd src/
 ./start-app.sh
 ```
 
-To run the tests use the shell script in the project root:
+When running locally, set the DataRobot credentials as environment variables:
+
+```shell
+export DATAROBOT_API_TOKEN="<your API token>"   # From DataRobot Developer Tools
+export DATAROBOT_ENDPOINT="https://app.datarobot.com/api/v2"
+export DEPLOYMENT_ID="<your deployment id>"     # Optional: omit to use LLM Gateway mode
+export CUSTOM_METRIC_ID="<custom metric id>"    # Optional: enables feedback buttons
+```
+
+When deployed as a Custom Application, these are injected automatically via runtime parameters.
+
+To run the tests:
 
 ```sh
-pip install -r requirements-dev.txt
 ./run_tests.sh
 ```
 
@@ -75,12 +76,21 @@ openai client requiring the model parameter to be set. By using this reserved va
 used in the deployment. If you have multiple models within your deployment, you can modify this parameter by changing
 the `DEFAULT_CHAT_MODEL_NAME` in `constants.py`
 
+## LLM Gateway mode
+
+When `DEPLOYMENT_ID` is not set, the app routes requests through the DataRobot LLM Gateway via [LiteLLM](https://github.com/BerriAI/litellm) instead of a specific deployment. This is useful for prototyping without a dedicated deployment.
+
+The model is configured via the `DATAROBOT_LLM_MODEL` runtime parameter (default: `datarobot/azure/gpt-4o-mini`). Available models can be listed with `datarobot.genai.LLMGatewayCatalog().list_as_dict()`.
+
+In this mode, feedback buttons and citations are not available (these require a deployment).
+
 ## App modifications
 
 The app is split into multiple files to make it easy to modify:
 
 - `qa_chat_bot.py`: The main app function that includes all other necessary files. Here you can modify the basic page
   configuration (title, favicon, width) and add any additional elements such as sidebar or links to additional subpages.
+- `config.py`: Typed configuration class using `DataRobotAppFrameworkBaseSettings`. Add fields here to expose new runtime parameters.
 - `constants.py`: This file contains all translatable strings, app and user configuration.
 - `components.py`: Here you will find the render functions for both customized and default streamlit elements used
   within the app.
@@ -93,26 +103,25 @@ The app is split into multiple files to make it easy to modify:
 
 ## How to add and use runtime parameters?
 
-Variables can be added in the metadata.yaml file in your application source folder. Here is an example of an API_TOKEN
-which will create an environment variable called `MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE`:
+Declare parameters in `metadata.yaml` in your application source folder:
+
 ```yaml
 runtimeParameterDefinitions:
 - fieldName: EXAMPLE_VALUE
   type: string
 ```
 
-Once this file is part of your Application source in DataRobot, it will display the new runtime parameter(s) as part of
-the app configuration.
+Once this file is part of your Application source in DataRobot, it will display the new runtime parameter(s) as part of the app configuration.
 
-To use the parameters we recommend to add them via `start-app.sh`, add this conditional export before the
-`streamlit-sal` and `streamlit` commands:
-```shell
-if [ -n "$MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE" ]; then
-  export example_value="$MLOPS_RUNTIME_PARAM_EXAMPLE_VALUE"
-fi
+Add the corresponding field to `Config` in `config.py`:
+
+```python
+class Config(DataRobotAppFrameworkBaseSettings):
+    example_value: str = "default"
 ```
 
-Now you can use `os.getenv("example_value")` within your application code.
+`Config()` reads the runtime parameter value automatically — no `start-app.sh` changes needed.
+
 If you'd like to know more about runtime parameters, you can read more in
 our [DataRobot Docs](https://docs.datarobot.com/en/docs/workbench/nxt-registry/nxt-apps-workshop/nxt-manage-custom-app.html#runtime-parameters)
 
