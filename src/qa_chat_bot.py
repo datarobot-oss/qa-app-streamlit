@@ -8,7 +8,7 @@ from components import render_empty_chat, render_app_header, render_message, ren
 from constants import *
 from dr_requests import get_has_chat_api_support
 from utils import add_new_prompt, initiate_session_state, set_chat_api_session_state, get_deployment, \
-    get_message_by_role, get_app_name
+    get_message_by_role, get_app_name, get_llm_models
 
 # Basic application page configuration, modify values in `constants.py`
 st.set_page_config(page_title=get_app_name(), page_icon=APP_FAVICON, layout=APP_LAYOUT,
@@ -41,6 +41,21 @@ def start_streamlit():
         # No deployment needed — route requests through the DataRobot LLM Gateway.
         set_chat_api_session_state(False)
         has_valid_deployment = True
+
+        with st.sidebar:
+            models = get_llm_models(st.session_state.token, st.session_state.endpoint)
+            if models:
+                # Seed the widget key once from the configured default so it sticks.
+                # After that, Streamlit owns the selection state via the key.
+                if "_llm_model_select" not in st.session_state:
+                    configured = st.session_state.llm_gateway_model.removeprefix("datarobot/")
+                    st.session_state["_llm_model_select"] = (
+                        configured if configured in models else models[0]
+                    )
+                st.selectbox("LLM Model", options=models, key="_llm_model_select")
+                st.session_state.llm_gateway_model = f"datarobot/{st.session_state['_llm_model_select']}"
+            else:
+                st.caption("No LLM Gateway models found.")
     else:
         is_chat_api_enabled = get_has_chat_api_support(
             deployment_id=st.session_state.deployment_id,

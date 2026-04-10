@@ -62,6 +62,22 @@ def get_app_name():
     return Config().app_name
 
 
+@st.cache_data(show_spinner=False)
+def get_llm_models(token: str, endpoint: str) -> list[str]:
+    """List model names available in the DataRobot LLM Gateway (/genai/llmgw/catalog/)."""
+    try:
+        resp = requests.get(
+            f"{endpoint.rstrip('/')}/genai/llmgw/catalog/",
+            headers={"Authorization": f"Bearer {token}"},
+            timeout=15,
+        )
+        resp.raise_for_status()
+        return [item["model"] for item in resp.json().get("data", [])]
+    except Exception:
+        logging.exception("Failed to fetch LLM Gateway models")
+        return []
+
+
 def initiate_session_state(dr: Client):
     config = Config()
 
