@@ -5,7 +5,6 @@ import sys
 from datetime import datetime
 from typing import Generator, Optional
 
-import datarobot
 import litellm
 import pandas as pd
 import requests
@@ -14,7 +13,6 @@ from datarobot.models.deployment import CustomMetric
 from datarobot_predict.deployment import predict
 from openai import OpenAI
 
-from config import Config
 from constants import (
     CUSTOM_METRIC_SUBMIT_TIMEOUT_SECONDS,
     MAX_PREDICTION_INPUT_SIZE_BYTES,
@@ -221,14 +219,6 @@ def send_chat_api_streaming_request(message):
                 return
 
 
-def _gateway_model() -> str:
-    """Return the fully-qualified LiteLLM model string for the DataRobot LLM Gateway."""
-    model = Config().datarobot_llm_model
-    if not model.startswith("datarobot/"):
-        model = f"datarobot/{model}"
-    return model
-
-
 def send_llm_gateway_request(message: dict) -> None:
     """Send the full conversation to the DataRobot LLM Gateway (non-streaming).
 
@@ -236,13 +226,12 @@ def send_llm_gateway_request(message: dict) -> None:
     via set_result_message_state — same contract as send_chat_api_request.
     """
     meta_id = message["meta_id"]
-    dr = datarobot.Client()
     try:
         response = litellm.completion(
-            model=_gateway_model(),
+            model=st.session_state.llm_gateway_model,
             messages=sanitize_messages_for_request(st.session_state.messages),
-            api_key=dr.token,
-            api_base=dr.endpoint,
+            api_key=st.session_state.token,
+            api_base=st.session_state.endpoint,
         )
         content = response.choices[0].message.content
         set_result_message_state(meta_id, content, status=STATUS_COMPLETED)
@@ -259,14 +248,13 @@ def send_llm_gateway_streaming_request(message: dict) -> Generator[str, None, No
     result in session state once the stream is exhausted.
     """
     meta_id = message["meta_id"]
-    dr = datarobot.Client()
     aggregated = ""
     try:
         stream = litellm.completion(
-            model=_gateway_model(),
+            model=st.session_state.llm_gateway_model,
             messages=sanitize_messages_for_request(st.session_state.messages),
-            api_key=dr.token,
-            api_base=dr.endpoint,
+            api_key=st.session_state.token,
+            api_base=st.session_state.endpoint,
             stream=True,
         )
         for chunk in stream:

@@ -83,6 +83,11 @@ def initiate_session_state():
     # True when running without a Deployment — routes requests through the LLM Gateway instead.
     if 'use_llm_gateway' not in st.session_state:
         st.session_state.use_llm_gateway = not bool(st.session_state.deployment_id)
+    if 'llm_gateway_model' not in st.session_state:
+        model = config.datarobot_llm_model
+        if not model.startswith("datarobot/"):
+            model = f"datarobot/{model}"
+        st.session_state.llm_gateway_model = model
 
     # Create messages storage on first render
     if "messages" not in st.session_state:
