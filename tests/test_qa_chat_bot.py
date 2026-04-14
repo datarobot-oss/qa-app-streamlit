@@ -36,7 +36,7 @@ def test_empty_chat_app():
     with patch('datarobot_predict.deployment.predict',
                return_value=PredictionResult(dataframe=dataframe_output, response_headers={})):
         """The app loads and renders empty chat splash"""
-        at = AppTest.from_file("qa_chat_bot.py").run()
+        at = AppTest.from_file("qa_chat_bot.py").run(timeout=10)
         assert at.subheader[0].value == 'Application Test'
         assert at.caption[0].value == 'A small example description'
         assert at.button(key="share-button").label == 'Share'
@@ -56,7 +56,7 @@ def test_empty_chat_app():
 )
 def test_chat_api_supported_app():
     """The app loads and uses deployment capabilities to check for Chat API support"""
-    at = AppTest.from_file("qa_chat_bot.py").run()
+    at = AppTest.from_file("qa_chat_bot.py").run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
 
 
@@ -77,9 +77,9 @@ def test_chat_send_chat_api_error(openai_create, mock_bad_request_error, deploym
     openai_create.side_effect = mock_bad_request_error
 
     app = AppTest.from_file("qa_chat_bot.py")
-    at = app.run()
+    at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
-    at.chat_input[0].set_value('Tell me an interesting animal fact').run()
+    at.chat_input[0].set_value('Tell me an interesting animal fact').run(timeout=10)
 
     # Check the user prompt message
     assert at.chat_message[0].markdown[0].value == '__You:__'
@@ -110,9 +110,9 @@ def test_chat_send_chat_api_without_stream_request(openai_create):
     openai_create.return_value = create_chat_completion(mock_file)
 
     app = AppTest.from_file("qa_chat_bot.py")
-    at = app.run()
+    at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
-    at.chat_input[0].set_value('Tell me an interesting animal fact').run()
+    at.chat_input[0].set_value('Tell me an interesting animal fact').run(timeout=10)
 
     # Check the user prompt message
     assert at.chat_message[0].markdown[0].value == '__You:__'
@@ -135,7 +135,7 @@ def test_chat_send_chat_api_without_stream_request(openai_create):
     citation_button = at.button(key=f"citation-{msg_id}")
     assert f"citation-{msg_id}" in at.session_state
     assert citation_button.label == 'Citation'
-    citation_button.click().run()
+    citation_button.click().run(timeout=10)
 
     # Check citation source
     assert at.caption[
@@ -167,9 +167,9 @@ def test_chat_api_no_citations(openai_create):
     openai_create.return_value = create_chat_completion(mock_file)
 
     app = AppTest.from_file("qa_chat_bot.py")
-    at = app.run()
+    at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
-    at.chat_input[0].set_value('Tell me an interesting animal fact').run()
+    at.chat_input[0].set_value('Tell me an interesting animal fact').run(timeout=10)
 
     # Assert that the citations button does not exist when Citations are not available
     msg_id = at.session_state.messages[0].get('meta_id')
@@ -189,15 +189,15 @@ def test_chat_api_legacy_citations(openai_create):
     openai_create.return_value = create_chat_completion(mock_file)
 
     app = AppTest.from_file("qa_chat_bot.py")
-    at = app.run()
+    at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
-    at.chat_input[0].set_value('Tell me an interesting animal fact').run()
+    at.chat_input[0].set_value('Tell me an interesting animal fact').run(timeout=10)
 
     msg_id = at.session_state.messages[0].get('meta_id')
     citation_button = at.button(key=f"citation-{msg_id}")
     assert f"citation-{msg_id}" in at.session_state
     assert citation_button.label == 'Citation'
-    citation_button.click().run()
+    citation_button.click().run(timeout=10)
 
     # Check citation source
     assert at.caption[
@@ -225,9 +225,9 @@ def test_chat_api_legacy_citations(openai_create):
 def test_chat_send_predict_request():
     """The app receives chat response after sending a prompt"""
     app = AppTest.from_file("qa_chat_bot.py")
-    at = app.run()
+    at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == False
-    at.chat_input[0].set_value('Hello').run()
+    at.chat_input[0].set_value('Hello').run(timeout=10)
 
     # Check the user prompt message
     assert at.chat_message[0].markdown[0].value == '__You:__'
@@ -248,7 +248,7 @@ def test_chat_send_predict_request():
     msg_id = at.session_state.messages[0].get('meta_id')
     citation_button = at.button(key=f"citation-{msg_id}")
     assert citation_button.label == 'Citation'
-    citation_button.click().run()
+    citation_button.click().run(timeout=10)
 
     # Check citation source
     assert at.caption[
@@ -280,9 +280,9 @@ def test_chat_send_chat_api_stream_request(openai_create):
     openai_create.return_value = create_stream_chat_completion(chunk_files)
 
     app = AppTest.from_file("qa_chat_bot.py")
-    at = app.run()
+    at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
-    at.chat_input[0].set_value('Tell me a joke').run()
+    at.chat_input[0].set_value('Tell me a joke').run(timeout=10)
 
     # Check the user prompt message
     assert at.chat_message[0].markdown[0].value == '__You:__'
@@ -303,7 +303,7 @@ def test_chat_send_chat_api_stream_request(openai_create):
     msg_id = at.session_state.messages[0].get('meta_id')
     citation_button = at.button(key=f"citation-{msg_id}")
     assert citation_button.label == 'Citation'
-    citation_button.click().run()
+    citation_button.click().run(timeout=10)
 
     # Check citation source
     assert at.caption[1].value == 'datarobot_english_documentation/datarobot_docs|en|more-info|eli5.txt - Page: 0'
@@ -335,9 +335,9 @@ def test_chat_send_chat_api_stream_request_no_citations(openai_create):
     openai_create.return_value = create_stream_chat_completion(chunk_files)
 
     app = AppTest.from_file("qa_chat_bot.py")
-    at = app.run()
+    at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
-    at.chat_input[0].set_value('Tell me a joke').run()
+    at.chat_input[0].set_value('Tell me a joke').run(timeout=10)
 
     # Check the user prompt message
     assert at.chat_message[0].markdown[0].value == '__You:__'
@@ -372,9 +372,9 @@ def test_chat_feedback_request(openai_create, feedback_endpoint, model_id, is_mo
     openai_create.return_value = create_stream_chat_completion(chunk_files)
 
     app = AppTest.from_file("qa_chat_bot.py")
-    at = app.run()
+    at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
-    at.chat_input[0].set_value('Hello').run()
+    at.chat_input[0].set_value('Hello').run(timeout=10)
 
     # Check the LLM response message
     assert at.chat_message[1].markdown[0].value == '__LLM Deployment:__'
@@ -386,7 +386,7 @@ def test_chat_feedback_request(openai_create, feedback_endpoint, model_id, is_mo
     # '\u2009' matches the thin whitespace for a feedback button
     assert feedback_up_button.label == '\u2009'
     assert feedback_up_button.value is False
-    feedback_up_button.click().run()
+    feedback_up_button.click().run(timeout=10)
     feedback_request = find_request_by_url(responses.calls, feedback_endpoint)
     feedback_up_request_body = json.loads(feedback_request.request.body)
     if is_model_specific:

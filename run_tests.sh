@@ -1,11 +1,12 @@
 #!/usr/bin/env bash
+set -euo pipefail
 
-# Change to the src directory (SAL is looking for a root dir that has .streamlit_sal config
+# Change to the src directory — SAL looks for .streamlit_sal config here,
+# and uv reads pyproject.toml from this directory.
 cd "$(dirname "$0")/src"
 
-# Start the tests without changing current active dir. Streamlits 'AppTest' still leaks between test runs to we need to
-# run each file separate
+# Run each test file separately: Streamlit's AppTest leaks state between files.
 for file in ../tests/test_*.py; do
   echo "Running $file"
-  pytest "$file" "$@" || exit 1
+  uv run pytest "$file" "$@" || exit 1
 done

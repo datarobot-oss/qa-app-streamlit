@@ -3,8 +3,9 @@ import logging
 import os
 import sys
 from datetime import datetime
-from typing import Optional
+from typing import Generator, Optional
 
+import litellm
 import pandas as pd
 import requests
 import streamlit as st
@@ -216,6 +217,58 @@ def send_chat_api_streaming_request(message):
                                          citations=processed_citations,
                                          extra_model_output=extra_model_output)
                 return
+
+
+def send_llm_gateway_request(message: dict) -> None:
+    """Send the full conversation to the DataRobot LLM Gateway (non-streaming).
+
+    Used when DEPLOYMENT_ID is not configured. Stores the result in session state
+    via set_result_message_state — same contract as send_chat_api_request.
+    """
+    meta_id = message["meta_id"]
+    try:
+        response = litellm.completion(
+            model=st.session_state.llm_gateway_model,
+            messages=sanitize_messages_for_request(st.session_state.messages),
+            api_key=st.session_state.token,
+            api_base=st.session_state.endpoint,
+        )
+        content = response.choices[0].message.content
+        set_result_message_state(meta_id, content, status=STATUS_COMPLETED)
+    except Exception as exc:
+        logging.error(exc)
+        set_result_message_state(meta_id, None, status=STATUS_ERROR,
+                                 error=f"LLM Gateway error: {exc}")
+
+
+def send_llm_gateway_streaming_request(message: dict) -> Generator[str, None, None]:
+    """Send the full conversation to the DataRobot LLM Gateway (streaming).
+
+    Yields content chunks for use with st.write_stream. Stores the aggregated
+    result in session state once the stream is exhausted.
+    """
+    meta_id = message["meta_id"]
+    aggregated = ""
+    try:
+        stream = litellm.completion(
+            model=st.session_state.llm_gateway_model,
+            messages=sanitize_messages_for_request(st.session_state.messages),
+            api_key=st.session_state.token,
+            api_base=st.session_state.endpoint,
+            stream=True,
+        )
+        for chunk in stream:
+            if not chunk.choices:
+                continue
+            content = chunk.choices[0].delta.content
+            if content:
+                aggregated += content
+                yield content
+        set_result_message_state(meta_id, aggregated, status=STATUS_COMPLETED)
+    except Exception as exc:
+        logging.error(exc)
+        set_result_message_state(meta_id, None, status=STATUS_ERROR,
+                                 error=f"LLM Gateway error: {exc}")
 
 
 @st.cache_data(show_spinner=False)

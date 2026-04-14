@@ -116,12 +116,13 @@ def mock_set_env(
     app_id,
 ):
     with patch.dict(os.environ, clear=True):
-        monkeypatch.setenv("TOKEN", datarobot_token)
-        monkeypatch.setenv("ENDPOINT", datarobot_endpoint)
+        monkeypatch.setenv("DATAROBOT_API_TOKEN", datarobot_token)
+        monkeypatch.setenv("DATAROBOT_ENDPOINT", datarobot_endpoint)
         monkeypatch.setenv("CUSTOM_METRIC_ID", custom_metric_id)
         monkeypatch.setenv("DEPLOYMENT_ID", deployment_id)
-        monkeypatch.setenv("APP_ID", app_id)
-        monkeypatch.setenv("ENABLE_CHAT_API", True)
+        monkeypatch.setenv("APPLICATION_ID", app_id)
+        monkeypatch.setenv("ENABLE_CHAT_API", "true")
+        monkeypatch.setenv("LITELLM_TELEMETRY", "False")
         yield
 
 
@@ -420,6 +421,23 @@ def create_stream_chat_completion(chunk_files):
                 citations=citations,
                 datarobot_moderations=datarobot_moderations,
             )
+
+
+@pytest.fixture
+def mock_set_env_llm_gateway(
+    monkeypatch,
+    datarobot_token,
+    datarobot_endpoint,
+    app_id,
+):
+    """Environment for LLM Gateway mode: no DEPLOYMENT_ID, uses DATAROBOT_LLM_MODEL instead."""
+    with patch.dict(os.environ, clear=True):
+        monkeypatch.setenv("DATAROBOT_API_TOKEN", datarobot_token)
+        monkeypatch.setenv("DATAROBOT_ENDPOINT", datarobot_endpoint)
+        monkeypatch.setenv("APPLICATION_ID", app_id)
+        monkeypatch.setenv("DATAROBOT_LLM_MODEL", "datarobot/azure/gpt-5-1-2025-11-13")
+        monkeypatch.setenv("LITELLM_TELEMETRY", "False")
+        yield
 
 
 @pytest.fixture

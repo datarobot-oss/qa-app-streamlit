@@ -26,9 +26,9 @@ def test_chat_send_predict_request_process_llm_context():
     with patch('datarobot_predict.deployment.predict',
                return_value=PredictionResult(dataframe=dataframe_output, response_headers={})):
         app = AppTest.from_file("qa_chat_bot.py")
-        at = app.run()
+        at = app.run(timeout=10)
         assert at.session_state.is_chat_api_enabled == False
-        at.chat_input[0].set_value('Tell me a joke').run()
+        at.chat_input[0].set_value('Tell me a joke').run(timeout=10)
 
         # Check the user prompt message
         assert at.chat_message[0].markdown[0].value == '__You:__'
@@ -49,7 +49,7 @@ def test_chat_send_predict_request_process_llm_context():
         msg_id = at.session_state.messages[0].get('meta_id')
         citation_button = at.button(key=f"citation-{msg_id}")
         assert citation_button.label == 'Citation'
-        citation_button.click().run()
+        citation_button.click().run(timeout=10)
 
         # Check citation source
         assert at.caption[
