@@ -63,3 +63,6 @@ cover/
 # Flask stuff:
 instance/
 .webassets-cache
+
+# dev scripts
+scripts/
