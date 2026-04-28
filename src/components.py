@@ -297,6 +297,7 @@ def render_vdb_filter_sidebar():
                     to_remove.append(key)
             for key in to_remove:
                 del st.session_state.vdb_metadata_filters[key]
+            if to_remove:
                 st.rerun()
             if st.button("Clear All", use_container_width=True):
                 st.session_state.vdb_metadata_filters = {}
@@ -307,18 +308,12 @@ def render_vdb_filter_sidebar():
         st.divider()
         st.markdown("**Add Filter:**")
         with st.form("vdb_filter_form", clear_on_submit=True):
-            if vdb_columns:
-                field_name = st.selectbox("Field", options=vdb_columns)
-            else:
-                field_name = st.text_input("Field", placeholder="e.g., source")
+            field_name = st.selectbox("Field", options=vdb_columns)
             field_value = st.text_input("Value", placeholder="e.g., report_q1.txt")
             if st.form_submit_button("Add", use_container_width=True):
-                chosen = (field_name or "").strip()
-                if chosen and field_value.strip():
-                    st.session_state.vdb_metadata_filters[chosen] = field_value.strip()
+                if field_value.strip():
+                    st.session_state.vdb_metadata_filters[field_name] = field_value.strip()
                     st.rerun()
-                elif not chosen:
-                    st.warning("Select or enter a field name.")
                 else:
                     st.warning("Enter a value.")
 
