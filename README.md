@@ -76,6 +76,41 @@ openai client requiring the model parameter to be set. By using this reserved va
 used in the deployment. If you have multiple models within your deployment, you can modify this parameter by changing
 the `DEFAULT_CHAT_MODEL_NAME` in `constants.py`
 
+## VDB metadata filtering
+
+When the deployment is backed by a Vector Database (VDB), the app can filter which documents are searched before retrieval. This narrows the context passed to the LLM — useful for multi-tenant setups, versioned knowledge bases, or any case where users should only see a subset of documents.
+
+Filtering is opt-in and controlled by two runtime parameters:
+
+| Parameter | Type | Description |
+|-----------|------|-------------|
+| `VDB_METADATA_COLUMNS` | `string` | Comma-separated list of metadata column names available in the VDB. When set, a **Document Filters** sidebar appears and users can add filters at runtime. Example: `source` |
+| `VDB_METADATA_FILTER` | `string` | Default filter applied silently to every request, regardless of the sidebar. JSON object. Example: `{"source": "onboarding.txt"}` |
+
+**What columns can I use?**
+
+Available columns depend on how the VDB was created:
+- A VDB built from a plain ZIP of text files only has `source` (the document filename inside the ZIP).
+- A VDB created with an attached metadata CSV can have additional columns (`department`, `version`, etc.) — check the VDB configuration in **Console > GenAI > Vector Databases**.
+
+**How filtering works**
+
+Filters are passed to the Chat API as `metadata_filter` in the request body. The VDB restricts its similarity search to chunks whose metadata matches all active filters (AND logic). Any field name not present in the VDB's metadata columns will cause a 500 error — set `VDB_METADATA_COLUMNS` to the actual column names to prevent users from entering invalid fields.
+
+**Example setup**
+
+For a VDB built from a ZIP of text files, set:
+```
+VDB_METADATA_COLUMNS = source
+```
+
+Users can then filter by filename, e.g. `source = quarterly_report_q1.txt`.
+
+To pre-apply a filter for all users without exposing the sidebar, set only:
+```
+VDB_METADATA_FILTER = {"source": "quarterly_report_q1.txt"}
+```
+
 ## LLM Gateway mode
 
 When `DEPLOYMENT_ID` is not set, the app routes requests through the DataRobot LLM Gateway via [LiteLLM](https://github.com/BerriAI/litellm) instead of a specific deployment. This is useful for prototyping without a dedicated deployment.
@@ -151,3 +186,4 @@ Monitoring ->Custom metrics** .
 | `Could not find root directory. Did you run 'streamlit-sal init'?`                                                            | Make sure that all application src files have been uploaded, including dotfiles: `.streamlit-sal` (file) and `.streamlit` (directory) |
 | `500 Internal Server Error - ERROR: <any>`                                                                                    | Check the deployment runtime logs for additional error details. Navigate to **Console > Deployments > Actions > View logs**           |
 | `Amazon Bedrock invalid request error: [400] Code: ValidationException. Message: The provided model identifier is invalid.."` | Make sure that the AWS_REGION set in the Model registry matches your AWS credentials                                                  |
+| `500 Chat API returned an error — Vector database request returned an error`                                                  | A metadata filter uses a field not present in the VDB schema. Set `VDB_METADATA_COLUMNS` to the actual column names (e.g. `source`) so users can only select valid fields. |

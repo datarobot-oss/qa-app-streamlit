@@ -20,6 +20,7 @@ from utils import (
     get_deployment,
     get_llm_models,
     get_message_by_role,
+    get_vdb_metadata_columns,
     initiate_session_state,
     set_chat_api_session_state,
 )
@@ -81,7 +82,8 @@ def start_streamlit():
         )
         set_chat_api_session_state(is_chat_api_enabled)
         has_valid_deployment = bool(st.session_state.deployment_id and get_deployment())
-        render_vdb_filter_sidebar()
+        if get_vdb_metadata_columns():
+            render_vdb_filter_sidebar()
 
     _inject_sal_stylesheet()
     render_app_header()
