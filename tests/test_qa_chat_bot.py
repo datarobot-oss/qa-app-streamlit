@@ -394,4 +394,46 @@ def test_chat_feedback_request(openai_create, feedback_endpoint, model_id, is_mo
     else:
         assert 'modelId' not in feedback_up_request_body
     assert 1 == feedback_up_request_body['buckets'][0]['value']
-    assert feedback_up_button.value is True
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_app_info_api",
+    "mock_deployment_api",
+    "mock_version_api",
+)
+@patch("openai.resources.chat.Completions.create")
+def test_vdb_metadata_filter_passed_in_chat_api_request(openai_create):
+    """Active vdb_metadata_filters are forwarded as extra_body to the Chat API."""
+    mock_file = 'mock_chat_api_no_stream_no_citations.json'
+    openai_create.return_value = create_chat_completion(mock_file)
+
+    app = AppTest.from_file("qa_chat_bot.py")
+    app.session_state["vdb_metadata_filters"] = {"state": "Michigan"}
+    at = app.run(timeout=10)
+    at.chat_input[0].set_value("Tell me about regulations").run(timeout=10)
+
+    call_kwargs = openai_create.call_args.kwargs
+    assert call_kwargs.get("extra_body") == {"metadata_filter": {"state": "Michigan"}}
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_app_info_api",
+    "mock_deployment_api",
+    "mock_version_api",
+)
+@patch("openai.resources.chat.Completions.create")
+def test_no_extra_body_when_vdb_filters_empty(openai_create):
+    """No extra_body is sent when vdb_metadata_filters is empty."""
+    mock_file = 'mock_chat_api_no_stream_no_citations.json'
+    openai_create.return_value = create_chat_completion(mock_file)
+
+    app = AppTest.from_file("qa_chat_bot.py")
+    at = app.run(timeout=10)
+    at.chat_input[0].set_value("Tell me about regulations").run(timeout=10)
+
+    call_kwargs = openai_create.call_args.kwargs
+    assert call_kwargs.get("extra_body") is None

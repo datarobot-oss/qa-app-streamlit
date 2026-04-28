@@ -1,18 +1,33 @@
 import os
+
 import streamlit as st
 import streamlit_sal as sal
 from datarobot import Client
 from datarobot.client import set_client
 
-from components import render_empty_chat, render_app_header, render_message, render_pending_message
+from components import (
+    render_app_header,
+    render_empty_chat,
+    render_message,
+    render_pending_message,
+    render_vdb_filter_sidebar,
+)
 from constants import *
 from dr_requests import get_has_chat_api_support
-from utils import add_new_prompt, initiate_session_state, set_chat_api_session_state, get_deployment, \
-    get_message_by_role, get_app_name, get_llm_models
+from utils import (
+    add_new_prompt,
+    get_app_name,
+    get_deployment,
+    get_llm_models,
+    get_message_by_role,
+    initiate_session_state,
+    set_chat_api_session_state,
+)
 
 # Basic application page configuration, modify values in `constants.py`
-st.set_page_config(page_title=get_app_name(), page_icon=APP_FAVICON, layout=APP_LAYOUT,
-                   initial_sidebar_state=SIDEBAR_DEFAULT_STATE)
+st.set_page_config(
+    page_title=get_app_name(), page_icon=APP_FAVICON, layout=APP_LAYOUT, initial_sidebar_state=SIDEBAR_DEFAULT_STATE
+)
 
 _SRC_DIR = os.path.dirname(os.path.abspath(__file__))
 
@@ -49,21 +64,24 @@ def start_streamlit():
                 # After that, Streamlit owns the selection state via the key.
                 if "_llm_model_select" not in st.session_state:
                     configured = st.session_state.llm_gateway_model.removeprefix("datarobot/")
-                    st.session_state["_llm_model_select"] = (
-                        configured if configured in models else models[0]
-                    )
+                    st.session_state["_llm_model_select"] = configured if configured in models else models[0]
                 st.selectbox("LLM Model", options=models, key="_llm_model_select")
                 st.session_state.llm_gateway_model = f"datarobot/{st.session_state['_llm_model_select']}"
             else:
                 st.caption("No LLM Gateway models found.")
     else:
-        is_chat_api_enabled = get_has_chat_api_support(
-            deployment_id=st.session_state.deployment_id,
-            token=st.session_state.token,
-            endpoint=st.session_state.endpoint,
-        ) if st.session_state.enable_chat_api else False
+        is_chat_api_enabled = (
+            get_has_chat_api_support(
+                deployment_id=st.session_state.deployment_id,
+                token=st.session_state.token,
+                endpoint=st.session_state.endpoint,
+            )
+            if st.session_state.enable_chat_api
+            else False
+        )
         set_chat_api_session_state(is_chat_api_enabled)
         has_valid_deployment = bool(st.session_state.deployment_id and get_deployment())
+        render_vdb_filter_sidebar()
 
     _inject_sal_stylesheet()
     render_app_header()
@@ -71,8 +89,8 @@ def start_streamlit():
     # You can manually enable the sidebar in `constants.py` and add your own content below
     if SHOW_SIDEBAR:
         with st.sidebar:
-            st.subheader('Sidebar Title')
-            st.write('Add your sidebar content here')
+            st.subheader("Sidebar Title")
+            st.write("Add your sidebar content here")
 
     if has_valid_deployment:
         if prompt := st.chat_input(I18N_INPUT_PLACEHOLDER):
@@ -91,7 +109,7 @@ def start_streamlit():
             render_pending_message(pending_message)
     else:
         # Render the empty chat splash
-        with sal.container('empty-chat'):
+        with sal.container("empty-chat"):
             render_empty_chat()
 
 
