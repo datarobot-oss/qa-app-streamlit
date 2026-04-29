@@ -437,3 +437,26 @@ def test_no_extra_body_when_vdb_filters_empty(openai_create):
 
     call_kwargs = openai_create.call_args.kwargs
     assert call_kwargs.get("extra_body") is None
+
+
+@responses.activate
+@pytest.mark.usefixtures(
+    "mock_set_env",
+    "mock_set_env_enable_chat_api_streaming",
+    "mock_app_info_api",
+    "mock_deployment_api",
+    "mock_version_api",
+)
+@patch("openai.resources.chat.Completions.create")
+def test_vdb_metadata_filter_passed_in_streaming_request(openai_create):
+    """Active vdb_metadata_filters are forwarded as extra_body in the streaming path."""
+    chunk_files = ['mock_initial_chunk.json', 'mock_delta_chunk.json', 'mock_final_chunk_no_citations.json']
+    openai_create.return_value = create_stream_chat_completion(chunk_files)
+
+    app = AppTest.from_file("qa_chat_bot.py")
+    app.session_state["vdb_metadata_filters"] = {"source": "federal_clean_air_act.txt"}
+    at = app.run(timeout=10)
+    at.chat_input[0].set_value("Tell me about regulations").run(timeout=10)
+
+    call_kwargs = openai_create.call_args.kwargs
+    assert call_kwargs.get("extra_body") == {"metadata_filter": {"source": "federal_clean_air_act.txt"}}

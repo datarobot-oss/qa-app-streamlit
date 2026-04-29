@@ -78,7 +78,9 @@ the `DEFAULT_CHAT_MODEL_NAME` in `constants.py`
 
 ## VDB metadata filtering
 
-When the deployment is backed by a Vector Database (VDB), the app can filter which documents are searched before retrieval. This narrows the context passed to the LLM — useful for multi-tenant setups, versioned knowledge bases, or any case where users should only see a subset of documents.
+When the deployment is backed by a Vector Database (VDB), the app can filter which documents are searched before retrieval. This narrows the context passed to the LLM — useful for scoping responses to a specific topic, document set, or time period.
+
+> **Note:** Metadata filtering is a retrieval hint, not an access control mechanism. Filters are supplied by the client and are not enforced server-side. Do not rely on them for security or tenant isolation.
 
 Filtering is opt-in and controlled by two runtime parameters:
 
