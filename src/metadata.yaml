@@ -21,3 +21,9 @@ runtimeParameterDefinitions:
   type: string
   defaultValue: "datarobot/azure/gpt-5-1-2025-11-13"
   description: LiteLLM model string for the DataRobot LLM Gateway. Used when DEPLOYMENT_ID is not set. Find available models with datarobot.genai.LLMGatewayCatalog().list_as_dict().
+- fieldName: VDB_METADATA_FILTER
+  type: string
+  description: "Default metadata filter applied to every VDB retrieval request. JSON object whose keys must match the VDB's metadata columns (check the VDB config — a text-ZIP-based VDB only has 'source'). Example: {\"source\": \"report_q1.txt\"}. Users can add to or override this via the sidebar at runtime. Requires ENABLE_CHAT_API to be True."
+- fieldName: VDB_METADATA_COLUMNS
+  type: string
+  description: "Comma-separated metadata column names exposed by the VDB linked to this deployment. Controls which fields appear in the sidebar filter dropdown. A VDB built from a plain text ZIP only has 'source' (the document filename). Example: source"

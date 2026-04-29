@@ -28,3 +28,11 @@ class Config(DataRobotAppFrameworkBaseSettings):
     # Find available models with: datarobot.genai.LLMGatewayCatalog().list_as_dict()
     # See: https://github.com/carsongee/get-datarobot-llms
     datarobot_llm_model: str = "datarobot/azure/gpt-5-1-2025-11-13"
+    # Optional default metadata filter applied to VDB retrieval on every request.
+    # Set as a JSON object, e.g. '{"source": "report.txt"}'. Users can override via the sidebar.
+    # Requires ENABLE_CHAT_API to be True.
+    vdb_metadata_filter: dict[str, str] | None = None
+    # Comma-separated list of metadata column names available for filtering in this deployment's VDB.
+    # Example: "source" (text-ZIP VDBs only expose the filename as metadata).
+    # When set, the sidebar shows a dropdown instead of a free-text field.
+    vdb_metadata_columns: str | None = None
