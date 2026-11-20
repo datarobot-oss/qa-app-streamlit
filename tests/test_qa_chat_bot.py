@@ -36,7 +36,7 @@ def test_empty_chat_app():
     with patch('datarobot_predict.deployment.predict',
                return_value=PredictionResult(dataframe=dataframe_output, response_headers={})):
         """The app loads and renders empty chat splash"""
-        at = AppTest.from_file("qa_chat_bot.py").run(timeout=10)
+        at = AppTest.from_file("../src/qa_chat_bot.py").run(timeout=10)
         assert at.subheader[0].value == 'Application Test'
         assert at.caption[0].value == 'A small example description'
         assert at.button(key="share-button").label == 'Share'
@@ -56,7 +56,7 @@ def test_empty_chat_app():
 )
 def test_chat_api_supported_app():
     """The app loads and uses deployment capabilities to check for Chat API support"""
-    at = AppTest.from_file("qa_chat_bot.py").run(timeout=10)
+    at = AppTest.from_file("../src/qa_chat_bot.py").run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
 
 
@@ -76,7 +76,7 @@ def test_chat_send_chat_api_error(openai_create, mock_bad_request_error, deploym
 
     openai_create.side_effect = mock_bad_request_error
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
     at.chat_input[0].set_value('Tell me an interesting animal fact').run(timeout=10)
@@ -109,7 +109,7 @@ def test_chat_send_chat_api_without_stream_request(openai_create):
     mock_file = 'mock_chat_api_no_stream.json'
     openai_create.return_value = create_chat_completion(mock_file)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
     at.chat_input[0].set_value('Tell me an interesting animal fact').run(timeout=10)
@@ -166,7 +166,7 @@ def test_chat_api_no_citations(openai_create):
     mock_file = 'mock_chat_api_no_stream_no_citations.json'
     openai_create.return_value = create_chat_completion(mock_file)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
     at.chat_input[0].set_value('Tell me an interesting animal fact').run(timeout=10)
@@ -188,7 +188,7 @@ def test_chat_api_legacy_citations(openai_create):
     mock_file = 'mock_chat_api_no_stream_legacy_citations.json'
     openai_create.return_value = create_chat_completion(mock_file)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
     at.chat_input[0].set_value('Tell me an interesting animal fact').run(timeout=10)
@@ -224,7 +224,7 @@ def test_chat_api_legacy_citations(openai_create):
 )
 def test_chat_send_predict_request():
     """The app receives chat response after sending a prompt"""
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == False
     at.chat_input[0].set_value('Hello').run(timeout=10)
@@ -279,7 +279,7 @@ def test_chat_send_chat_api_stream_request(openai_create):
     chunk_files = ['mock_initial_chunk.json', 'mock_delta_chunk.json', 'mock_final_chunk.json']
     openai_create.return_value = create_stream_chat_completion(chunk_files)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
     at.chat_input[0].set_value('Tell me a joke').run(timeout=10)
@@ -334,7 +334,7 @@ def test_chat_send_chat_api_stream_request_no_citations(openai_create):
     chunk_files = ['mock_initial_chunk.json', 'mock_delta_chunk.json', 'mock_final_chunk_no_citations.json']
     openai_create.return_value = create_stream_chat_completion(chunk_files)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
     at.chat_input[0].set_value('Tell me a joke').run(timeout=10)
@@ -371,7 +371,7 @@ def test_chat_feedback_request(openai_create, feedback_endpoint, model_id, is_mo
     chunk_files = ['mock_initial_chunk.json', 'mock_delta_chunk.json', 'mock_final_chunk.json']
     openai_create.return_value = create_stream_chat_completion(chunk_files)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     assert at.session_state.is_chat_api_enabled == True
     at.chat_input[0].set_value('Hello').run(timeout=10)
@@ -409,7 +409,7 @@ def test_vdb_metadata_filter_passed_in_chat_api_request(openai_create):
     mock_file = 'mock_chat_api_no_stream_no_citations.json'
     openai_create.return_value = create_chat_completion(mock_file)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     app.session_state["vdb_metadata_filters"] = {"state": "Michigan"}
     at = app.run(timeout=10)
     at.chat_input[0].set_value("Tell me about regulations").run(timeout=10)
@@ -431,7 +431,7 @@ def test_no_extra_body_when_vdb_filters_empty(openai_create):
     mock_file = 'mock_chat_api_no_stream_no_citations.json'
     openai_create.return_value = create_chat_completion(mock_file)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     at = app.run(timeout=10)
     at.chat_input[0].set_value("Tell me about regulations").run(timeout=10)
 
@@ -453,7 +453,7 @@ def test_vdb_metadata_filter_passed_in_streaming_request(openai_create):
     chunk_files = ['mock_initial_chunk.json', 'mock_delta_chunk.json', 'mock_final_chunk_no_citations.json']
     openai_create.return_value = create_stream_chat_completion(chunk_files)
 
-    app = AppTest.from_file("qa_chat_bot.py")
+    app = AppTest.from_file("../src/qa_chat_bot.py")
     app.session_state["vdb_metadata_filters"] = {"source": "federal_clean_air_act.txt"}
     at = app.run(timeout=10)
     at.chat_input[0].set_value("Tell me about regulations").run(timeout=10)

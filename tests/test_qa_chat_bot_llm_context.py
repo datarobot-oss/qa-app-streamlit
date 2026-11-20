@@ -25,7 +25,7 @@ def test_chat_send_predict_request_process_llm_context():
 
     with patch('datarobot_predict.deployment.predict',
                return_value=PredictionResult(dataframe=dataframe_output, response_headers={})):
-        app = AppTest.from_file("qa_chat_bot.py")
+        app = AppTest.from_file("../src/qa_chat_bot.py")
         at = app.run(timeout=10)
         assert at.session_state.is_chat_api_enabled == False
         at.chat_input[0].set_value('Tell me a joke').run(timeout=10)
